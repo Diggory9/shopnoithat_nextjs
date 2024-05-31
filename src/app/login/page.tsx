@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
+
+import { Toaster, toast } from "sonner";
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const router = useRouter()
+    const router = useRouter();
     const handleSubmit = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); // Ngăn chặn hành vi mặc định của form
 
@@ -24,13 +26,18 @@ export default function Login() {
 
             if (response.ok) {
                 // Đăng nhập thành công, chuyển hướng hoặc xử lý tiếp
+
+                toast.success("Đăng nhập thành công");
+                
                 console.log("Đăng nhập thành công");
-                router.push('/admin')
-                alert("Đăng nhập thành công");
+                setTimeout(() => {
+                    router.push('/admin')
+                    
+                }, 2000);
             } else {
                 // Đăng nhập thất bại
                 console.log("Đăng nhập thất bại ");
-                alert("Đăng nhập thất bại");
+                toast.error(data.Message);
             }
         } catch (error) {
             console.error("Error during fetch:", error);
@@ -40,6 +47,7 @@ export default function Login() {
         <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
             <div className="w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl">
                 <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 py-6 pt-8 text-center sm:px-16">
+                    <Toaster position="top-right" richColors />
                     <h3 className="text-xl font-semibold">Sign In</h3>
                     <p className="text-sm text-gray-500">
                         Use your email and password to sign in

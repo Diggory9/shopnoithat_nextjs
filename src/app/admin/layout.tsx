@@ -7,9 +7,9 @@ export default function AdminLayout({
 }>) {
     return (
        
-            <div className="min-h-screen flex-col">
-                <header className="bg-gray-50 text-white p-4 flex flex-row">
-                    <h1 className="text-xl text-black">My Dashboard</h1>
+            <div className="bg-gray-50 min-h-screen flex-col">
+                <header className=" text-white p-4 flex flex-row">
+                    <h1 className="text-xl text-black font-bold uppercase">My Dashboard</h1>
                     {/* <button className="flex text-whit">Login</button> */}
                 </header>   
                 <div className="flex flex-1">
