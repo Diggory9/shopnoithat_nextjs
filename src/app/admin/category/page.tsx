@@ -5,13 +5,19 @@ interface Category {
     description: string;
 }
 export default function Category() {
-    const [dataCate, setDataCate] = useState([]);
+    const [dataCate, setDataCate] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Category/list"
+                    "https://localhost:44372/api/Category/list",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
                 ); // Thay thế bằng URL API thực tế
                 if (!respone.ok) {
                     throw new Error("Network response was not ok");
@@ -26,10 +32,10 @@ export default function Category() {
         };
         fetchData();
     }, []);
-   
+
     return (
         <div className="bg-gray-50 w-full">
-            <div className=" bg-white p-3 rounded-xl mb-4">
+            <div className=" bg-white p-3 rounded-xl mb-4 shadow-xl ">
                 <h1 className="p-3 text-2xl font-bold">All Category</h1>
                 <div className="flex justify-between ">
                     <div className="p-2">
@@ -67,7 +73,7 @@ export default function Category() {
                     </div>
                 </div>
             </div>
-            <div className="bg-white">
+            <div className="bg-white rounded-xl mb-4 shadow-xl">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-xl">
                     <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-gray-700 uppercase bg-white dark:bg-gray-700 dark:text-gray-400">
@@ -87,7 +93,7 @@ export default function Category() {
                             </tr>
                         </thead>
                         <tbody>
-                            {dataCate.map((item) => (
+                            {dataCate.map((item, index) => (
                                 <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td className="w-4 p-4">
                                         <div className="flex items-center"></div>
