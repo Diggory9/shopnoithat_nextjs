@@ -1,14 +1,21 @@
 "use client";
+import Image from "next/image";
 import { useEffect, useState } from "react";
+interface ProductImages {
+    url: string;
+}
+
+interface ProductItem {
+    productImages: ProductImages[];
+}
 interface Product {
     name: string;
     description: string;
     productQuantity: number;
     productBrand: string;
     price: number;
-    productSpecifications: [];
-    specValue: string;
-    productItems: [];
+    productImages: ProductImages[];
+    productItems: ProductItem[];
 }
 export default function Product() {
     const [dataProduct, setDataProduct] = useState<Product[]>([]);
@@ -116,8 +123,27 @@ export default function Product() {
                                         {item.name}
                                     </th>
                                     <td className="px-6 py-4">
-                                        {item.description}
+                                        {item.productItems &&
+                                            item.productItems.length > 0 &&
+                                            item.productItems.map(
+                                                (item1, i) =>
+                                                    item1.productImages &&
+                                                    item1.productImages.length >
+                                                        0 &&
+                                                    item1.productImages.map(
+                                                        (item2, j) => (
+                                                            <Image
+                                                                key={`${i}-${j}`}
+                                                                src={item2.url}
+                                                                alt={item.name}
+                                                                width={50}
+                                                                height={50}
+                                                            />
+                                                        )
+                                                    )
+                                            )}
                                     </td>
+
                                     <td className="px-6 py-4">
                                         {item.productQuantity}
                                     </td>

@@ -11,7 +11,13 @@ export default function Category() {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Category/list"
+                    "https://localhost:44372/api/Category/list",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
                 ); // Thay thế bằng URL API thực tế
                 if (!respone.ok) {
                     throw new Error("Network response was not ok");

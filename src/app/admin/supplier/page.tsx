@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 interface Supplier {
-    supplierName:string;
-    contactPerson:string;
-    address:string;
-    contactPhone:string;
+    supplierName: string;
+    contactPerson: string;
+    address: string;
+    contactPhone: string;
 }
 export default function Supplier() {
     const [dataSup, setDataSup] = useState<Supplier[]>([]);
@@ -13,8 +13,14 @@ export default function Supplier() {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Supplier/list"
-                ); // Thay thế bằng URL API thực tế
+                    "https://localhost:44372/api/Supplier/list",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
                 if (!respone.ok) {
                     throw new Error("Network response was not ok");
                 }
@@ -28,7 +34,7 @@ export default function Supplier() {
         };
         fetchData();
     }, []);
-   
+
     return (
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3 rounded-xl mb-4 shadow-xl">
@@ -78,7 +84,7 @@ export default function Supplier() {
                                     <div className="flex items-center"></div>
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                   Supplier name
+                                    Supplier name
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     contactPerson
@@ -107,13 +113,13 @@ export default function Supplier() {
                                         {item.supplierName}
                                     </th>
                                     <td className="px-6 py-4">
-                                    {item.contactPerson}
+                                        {item.contactPerson}
                                     </td>
                                     <td className="px-6 py-4">
-                                    {item.address}
+                                        {item.address}
                                     </td>
                                     <td className="px-6 py-4">
-                                    {item.contactPhone}
+                                        {item.contactPhone}
                                     </td>
                                     <td className="flex items-center px-6 py-4">
                                         <a

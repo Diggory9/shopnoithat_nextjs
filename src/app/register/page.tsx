@@ -2,12 +2,15 @@
 import { useState } from "react";
 import { Toaster, toast } from "sonner";
 import { useRouter } from "next/navigation";
-
+const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function Register() {
     const [username, setUserName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+
     const [errorUser, setErrorUser] = useState("");
     const [errorEmail, setErrorEmail] = useState("");
     const [errorPass, setErrorPass] = useState("");
@@ -17,6 +20,25 @@ export default function Register() {
     const handleSubmit = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); // Ngăn chặn hành vi mặc định của form
 
+        setErrorUser(
+            username.length < 6 ? "Tên người dùng phải có ít nhất 6 ký tự." : ""
+        );
+        setErrorEmail(!emailRegex.test(email) ? "Email không hợp lệ." : "");
+        setErrorPass(
+            !passwordRegex.test(password) ? "Mật khẩu không hợp lệ." : ""
+        );
+        setErrorConfirmPass(
+            password !== confirmPassword ? "Mật khẩu xác nhận không khớp." : ""
+        );
+
+        if (
+            username.length < 6 ||
+            !emailRegex.test(email) ||
+            !passwordRegex.test(password) ||
+            password !== confirmPassword
+        ) {
+            return;
+        }
         try {
             const response = await fetch(
                 "https://localhost:44372/api/Account/register",
@@ -43,22 +65,22 @@ export default function Register() {
                 setTimeout(() => {
                     router.push("/login");
                 }, 2000);
-            } 
-            else if(response.status==400){
-                alert(data.Message);
-            }
-            else {
-                // Đăng ký thất bại
-               
-                setErrorUser(data.errors.UserName||"");
-                setErrorEmail(data.errors.Email||"");
-                setErrorPass(data.errors.Password||"");
-                setErrorConfirmPass(data.errors.ConfirmPassword||"");
-                
+            } else {
+                //Đăng ký thất bại
+                const value = getValueBeforeSpace(data.Message);
+                if (value == "Username") {
+                    setErrorUser("Tên người dùng đã tồn tại" || "");
+                } else {
+                    setErrorEmail("Địa chỉ email đã tồn tại" || "");
+                }
+                // setErrorPass(
+                //     "Mật khẩu phải chứa ít nhất một ký tự viết hoa, một ký tự viết thường, một số và một ký tự đặc biệt, và phải có độ dài tối thiểu 6 ký tự." ||
+                //         ""
+                // );
+                // setErrorConfirmPass("Mật khẩu không trùng khớp" || "");
             }
         } catch (error) {
             console.error("Lỗi khi gửi yêu cầu:", error);
-            alert("Đã xảy ra lỗi. Vui lòng thử lại.");
         }
     };
     return (
@@ -83,13 +105,11 @@ export default function Register() {
                             type="text"
                             name="username"
                             id="username"
-                            required
                             onChange={(e) => setUserName(e.target.value)}
                             className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2"
                         />
-                     
-                            <p className="text-sm text-red-500">{errorUser}</p>
-                 
+
+                        <p className="text-sm text-red-500">{errorUser}</p>
                     </div>
                     <div>
                         <label
@@ -104,7 +124,7 @@ export default function Register() {
                             onChange={(e) => setEmail(e.target.value)}
                             className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2"
                         />
-                       <p className="text-sm text-red-500">{errorEmail}</p>
+                        <p className="text-sm text-red-500">{errorEmail}</p>
                     </div>
                     <div>
                         <label
@@ -136,7 +156,9 @@ export default function Register() {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2"
                         />
-                        <p className="text-sm text-red-500">{errorConfirmPass}</p>
+                        <p className="text-sm text-red-500">
+                            {errorConfirmPass}
+                        </p>
                     </div>
                     <button
                         type="submit"
@@ -157,4 +179,8 @@ export default function Register() {
             </div>
         </div>
     );
+}
+function getValueBeforeSpace(str: string) {
+    const parts = str.split(" ");
+    return parts.shift();
 }
