@@ -4,7 +4,7 @@ import "./globals.css";
 import NavHome from "./components/navhome";
 
 import ReduxProvider from "./components/reduxprovider";
-import ReduxPersistgate from "./components/persistgate";
+
 
 const inter = Inter({ subsets: ["latin"] });
 

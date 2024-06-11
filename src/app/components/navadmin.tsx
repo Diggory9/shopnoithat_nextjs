@@ -47,6 +47,18 @@ export default function NavAdmin() {
                                     Supplier
                                 </Link>
                             </li>
+                            <li className="my-2 px-2 py-2 text-black">
+                                <Link
+                                    href={"/admin/role"}
+                                    className={`pl-1 py-4 w-full inline-flex gap-3 items-center hover:bg-gray-200 hover:text-black ${
+                                        pathname == "/admin/role"
+                                            ? "bg-gray-200 hover:text-black"
+                                            : ""
+                                    }`}
+                                >
+                                    Role
+                                </Link>
+                            </li>
                         </ul>
                     </nav>
                 </aside>
