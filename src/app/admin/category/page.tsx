@@ -1,12 +1,21 @@
 "use client";
+
 import { useEffect, useState } from "react";
+
+import Link from "next/link";
+import { Toaster, toast } from "sonner";
+import { useRouter } from "next/navigation";
 interface Category {
+    id: string;
     name: string;
+    categoryParent: string;
     description: string;
 }
+
 export default function Category() {
     const [dataCate, setDataCate] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -32,11 +41,34 @@ export default function Category() {
         };
         fetchData();
     }, []);
-
+    const handleDelete = async (id: string) => {
+        try {
+            const response = await fetch(
+                `https://localhost:44372/api/Category/delete/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            ); // Replace with actual API URL
+            if (response.ok) {
+                toast.success("Xóa danh mục thành công");
+                router.push('/admin/category');
+                setDataCate(dataCate.filter((category) => category.id !== id));
+            }else{
+                toast.error("Xóa thất bại")
+            }
+           
+        } catch (error) {
+            console.error("Delete error:", error);
+        }
+    };
     return (
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3 rounded-xl mb-4 shadow-xl ">
                 <h1 className="p-3 text-2xl font-bold">All Category</h1>
+                <Toaster position="top-right" richColors />
                 <div className="flex justify-between ">
                     <div className="p-2">
                         <form action="" method="get">
@@ -50,26 +82,28 @@ export default function Category() {
                         </form>
                     </div>
                     <div className="order-last content-center">
-                        <button
-                            className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
-                            type="button"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="1"
-                                stroke="currentColor"
-                                className="size-6"
+                        <a href="/admin/category/add">
+                            <button
+                                className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
+                                type="button"
                             >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                />
-                            </svg>
-                            Add category
-                        </button>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1"
+                                    stroke="currentColor"
+                                    className="size-6"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    />
+                                </svg>
+                                Add category
+                            </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -82,10 +116,13 @@ export default function Category() {
                                     <div className="flex items-center"></div>
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Category Name
+                                    Tên
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Description
+                                    Mô tả
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Danh mục cha
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Action
@@ -94,7 +131,8 @@ export default function Category() {
                         </thead>
                         <tbody>
                             {dataCate.map((item, index) => (
-                                <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <tr  key={item.id} 
+                                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td className="w-4 p-4">
                                         <div className="flex items-center"></div>
                                     </td>
@@ -107,28 +145,36 @@ export default function Category() {
                                     <td className="px-6 py-4">
                                         {item.description}
                                     </td>
+                                    <td className="px-6 py-4">
+                                        {item.categoryParent}
+                                    </td>
                                     <td className="flex items-center px-6 py-4">
-                                        <button
-                                            className=" text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
-                                            type="button"
+                                        <Link
+                                            href={`/admin/category/update/${item.id}`}
                                         >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke-width="1.5"
-                                                stroke="currentColor"
-                                                className="size-5"
+                                            <button
+                                                className=" text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
+                                                type="button"
                                             >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                                                />
-                                            </svg>
-                                            Edit
-                                        </button>
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke-width="1.5"
+                                                    stroke="currentColor"
+                                                    className="size-5"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                                                    />
+                                                </svg>
+                                                Edit
+                                            </button>
+                                        </Link>
                                         <button
+                                            onClick={() => handleDelete(item.id)}
                                             className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300  rounded-lg text-sm px-3 py-1.5  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 inline-flex ms-3"
                                             type="button"
                                         >

@@ -25,20 +25,14 @@ export default function Register() {
         );
         setErrorEmail(!emailRegex.test(email) ? "Email không hợp lệ." : "");
         setErrorPass(
-            !passwordRegex.test(password) ? "Mật khẩu không hợp lệ." : ""
+            !passwordRegex.test(password)
+                ? "Mật khẩu cần có đầy đủ ký tự thường,in hoa, kí tự đặc biệt và số"
+                : ""
         );
         setErrorConfirmPass(
             password !== confirmPassword ? "Mật khẩu xác nhận không khớp." : ""
         );
 
-        if (
-            username.length < 6 ||
-            !emailRegex.test(email) ||
-            !passwordRegex.test(password) ||
-            password !== confirmPassword
-        ) {
-            return;
-        }
         try {
             const response = await fetch(
                 "https://localhost:44372/api/Account/register",
@@ -70,26 +64,36 @@ export default function Register() {
                 const value = getValueBeforeSpace(data.Message);
                 if (value == "Username") {
                     setErrorUser("Tên người dùng đã tồn tại" || "");
-                } else {
+                }
+                if (value == "Email") {
                     setErrorEmail("Địa chỉ email đã tồn tại" || "");
                 }
-                // setErrorPass(
-                //     "Mật khẩu phải chứa ít nhất một ký tự viết hoa, một ký tự viết thường, một số và một ký tự đặc biệt, và phải có độ dài tối thiểu 6 ký tự." ||
-                //         ""
-                // );
-                // setErrorConfirmPass("Mật khẩu không trùng khớp" || "");
+                if (
+                    value ==
+                    "System.Collections.Generic.List`1[Microsoft.AspNetCore.Identity.IdentityError]"
+                )
+                    setErrorPass(
+                        !passwordRegex.test(password)
+                            ? "Mật khẩu cần có đầy đủ ký tự thường,in hoa, kí tự đặc biệt, số và độ dài lớn hơn 6"
+                            : ""
+                    );
+                setErrorConfirmPass(
+                    password !== confirmPassword
+                        ? "Mật khẩu xác nhận không khớp."
+                        : ""
+                );
             }
         } catch (error) {
             console.error("Lỗi khi gửi yêu cầu:", error);
         }
     };
     return (
-        <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
-            <div className="w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl">
+        <div style={{ backgroundImage: 'url(/img/hello.png)'}} className="flex h-screen w-screen items-center justify-end bg-gray-50 ">
+            <div className="w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl mr-52 mt-10">
                 <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 py-6 pt-8 text-center sm:px-16">
                     <h3 className="text-xl font-semibold">Sign Up</h3>
                 </div>
-                <Toaster position="top-right" richColors />
+                <Toaster position="top-right" richColors duration={2000}/>
                 <form
                     className="flex flex-col space-y-4 bg-gray-50 px-4 py-8 sm:px-16"
                     onSubmit={handleSubmit}

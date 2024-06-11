@@ -9,6 +9,7 @@ interface ProductItem {
     productImages: ProductImages[];
 }
 interface Product {
+    id:string;
     name: string;
     description: string;
     productQuantity: number;
@@ -47,47 +48,44 @@ export default function Product() {
         fetchData();
     }, []);
     return (
-        <div>
-            <div className="bg-white">
-                <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-                    <h2 className="text-2xl font-bold text-gray-900 pb-8">
-                        All Product
-                    </h2>
-                    <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-                        {dataProduct.map((item) => (
-                            <a
-                                key={item.productQuantity}
-                                href={`/product/${item.productQuantity}`}
-                                className="group"
-                            >
-                                <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-                                    {item.productItems &&
-                                        item.productItems.length > 0 &&
-                                        item.productItems.map(
-                                            (item1, i) =>
-                                                item1.productImages &&
-                                                item1.productImages.length >
-                                                    0 &&
-                                                item1.productImages.map(
-                                                    (item2, j) => (
-                                                        <img
-                                                            src={item2.url}
-                                                            alt={item2.url}
-                                                            className="h-full w-full object-cover object-center group-hover:opacity-75"
-                                                        />
-                                                    )
+        <div className="bg-white">
+            <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+                <h2 className="text-2xl font-serif text-gray-900 pb-8 uppercase">
+                   Sản phẩm mới
+                </h2>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8 border-y-2">
+                    {dataProduct.map((item) => (
+                        <a
+                            key={item.productQuantity}
+                            href={`/product/${item.id}`}
+                            className="group"
+                        >
+                            <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                                {item.productItems &&
+                                    item.productItems.length > 0 &&
+                                    item.productItems.map(
+                                        (item1, i) =>
+                                            item1.productImages &&
+                                            item1.productImages.length > 0 &&
+                                            item1.productImages.map(
+                                                (item2, j) => (
+                                                    <img
+                                                        src={item2.url}
+                                                        alt={item2.url}
+                                                        className="h-full w-full object-cover object-center group-hover:opacity-75"
+                                                    />
                                                 )
-                                        )}
-                                </div>
-                                <h3 className="mt-4 text-black text-2xl">
-                                    {item.name}
-                                </h3>
-                                <p className="mt-1 text-lg text-orange-300 font-serif">
-                                    ${item.price}
-                                </p>
-                            </a>
-                        ))}
-                    </div>
+                                            )
+                                    )}
+                            </div>
+                            <h3 className="mt-4 text-black text-2xl">
+                                {item.name}
+                            </h3>
+                            <p className="mt-1 text-lg text-orange-300 font-serif">
+                                ${item.price}
+                            </p>
+                        </a>
+                    ))}
                 </div>
             </div>
         </div>
