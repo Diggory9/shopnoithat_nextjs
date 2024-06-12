@@ -1,18 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import Category from "../page";
+
 import { Toaster, toast } from "sonner";
 import { useRouter } from "next/navigation";
-interface Category {
-    id: string;
-    name: string;
-    categoryParent: string;
-    description: string;
-}
+import { MCategory } from "@/models/categorymodel";
 
 export default function addCategory() {
     const router = useRouter();
-    const [dataCate, setDataCate] = useState<Category[]>([]);
+    const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [name, setNameCate] = useState("");
     const [categoryParent, setCateParent] = useState("");
     const [description, setDesCate] = useState("");

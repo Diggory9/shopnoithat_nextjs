@@ -1,17 +1,12 @@
 "use client";
+import { MSupplier } from "@/models/suppliermodel";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-interface Supplier {
-    id: string;
-    supplierName: string;
-    contactPerson: string;
-    address: string;
-    contactPhone: string;
-}
+
 export default function Supplier() {
-    const [dataSup, setDataSup] = useState<Supplier[]>([]);
+    const [dataSup, setDataSup] = useState<MSupplier[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     useEffect(() => {

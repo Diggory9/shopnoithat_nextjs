@@ -1,24 +1,10 @@
 "use client";
+import { MProduct } from "@/models/productmodel";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-interface ProductImages {
-    url: string;
-}
 
-interface ProductItem {
-    productImages: ProductImages[];
-}
-interface Product {
-    name: string;
-    description: string;
-    productQuantity: number;
-    productBrand: string;
-    price: number;
-    productImages: ProductImages[];
-    productItems: ProductItem[];
-}
 export default function Product() {
-    const [dataProduct, setDataProduct] = useState<Product[]>([]);
+    const [dataProduct, setDataProduct] = useState<MProduct[]>([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
