@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { Toaster, toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
-import { loginSuccess } from "../redux/authSlice";
+import { loginSuccess } from "../../redux/authSlice";
 import { jwtDecode } from "jwt-decode";
 
 export default function Login() {

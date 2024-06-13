@@ -1,10 +1,41 @@
 "use client";
-import { useEffect, useState } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MCategory } from "@/models/categorymodel";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { MSupplier } from "@/models/suppliermodel";
 import MUploadImageMultiple from "@/app/components/uploadImageMultiple";
-import MUploadImage from "@/app/components/uploadImage";
+// import MUploadImage from "@/app/components/uploadImage";
+import { CloseOutlined } from "@ant-design/icons";
+import {
+    Button,
+    Card,
+    Form,
+    Input,
+    InputNumber,
+    Space,
+    Image,
+    Typography,
+    Upload,
+    UploadProps,
+} from "antd";
+
+import { Select } from "antd";
+import {
+    checkBrandName,
+    checkDescription,
+    checkInputMoney,
+    checkProductName,
+    checkQuantity,
+} from "@/utils/config";
+import { Toaster, toast } from "sonner";
+interface MUploadImageProps extends UploadProps {
+    image?: string;
+    formName?: string | string[];
+    disableTitle?: boolean;
+    notRequired?: boolean;
+}
+
 type FieldType = {
     name?: string;
     description?: string;
@@ -24,22 +55,56 @@ type ProductSpecification = {
 type ProductItem = {
     quantity?: number;
     colorId?: string;
-    productImages?: string[];
+    productImages?: ProductImage[];
 };
-export default function AddProduct() {
+type ProductImage = {
+    url?: string;
+};
+const AddProduct: React.FC<MUploadImageProps> = ({
+    image,
+    formName,
+    disableTitle,
+    notRequired,
+    ...rest
+}) => {
+    const [imageLocal, setImageLocal] = useState<string>("");
+
+    const [loading, setLoading] = useState(false);
+    const [fileList, setFileList] = useState<any[]>([]); //
+    const handleChange: UploadProps["onChange"] = (info) => {
+        let fileList = [...info.fileList];
+        // Only keep the last file
+        fileList = fileList.slice(-1);
+        setFileList(fileList);
+        if (info.file.status === "uploading") {
+            setLoading(true);
+            return;
+        }
+        if (info.file.status === "done") {
+            setLoading(false);
+            setImageLocal(info.file?.response?.data[0].url);
+        }
+    };
+
+    const getFile = (e: UploadProps) => {
+        if (Array.isArray(e)) {
+            return e;
+        }
+        return (
+            e &&
+            e?.fileList?.[e?.fileList?.length - 1 || 0]?.response?.data[0].url
+        );
+    };
+
+    useEffect(() => {
+        setImageLocal(image || "");
+    }, [image]);
     const router = useRouter();
     //fetch list data category and supplier
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
     const [dataSubmit, setDataSubmit] = useState<FieldType>({});
-    const [productSpecifications, setProductSpecifications] = useState<
-        ProductSpecification[]
-    >([{ specValue: "", specType: "", key: Date.now() }]);
-    const [productItems, setProductItems] = useState<ProductItem[]>([]);
-    const [productImages, setProductImages] = useState([]);
-    const [url, setUrl] = useState("");
-    const [previewSrc, setPreviewSrc] = useState("");
-
+    const [form] = Form.useForm();
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -51,7 +116,7 @@ export default function AddProduct() {
                             "Content-Type": "application/json",
                         },
                     }
-                ); // Thay thế bằng URL API thực tế
+                );
                 if (!respone.ok) {
                     throw new Error("Network response was not ok");
                 }
@@ -64,6 +129,10 @@ export default function AddProduct() {
         };
         fetchCategories();
     }, []);
+    const options = dataCate.map((item) => ({
+        value: item.id,
+        label: item.name,
+    }));
     useEffect(() => {
         const fetchSuppliers = async () => {
             try {
@@ -87,9 +156,13 @@ export default function AddProduct() {
         };
         fetchSuppliers();
     }, []);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const optionsSup = dataSup.map((item) => ({
+        value: item.id,
+        label: item.supplierName,
+    }));
+    const handleSubmit = async (values: FieldType) => {
+        // e.preventDefault();
+        //console.log(e);
 
         try {
             const response = await fetch(
@@ -99,260 +172,346 @@ export default function AddProduct() {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(dataSubmit),
+                    body: JSON.stringify(values),
                 }
             );
 
-            if (!response.ok) {
+            if (response.ok) {
+                toast.success("Thêm sản phẩm thành công");
+                router.push("/admin/product");
+            } else {
+                toast.error("Thêm sản phẩm thất bại");
                 throw new Error("Failed to add product");
             }
-
-            router.push("/admin/product"); // Redirect to the product list page after successful addition
         } catch (error) {
             console.error("Add product error:", error);
         }
     };
-    const handleSpecChange = (
-        index: number,
-        key: keyof ProductSpecification,
-        value: string
-    ) => {
-        const newSpecifications = [...productSpecifications];
-        newSpecifications[index][key] = value;
-        setProductSpecifications(newSpecifications);
-        setDataSubmit((prev) => ({
-            ...prev,
-            productSpecifications: newSpecifications,
-        }));
-    };
-    const addSpecification = () => {
-        const newSpecification = {
-            specValue: "",
-            specType: "",
-            key: Date.now(),
-        };
-        setProductSpecifications((prev) => [...prev, newSpecification]);
-        setDataSubmit((prev) => ({
-            ...prev,
-            productSpecifications: [...(prev.productSpecifications || []), newSpecification],
-        }));
-    };
-    const handleItemChange = (index: number, key: keyof ProductItem, value: any) => {
-        const newItems = [...productItems];
-        newItems[index][key] = value;
-        setProductItems(newItems);
-        setDataSubmit((prev) => ({
-            ...prev,
-            productItems: newItems,
-        }));
-    };
-    const addProductItem = () => {
-        const newItem: ProductItem = {
-            quantity: 0,
-            colorId: "",
-            productImages: [],
-        };
-        setProductItems((prev) => [...prev, newItem]);
-        setDataSubmit((prev) => ({
-            ...prev,
-            productItems: [...(prev.productItems || []), newItem],
-        }));
-    };
+
     return (
         <div className="container mx-auto p-4 bg-white shadow-xl rounded-xl">
             <h1 className="text-2xl font-bold pb-4">Thêm sản phẩm mới</h1>
-            <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Product Name</label>
-                    <input
-                        type="text"
-                        value={dataSubmit.name}
-                        onChange={(e) =>
-                            setDataSubmit((prev) => ({
-                                ...prev,
-                                name: e.target.value,
-                            }))
-                        }
-                        className="w-1/2 p-2 border border-gray-300 rounded-lg"
-                        required
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Description</label>
-                    <textarea
-                        value={dataSubmit.description}
-                        onChange={(e) =>
-                            setDataSubmit((prev) => ({
-                                ...prev,
-                                description: e.target.value,
-                            }))
-                        }
-                        className="w-1/2 p-2 border border-gray-300 rounded-lg"
-                        required
-                    ></textarea>
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Quantity</label>
-                    <input
-                        type="number"
-                        value={dataSubmit.productQuantity}
-                        onChange={(e) =>
-                            setDataSubmit((prev) => ({
-                                ...prev,
-                                productQuantity: Number(e.target.value),
-                            }))
-                        }
-                        className="w-1/2 p-2 border border-gray-300 rounded-lg"
-                        required
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Price</label>
-                    <input
-                        type="number"
-                        value={dataSubmit.price}
-                        onChange={(e) =>
-                            setDataSubmit((prev) => ({
-                                ...prev,
-                                price: Number(e.target.value),
-                            }))
-                        }
-                        className="w-1/2 p-2 border border-gray-300 rounded-lg"
-                        required
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Category</label>
-                    <select
-                        name="cars"
-                        id="cars"
-                        className="w-1/2 p-2 border-2 rounded-lg"
-                        onChange={(e) =>
-                            setDataSubmit((prev) => ({
-                                ...prev,
-                                categoryId: e.target.value,
-                            }))
-                        }
-                    >
-                        {dataCate.map((item, index) => (
-                            <>
-                                <option value={item.id}>{item.name}</option>
-                            </>
-                        ))}
-                    </select>
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Supplier</label>
-                    <select
-                        name="supplier"
-                        id="supplier"
-                        className="w-1/2 p-2 border-2 rounded-lg"
-                        onChange={(e) =>
-                            setDataSubmit((prev) => ({
-                                ...prev,
-                                supplierId: e.target.value,
-                            }))
-                        }
-                    >
-                        {dataSup.map((item, index) => (
-                            <>
-                                <option value={item.id}>
-                                    {item.supplierName}
-                                </option>
-                            </>
-                        ))}
-                    </select>
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">
-                        Specifications
-                    </label>
-                    {productSpecifications.map((spec, index) => (
-                        <div key={spec.key} className="mb-2">
-                            <input
-                                type="text"
-                                placeholder=" Type"
-                                value={spec.specType || ""}
-                                onChange={(e) =>
-                                    handleSpecChange(
-                                        index,
-                                        "specType",
-                                        e.target.value
-                                    )
-                                }
-                                className="w-1/4 p-2 border border-gray-300 rounded-lg mb-2"
-                                required
-                            />
-                            <input
-                                type="text"
-                                placeholder="Value"
-                                value={spec.specValue || ""}
-                                onChange={(e) =>
-                                    handleSpecChange(
-                                        index,
-                                        "specValue",
-                                        e.target.value
-                                    )
-                                }
-                                className="w-1/4 p-2 border border-gray-300 rounded-lg mb-2"
-                                required
-                            />
-                        </div>
-                    ))}
-                    <button
-                        type="button"
-                        onClick={addSpecification}
-                        className="bg-green-500 text-white p-2 rounded-lg"
-                    >
-                        Add Specification
-                    </button>
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700 text-xl">
-                        ProductItem
-                    </label>
-
-                    {productItems.map((item, index) => (
-                        <div key={index} className="mb-2">
-                            <input
-                                type="number"
-                                placeholder="Quantity"
-                                value={item.quantity || 0}
-                                onChange={(e) =>
-                                    handleItemChange(index, "quantity", Number(e.target.value))
-                                }
-                                className="w-1/5 p-2 border border-gray-300 rounded-lg mb-2"
-                                required
-                            />
-                            <select
-                                value={item.colorId || ""}
-                                onChange={(e) =>
-                                    handleItemChange(index, "colorId", e.target.value)
-                                }
-                                className="p-2 border-2 rounded-lg"
-                            >
-                                <option value="99fe8bab-42ab-444c-a5b8-8195ddb2ba88">Black</option>
-                                <option value="8ea83fdd-ecf0-4c68-8df0-d9238e098400">Gray</option>
-                                <option value="1c1a2a09-d03e-40cd-b39c-088ce1333295">White</option>
-                            </select>
-                            <MUploadImage/>
-                        </div>
-                    ))}
-                    <button
-                        type="button"
-                        onClick={addProductItem}
-                        className="bg-green-500 text-white p-2 rounded-lg"
-                    >
-                        Add ProductItem
-                    </button>
-                </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded-lg"
+            <Toaster position="top-right" richColors />
+            <Form onFinish={handleSubmit} form={form}>
+                <Form.Item
+                    rules={[
+                        { validator: (_, value) => checkProductName(value) },
+                    ]}
+                    label="Tên sản phẩm"
+                    name="name"
                 >
-                    Them san pham
-                </button>
-            </form>
+                    <Input style={{ width: 300 }} type="text" />
+                </Form.Item>
+                <Form.Item
+                    rules={[
+                        { validator: (_, value) => checkDescription(value) },
+                    ]}
+                    label="Mô tả sản phẩm"
+                    name="description"
+                >
+                    <Input.TextArea style={{ width: 300 }} />
+                </Form.Item>
+                <Form.Item
+                    rules={[{ validator: (_, value) => checkBrandName(value) }]}
+                    label="Thương hiệu"
+                    name="productBrand"
+                >
+                    <Input style={{ width: 300 }} type="text" />
+                </Form.Item>
+                <Form.Item
+                    rules={[{ validator: (_, value) => checkQuantity(value) }]}
+                    label="Số lượng"
+                    name="productQuantity"
+                >
+                    <InputNumber style={{ width: 300 }} />
+                </Form.Item>
+                <Form.Item
+                    rules={[
+                        { validator: (_, value) => checkInputMoney(value) },
+                    ]}
+                    label="Giá"
+                    name="price"
+                >
+                    <InputNumber style={{ width: 300 }} />
+                </Form.Item>
+                <Form.Item label="Danh mục sản phẩm" name="categoryId">
+                    <Select
+                        //showSearch
+                        style={{ width: 200 }}
+                        placeholder="Search to Select"
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                            (option?.label ?? "").includes(input)
+                        }
+                        filterSort={(optionA, optionB) =>
+                            (optionA?.label ?? "")
+                                .toLowerCase()
+                                .localeCompare(
+                                    (optionB?.label ?? "").toLowerCase()
+                                )
+                        }
+                        options={options}
+                    />
+                </Form.Item>
+                <Form.Item label="Nhà cung cấp" name="supplierId">
+                    <Select
+                        //showSearch
+                        style={{ width: 200 }}
+                        placeholder="Search to Select"
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                            (option?.label ?? "").includes(input)
+                        }
+                        filterSort={(optionA, optionB) =>
+                            (optionA?.label ?? "")
+                                .toLowerCase()
+                                .localeCompare(
+                                    (optionB?.label ?? "").toLowerCase()
+                                )
+                        }
+                        options={optionsSup}
+                    />
+                </Form.Item>
+
+                <Form.List name="productSpecifications">
+                    {(fields, { add, remove }) => (
+                        <div
+                            style={{
+                                width: 300,
+                                display: "flex",
+                                rowGap: 16,
+
+                                flexDirection: "column",
+                            }}
+                        >
+                            {fields.map((field) => (
+                                <Card
+                                    size="small"
+                                    title={`Thông số chi tiết ${
+                                        field.name + 1
+                                    }`}
+                                    key={field.key}
+                                    extra={
+                                        <CloseOutlined
+                                            onClick={() => {
+                                                remove(field.name);
+                                            }}
+                                        />
+                                    }
+                                >
+                                    <Form.Item
+                                        label="Loại thông số"
+                                        name={[field.name, "specType"]}
+                                    >
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="Giá trị"
+                                        name={[field.name, "specValue"]}
+                                    >
+                                        <Input />
+                                    </Form.Item>
+                                </Card>
+                            ))}
+
+                            <Button type="dashed" onClick={() => add()} block>
+                                + Thêm thông số
+                            </Button>
+                        </div>
+                    )}
+                </Form.List>
+                <Form.List name="productItems">
+                    {(fields, { add, remove }) => (
+                        <div
+                            style={{
+                                width: 400,
+                                display: "flex",
+                                rowGap: 16,
+                                flexDirection: "column",
+                            }}
+                        >
+                            {fields.map((field) => (
+                                <Card
+                                    size="small"
+                                    title={`Mặt hàng ${field.name + 1}`}
+                                    key={field.key}
+                                    extra={
+                                        <CloseOutlined
+                                            onClick={() => {
+                                                remove(field.name);
+                                            }}
+                                        />
+                                    }
+                                >
+                                    <Form.Item
+                                        label="Số lượng"
+                                        name={[field.name, "quantity"]}
+                                    >
+                                        <InputNumber />
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="Màu sắc"
+                                        name={[field.name, "colorId"]}
+                                    >
+                                        <Select
+                                            //showSearch
+                                            style={{ width: 200 }}
+                                            placeholder="Search to Select"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option) =>
+                                                (option?.label ?? "").includes(
+                                                    input
+                                                )
+                                            }
+                                            filterSort={(optionA, optionB) =>
+                                                (optionA?.label ?? "")
+                                                    .toLowerCase()
+                                                    .localeCompare(
+                                                        (
+                                                            optionB?.label ?? ""
+                                                        ).toLowerCase()
+                                                    )
+                                            }
+                                            options={[
+                                                {
+                                                    value: "8ea83fdd-ecf0-4c68-8df0-d9238e098400",
+                                                    label: "Xám",
+                                                },
+                                                {
+                                                    value: "99fe8bab-42ab-444c-a5b8-8195ddb2ba88",
+                                                    label: "Đen",
+                                                },
+                                                {
+                                                    value: "1c1a2a09-d03e-40cd-b39c-088ce1333295",
+                                                    label: "Trắng",
+                                                },
+                                            ]}
+                                        />
+                                    </Form.Item>
+
+                                    <Form.List
+                                        name={[field.name, "productImages"]}
+                                    >
+                                        {(subFields, subOpt) => (
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    rowGap: 16,
+                                                }}
+                                            >
+                                                {subFields.map((subField) => (
+                                                    <Space key={subField.key}>
+                                                        <Form.Item
+                                                            label={
+                                                                disableTitle
+                                                                    ? ""
+                                                                    : "Hình ảnh"
+                                                            }
+                                                            name={[
+                                                                field.name,
+                                                                "url",
+                                                            ]}
+                                                            valuePropName="avatar"
+                                                            getValueFromEvent={
+                                                                getFile
+                                                            }
+                                                            rules={[
+                                                                {
+                                                                    required:
+                                                                        !notRequired,
+                                                                    message:
+                                                                        "Image is required",
+                                                                },
+                                                            ]}
+                                                        >
+                                                            <Upload
+                                                                name="file"
+                                                                listType="picture-card"
+                                                                className="avatar-uploader"
+                                                                showUploadList={
+                                                                    false
+                                                                }
+                                                                action={`https://localhost:44372/api/UploadPhoto/upload`}
+                                                                onChange={
+                                                                    handleChange
+                                                                }
+                                                                accept="image/*"
+                                                                {...rest}
+                                                            >
+                                                                {!loading &&
+                                                                imageLocal ? (
+                                                                    <Image
+                                                                        src={
+                                                                            imageLocal
+                                                                        }
+                                                                        alt="avatar"
+                                                                        style={{
+                                                                            width: "100%",
+                                                                        }}
+                                                                        preview={
+                                                                            false
+                                                                        }
+                                                                    />
+                                                                ) : (
+                                                                    <button
+                                                                        style={{
+                                                                            border: 0,
+                                                                            background:
+                                                                                "none",
+                                                                        }}
+                                                                        type="button"
+                                                                    >
+                                                                        {loading ? (
+                                                                            <LoadingOutlined />
+                                                                        ) : (
+                                                                            <PlusOutlined />
+                                                                        )}
+                                                                        <div
+                                                                            style={{
+                                                                                marginTop: 8,
+                                                                            }}
+                                                                        >
+                                                                            Upload
+                                                                        </div>
+                                                                    </button>
+                                                                )}
+                                                            </Upload>
+                                                        </Form.Item>
+                                                        <CloseOutlined
+                                                            onClick={() => {
+                                                                subOpt.remove(
+                                                                    subField.name
+                                                                );
+                                                            }}
+                                                        />
+                                                    </Space>
+                                                ))}
+                                                <Button
+                                                    type="dashed"
+                                                    onClick={() => subOpt.add()}
+                                                    block
+                                                >
+                                                    + Image
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </Form.List>
+                                </Card>
+                            ))}
+
+                            <Button type="dashed" onClick={() => add()} block>
+                                + Thêm mặt hàng
+                            </Button>
+                        </div>
+                    )}
+                </Form.List>
+
+                <Button htmlType="submit" type="primary">
+                    Thêm sản phẩm
+                </Button>
+            </Form>
         </div>
     );
-}
+};
+export default AddProduct;

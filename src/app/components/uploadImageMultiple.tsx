@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Form, Image, Modal, Upload, UploadFile, UploadProps } from 'antd';
 
+
 interface MUploadImageMultipleProps extends UploadProps {
 	children?: ReactNode;
 	initFileList?: string[];
@@ -15,16 +16,14 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
 	const handleCancel = () => setPreviewOpen(false);
 
 	const handlePreview = async (file: UploadFile) => {
-        console.log(file?.response?.data);
-		setPreviewImage(file?.response?.data[0].url || '');
+		setPreviewImage(file?.response?.image || file?.thumbUrl || '');
 		setPreviewOpen(true);
 	};
 
 	const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
 		setFileList(newFileList);
 	};
-  
-    
+
 	const getFile = (e: UploadProps) => {
 		if (Array.isArray(e)) {
 			return e;
@@ -68,8 +67,8 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
 				]}
 			>
 				<Upload
-					name='file'
-                    action={`https://localhost:44372/api/UploadPhoto/upload`}
+					name='image'
+					action={`${process.env.API_UPLOAD_URL}cloudinary-upload`}
 					listType='picture-card'
 					fileList={fileList}
 					onChange={onChange}

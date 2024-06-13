@@ -105,6 +105,7 @@ export default function addCategory() {
                         className="w-3/5 p-2"
                         onChange={(e) => setCateParent(e.target.value)}
                     >
+                          <option value=" ">None</option>
                         {dataCate.map((item, index) => (
                             <>
                                 <option value={item.id}>{item.name}</option>
