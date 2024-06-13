@@ -1,24 +1,10 @@
 "use client";
+import { MProduct } from "@/models/productmodel";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-interface ProductImages {
-    url: string;
-}
 
-interface ProductItem {
-    productImages: ProductImages[];
-}
-interface Product {
-    name: string;
-    description: string;
-    productQuantity: number;
-    productBrand: string;
-    price: number;
-    productImages: ProductImages[];
-    productItems: ProductItem[];
-}
 export default function Product() {
-    const [dataProduct, setDataProduct] = useState<Product[]>([]);
+    const [dataProduct, setDataProduct] = useState<MProduct[]>([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
@@ -114,7 +100,7 @@ export default function Product() {
                         </thead>
                         <tbody>
                             {dataProduct.map((item) => (
-                                <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <tr key={item.productBrand} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td className="w-4 p-4">
                                         <div className="flex items-center"></div>
                                     </td>

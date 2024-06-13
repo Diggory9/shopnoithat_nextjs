@@ -5,15 +5,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Toaster, toast } from "sonner";
 import { useRouter } from "next/navigation";
-interface Category {
-    id: string;
-    name: string;
-    categoryParent: string;
-    description: string;
-}
+import { MCategory } from "@/models/categorymodel";
+
 
 export default function Category() {
-    const [dataCate, setDataCate] = useState<Category[]>([]);
+    const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     useEffect(() => {

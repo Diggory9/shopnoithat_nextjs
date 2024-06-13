@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import NavHome from "./components/navhome";
-
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import ReduxProvider from "./components/reduxprovider";
-
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,8 +22,11 @@ export default function RootLayout({
             <body className={inter.className}>
                 <ReduxProvider>
                     {/* <ReduxPersistgate> */}
-                        <NavHome />
-                        <main>{children}</main>
+                    <NavHome />
+                    <main>
+                        {" "}
+                        <AntdRegistry>{children}</AntdRegistry>
+                    </main>
                     {/* </ReduxPersistgate> */}
                 </ReduxProvider>
             </body>

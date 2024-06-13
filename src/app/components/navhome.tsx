@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { logout, setUserFromCookies } from "../redux/authSlice";
-import { RootState } from "../redux/store";
+import { logout, setUserFromCookies } from "../../redux/authSlice";
+import { RootState } from "../../redux/store";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { request } from "http";
