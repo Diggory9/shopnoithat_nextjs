@@ -6,12 +6,14 @@ import Link from "next/link";
 import { Toaster, toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { MCategory } from "@/models/categorymodel";
-
-
+import { Modal } from "antd";
+import { ExclamationCircleFilled } from "@ant-design/icons";
+const { confirm } = Modal;
 export default function Category() {
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -37,28 +39,42 @@ export default function Category() {
         };
         fetchData();
     }, []);
-    const handleDelete = async (id: string) => {
-        try {
-            const response = await fetch(
-                `https://localhost:44372/api/Category/delete/${id}`,
-                {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+
+    const showDeleteConfirm = (id: string) => {
+        confirm({
+            title: "Bạn chắc chắn muốn xóa danh mục này?",
+            icon: <ExclamationCircleFilled style={{ color: "red" }} />,
+            okText: "Có",
+            okType: "danger",
+            cancelText: "Không",
+            onOk: async () => {
+                try {
+                    const response = await fetch(
+                        `https://localhost:44372/api/Category/${id}`,
+                        {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        }
+                    );
+                    if (response.ok) {
+                        toast.success("Xóa danh mục thành công");
+                        router.push("/admin/category");
+                        setDataCate(
+                            dataCate.filter((category) => category.id !== id)
+                        );
+                    } else {
+                        toast.error("Xóa thất bại");
+                    }
+                } catch (error) {
+                    console.error("Delete error:", error);
                 }
-            ); // Replace with actual API URL
-            if (response.ok) {
-                toast.success("Xóa danh mục thành công");
-                router.push('/admin/category');
-                setDataCate(dataCate.filter((category) => category.id !== id));
-            }else{
-                toast.error("Xóa thất bại")
-            }
-           
-        } catch (error) {
-            console.error("Delete error:", error);
-        }
+            },
+            onCancel() {
+                console.log("Cancel");
+            },
+        });
     };
     return (
         <div className="bg-gray-50 w-full">
@@ -127,8 +143,10 @@ export default function Category() {
                         </thead>
                         <tbody>
                             {dataCate.map((item, index) => (
-                                <tr  key={item.id} 
-                                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <tr
+                                    key={item.id}
+                                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                >
                                     <td className="w-4 p-4">
                                         <div className="flex items-center"></div>
                                     </td>
@@ -170,7 +188,9 @@ export default function Category() {
                                             </button>
                                         </Link>
                                         <button
-                                            onClick={() => handleDelete(item.id)}
+                                            onClick={() =>
+                                                showDeleteConfirm(item.id)
+                                            }
                                             className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300  rounded-lg text-sm px-3 py-1.5  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 inline-flex ms-3"
                                             type="button"
                                         >

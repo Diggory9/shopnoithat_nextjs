@@ -5,20 +5,14 @@ import { Form, Image, Modal, Upload, UploadFile, UploadProps } from 'antd';
 interface MUploadImageMultipleProps extends UploadProps {
 	children?: ReactNode;
 	initFileList?: string[];
+	formName?:(string|number)[]
 }
 
 const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
-	const { children, initFileList, ...rest } = props;
-	const [previewOpen, setPreviewOpen] = useState<boolean>(false);
-	const [previewImage, setPreviewImage] = useState<string>('');
+	const {initFileList,formName ,...rest } = props;
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-	const handleCancel = () => setPreviewOpen(false);
 
-	const handlePreview = async (file: UploadFile) => {
-		setPreviewImage(file?.response?.image || file?.thumbUrl || '');
-		setPreviewOpen(true);
-	};
 
 	const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
 		setFileList(newFileList);
@@ -28,7 +22,8 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
 		if (Array.isArray(e)) {
 			return e;
 		}
-		return e && e?.fileList;
+		const result = e?.fileList?.map(img => ({url:img.response?.data[0].url}))
+		return result;
 	};
 
 	useEffect(() => {
@@ -46,7 +41,7 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
 		<>
 			<Form.Item
 				label='Images'
-				name='imageUploads'
+				name={formName || "images"}
 				getValueFromEvent={getFile}
 				rules={[
 					{
@@ -67,33 +62,18 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
 				]}
 			>
 				<Upload
-					name='image'
-					action={`${process.env.API_UPLOAD_URL}cloudinary-upload`}
+					name='file'
+					action={`https://localhost:44372/api/UploadPhoto/upload`}
 					listType='picture-card'
 					fileList={fileList}
 					onChange={onChange}
-					onPreview={handlePreview}
 					multiple
 					accept='image/*'
 					{...rest}
 				>
-					{!props.disabled && fileList.length < 5 && children}
+					{ fileList.length < 5 && 'Upload'}
 				</Upload>
 			</Form.Item>
-			<Modal
-				open={previewOpen}
-				// title={previewTitle}
-				footer={null}
-				onCancel={handleCancel}
-				className='flex justify-center'
-			>
-				<Image
-					alt='example'
-					style={{ width: '100%' }}
-					src={previewImage}
-					preview={false}
-				/>
-			</Modal>
 		</>
 	);
 };

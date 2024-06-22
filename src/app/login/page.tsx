@@ -1,21 +1,16 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import { Toaster, toast } from "sonner";
-import { useDispatch, useSelector } from "react-redux";
-import { loginSuccess } from "../../redux/authSlice";
 import { jwtDecode } from "jwt-decode";
 
 export default function Login() {
-    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
-    const dispatch = useDispatch();
 
     const handleSubmit = async (event: { preventDefault: () => void }) => {
-        event.preventDefault(); // Ngăn chặn hành vi mặc định của form
+        event.preventDefault();
 
         try {
             const response = await fetch(
@@ -30,36 +25,35 @@ export default function Login() {
             );
 
             const data = await response.json();
-
+            console.log(data);
             if (response.ok) {
-                // dispatch(loginSuccess(data));
                 toast.success("Đăng nhập thành công");
                 // console.log(data.data.jwToken);
+                router.push("/");
+                router.refresh();
                 const token = data.data.jwToken;
-                const role = data.data.roles;
-                //console.log(token);
+                const role = data.data.roles[0];
+                console.log(role);
+
+                localStorage.setItem("userId", data.data.id);
 
                 const decoded: any = await jwtDecode(token);
-                Cookies.set("email", decoded.email);
+                localStorage.setItem("email", decoded.email);
+                localStorage.setItem("name", decoded.sub);
+                localStorage.setItem("access_token", data.data.jwToken);
 
-                if (role == "Admin") {
-                    router.push("/admin");
-                    router.refresh();
-                    Cookies.set("access_token", data.data.jwToken, {
-                        expires: 7,
-                    });
-                    Cookies.set("name", data.data.userName, {
-                        expires: 7,
-                    });
-                }
-                if (role == "User") {
-                    router.push("/");
-                    router.refresh();
-                    Cookies.set("access_token", data.data.jwToken, {
-                        expires: 7,
-                    });
-                    Cookies.set("name", data.data.userName, { expires: 7 });
-                }
+                // if (role == "Admin") {
+                //     router.push("/admin");
+                //     router.refresh();
+                //     localStorage.setItem("access_token", data.data.jwToken);
+                //     localStorage.setItem("name", data.data.userName);
+                // }
+                // if (role == "User") {
+                //     router.push("/");
+                //     router.refresh();
+                //     localStorage.setItem("access_token", data.data.jwToken);
+                //     localStorage.setItem("name", data.data.userName);
+                // }
             } else {
                 // Đăng nhập thất bại
                 // dispatch(loginFailed());
@@ -70,7 +64,8 @@ export default function Login() {
             console.error("Error during fetch:", error);
         }
     };
-    return  (
+
+    return (
         <div
             style={{ backgroundImage: "url(/img/hello.png)" }}
             className="flex h-screen w-screen items-center justify-end bg-gray-50 "

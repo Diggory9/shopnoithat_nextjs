@@ -1,4 +1,5 @@
 // import { MenuItem, ProductSKUOption } from '@/models/productModels';
+import { MDiscount } from '@/models/discount';
 import dayjs from 'dayjs';
 
 import advancedFormat from 'dayjs/plugin/advancedFormat';
@@ -33,6 +34,8 @@ export const vietnamesePhoneNumberRegex = /(0|\+84)(\d{9})\b/;
 // 	const contentState = ContentState.createFromBlockArray(contentBlocks, entityMap);
 // 	return EditorState.createWithContent(contentState);
 // };
+
+
 export const checkProductName = (value: string | undefined | null): Promise<void> => {
     return new Promise((resolve, reject) => {
         if (!value || value.trim().length === 0) {
@@ -78,14 +81,39 @@ export const checkBrandName = (value: string | undefined | null): Promise<void> 
         
     });
 };
-export const customMoney = (money: number) => {
+
+export const checkCategory = (category: string | undefined | null): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        // Check if the category is undefined, null, an empty string, or a placeholder value
+        if (!category || category.trim().length === 0 || category === 'select') {
+            // Reject the promise with an appropriate error message
+            reject('Hãy chọn danh mục sản phẩm');
+        } else {
+            // If the category is valid, resolve the promise
+            resolve();
+        }
+    });
+};
+export const checkSupplier = (supplier: string | undefined | null): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        // Check if the supplier is undefined, null, an empty string, or a placeholder value
+        if (!supplier || supplier.trim().length === 0 || supplier === 'select') {
+            // Reject the promise with an appropriate error message
+            reject('Hãy chọn nhà cung cấp');
+        } else {
+            // If the category is valid, resolve the promise
+            resolve();
+        }
+    });
+};
+export const customMoney = (money: number|null|undefined) => {
 	return (money || 0).toLocaleString('vi-VN', {
 		style: 'currency',
 		currency: 'VND',
 	});
 };
 
-export const customNumber = (number: number) => {
+export const customNumber = (number: number|undefined) => {
 	return number?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
 
@@ -115,7 +143,37 @@ export const checkInputMoney = (value: number) => {
 	}
 	return Promise.resolve();
 };
-
+export const checkDiscountCode = (value: string | undefined | null): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        if (!value || value.trim().length === 0) {
+            reject('Hãy mã giảm giá');
+        } else if (value.trim().length <= 3) {
+            reject('Mã giảm giá phải lớn hơn 3 ký tự');
+        } else {
+            resolve();
+        }
+    });
+};
+export const checkDiscountType = (discount: string | undefined | null): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        // Check if the discount is undefined, null, an empty string, or a placeholder value
+        if (!discount || discount.trim().length === 0 || discount === 'select') {
+         
+            reject('Hãy chọn kiểu giảm giá');
+        } else {
+           
+            resolve();
+        }
+    });
+};
+export const renderDiscountValue = (item: MDiscount) => {
+	if (item.type === "PERCENTAGE") {
+		return `${item.discountValue}%`;
+	} else if (item.type === "FIX-AMOUNT") {
+		return customNumber(item.discountValue)+"đ";
+	}
+	return "";
+};
 export const objectToQueryString = <T>(object: T): string => {
 	return '?' + new URLSearchParams(object as any).toString();
 };
