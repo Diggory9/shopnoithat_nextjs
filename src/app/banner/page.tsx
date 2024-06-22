@@ -1,8 +1,20 @@
-export default function Banner() {
-    return(
-        <div className="w-full h-1/3">
+import React from "react";
+import { Carousel } from "antd";
 
-            <img src="/img/banner4.png"/>
-        </div>
-    );
-};
+const Banner: React.FC = () => (
+    <>
+        <Carousel arrows infinite={false}>
+            <div className="w-full h-1/3">
+                <img src="/img/banner4.png" />
+            </div>
+            <div className="w-full h-1/3">
+                <img src="/img/banner4.png" />
+            </div>
+            <div className="w-full h-1/3">
+                <img src="/img/banner4.png" />
+            </div>
+        </Carousel>
+    </>
+);
+
+export default Banner;
