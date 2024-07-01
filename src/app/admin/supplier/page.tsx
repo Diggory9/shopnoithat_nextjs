@@ -13,7 +13,7 @@ export default function Supplier() {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Supplier/list",
+                    `${process.env.API_URL}Supplier/list`,
                     {
                         method: "POST",
                         headers: {
@@ -37,7 +37,7 @@ export default function Supplier() {
     const handleDelete = async (id: string) => {
         try {
             const response = await fetch(
-                `https://localhost:44372/api/Supplier/${id}`,
+                `${process.env.API_URL}Supplier/${id}`,
                 {
                     method: "DELETE",
                     headers: {

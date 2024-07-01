@@ -3,7 +3,8 @@
 }
 
  export interface MProductItem {
-    [x: string]: unknown;
+    selected: unknown;
+    
     id?:string;
     quantity?: number;
     color?: {id?:string,colorName?:string,colorCode?:string};
@@ -17,8 +18,10 @@
     productBrand?: string;
     price?: number;
     supplierId?: string;
+    image?:string;
     categoryName?:string;
     categoryId?: string;
+    discountId?: string;
     productItems?: MProductItem[];
     productSpecifications?:MProductSpecification[];
     rating?:{rate?:number,count?:number};

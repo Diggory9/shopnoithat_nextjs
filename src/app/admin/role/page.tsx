@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 
-interface Role{
-    id:string;
-    name:string;
+interface Role {
+    id: string;
+    name: string;
 }
 
 export default function Role() {
@@ -13,7 +13,7 @@ export default function Role() {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/RoleManager/get-roles",
+                    `${process.env.API_URL}RoleManager/get-roles`,
                     {
                         method: "POST",
                         headers: {
@@ -85,7 +85,7 @@ export default function Role() {
                                 <th scope="col" className="px-6 py-3">
                                     Role name
                                 </th>
-                              
+
                                 <th scope="col" className="px-6 py-3">
                                     Action
                                 </th>
@@ -103,7 +103,7 @@ export default function Role() {
                                     >
                                         {item.name}
                                     </th>
-                                    
+
                                     <td className="flex items-center px-6 py-4">
                                         <a
                                             href="#"
@@ -126,4 +126,4 @@ export default function Role() {
             </div>
         </div>
     );
-};
+}

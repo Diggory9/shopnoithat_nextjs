@@ -11,7 +11,7 @@ export default function Discount() {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Discount/list?pageNumber=1&pageSize=20",
+                    `${process.env.API_URL}Discount/list?pageNumber=1&pageSize=20`,
                     {
                         method: "POST",
                         headers: {
@@ -37,7 +37,7 @@ export default function Discount() {
         try {
             const status = checked ? "ACTIVE" : "PAUSE";
             const response = await fetch(
-                `https://localhost:44372/api/Discount/${
+                `${process.env.API_URL}Discount/${
                     checked ? "continue" : "pause"
                 }`,
                 {

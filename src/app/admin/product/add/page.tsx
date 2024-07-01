@@ -5,7 +5,7 @@ import { MCategory } from "@/models/categorymodel";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { MSupplier } from "@/models/suppliermodel";
-import MUploadImageMultiple from "@/app/components/uploadImageMultiple";
+
 import { CloseOutlined } from "@ant-design/icons";
 import {
     Button,
@@ -31,6 +31,8 @@ import {
 } from "@/utils/config";
 import { Toaster, toast } from "sonner";
 import { MProduct } from "@/models/productmodel";
+import { MDiscount } from "@/models/discount";
+import MUploadImageMultiple from "@/components/ui/UploadImageMulti";
 type FieldType = {
     name?: string;
     description?: string;
@@ -39,6 +41,7 @@ type FieldType = {
     price?: number;
     supplierId?: string;
     categoryId?: string;
+    discountId?: string;
     productSpecifications?: Omit<ProductSpecification, "key">[];
     productItems?: ProductItem[];
 };
@@ -60,6 +63,7 @@ const AddProduct = () => {
     //fetch list data category and supplier
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
+    const [dataDis, setDataDis] = useState<MDiscount[]>([]);
     const [form] = Form.useForm();
     // const a = form.getFieldValue("productItems");
     // console.log(a);
@@ -97,7 +101,7 @@ const AddProduct = () => {
         const fetchSuppliers = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Supplier/list",
+                    `${process.env.API_URL}Supplier/list`,
                     {
                         method: "POST",
                         headers: {
@@ -120,12 +124,41 @@ const AddProduct = () => {
         value: item.id,
         label: item.supplierName,
     }));
+
+    useEffect(() => {
+        const fetchDiscounts = async () => {
+            try {
+                const respone = await fetch(
+                    `${process.env.API_URL}Discount/list?pageNumber=1&pageSize=10`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+                if (!respone.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                const result = await respone.json();
+                setDataDis(result.data);
+            } catch (error) {
+                console.error("Fetch error:", error);
+            }
+        };
+        fetchDiscounts();
+    }, []);
+    const optionsDis = dataDis.map((item) => ({
+        value: item.id,
+        label: item.code,
+    }));
+
     const handleSubmit = async (values: MProduct) => {
         console.log(values);
 
         try {
             const response = await fetch(
-                "https://localhost:44372/api/Product/create",
+                `${process.env.API_URL}Product/create`,
                 {
                     method: "POST",
                     headers: {
@@ -289,6 +322,24 @@ const AddProduct = () => {
                                         )
                                 }
                                 options={optionsSup}
+                            />
+                        </Form.Item>
+                        <Form.Item<FieldType>
+                            label="Mã giảm giá"
+                            name="discountId"
+                            // rules={[
+                            //     {
+                            //         validator: (_, value) =>
+                            //             checkSupplier(value),
+                            //     },
+                            // ]}
+                        >
+                            <Select
+                                //showSearch
+                                style={{ width: 200 }}
+                                placeholder="Search to Select"
+                                optionFilterProp="children"
+                                options={optionsDis}
                             />
                         </Form.Item>
                     </Col>

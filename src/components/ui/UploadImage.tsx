@@ -52,8 +52,8 @@ const MUploadImage: React.FC<MUploadImageProps> = ({
     return (
         <Form.Item
             label={disableTitle ? "" : "Image"}
-            name={ "url"}
-			valuePropName="avatar"
+            name={"url"}
+            valuePropName="avatar"
             getValueFromEvent={getFile}
             rules={[
                 {
@@ -67,7 +67,7 @@ const MUploadImage: React.FC<MUploadImageProps> = ({
                 listType="picture-card"
                 className="avatar-uploader"
                 showUploadList={false}
-                action={`https://localhost:44372/api/UploadPhoto/upload`}
+                action={`${process.env.API_URL}UploadPhoto/upload`}
                 onChange={handleChange}
                 accept="image/*"
                 {...rest}

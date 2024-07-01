@@ -10,7 +10,7 @@ export default function Product() {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Product/list?pageNumber=1&pageSize=10",
+                    `${process.env.API_URL}Product/list?pageNumber=1&pageSize=10`,
                     {
                         method: "POST",
                         headers: {
@@ -101,7 +101,7 @@ export default function Product() {
                         <tbody>
                             {dataProduct.map((item) => (
                                 <tr
-                                    key={item.productBrand}
+                                    key={item.id}
                                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                                 >
                                     <td className="w-4 p-4">
@@ -114,25 +114,12 @@ export default function Product() {
                                         {item.name}
                                     </th>
                                     <td className="px-6 py-4">
-                                        {item.productItems &&
-                                            item.productItems.length > 0 &&
-                                            item.productItems.map(
-                                                (item1, i) =>
-                                                    item1.productImages &&
-                                                    item1.productImages.length >
-                                                        0 &&
-                                                    item1.productImages.map(
-                                                        (item2, j) => (
-                                                            <Image
-                                                                key={`${i}-${j}`}
-                                                                src={""}
-                                                                alt={""}
-                                                                width={50}
-                                                                height={50}
-                                                            />
-                                                        )
-                                                    )
-                                            )}
+                                        <Image
+                                            src={`${item.image}`}
+                                            alt={""}
+                                            width={50}
+                                            height={50}
+                                        />
                                     </td>
 
                                     <td className="px-6 py-4">
