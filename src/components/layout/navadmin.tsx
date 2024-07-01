@@ -8,7 +8,7 @@ export default function NavAdmin() {
     return (
         <div className="min-h-screen flex flex-col col-span-1">
             <div className="">
-                <aside className="w-64 bg-gray-100/40 text-black ">
+                <aside className="w-56 bg-gray-100/40 text-black ">
                     <nav>
                         <ul>
                             <li className="my-2 px-2 py-1 text-black ">
@@ -69,6 +69,18 @@ export default function NavAdmin() {
                                     }`}
                                 >
                                     Discount
+                                </Link>
+                            </li>
+                            <li className="my-2 px-2 py-2 text-black">
+                                <Link
+                                    href={"/admin/order"}
+                                    className={`pl-1 py-4 w-full inline-flex gap-3 items-center hover:bg-gray-200 hover:text-black ${
+                                        pathname == "/admin/discount"
+                                            ? "bg-gray-200 hover:text-black"
+                                            : ""
+                                    }`}
+                                >
+                                    Order
                                 </Link>
                             </li>
                         </ul>

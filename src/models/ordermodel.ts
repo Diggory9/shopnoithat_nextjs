@@ -1,4 +1,5 @@
 export interface MOrder{
+    id?:string,
     province: any
     orderType?:string,
     address?:string,
@@ -10,6 +11,8 @@ export interface MOrder{
     notes?: string,
     items?: MItem[],
     userId?: string,
+    dateCreate?:string,
+    status?:string,
     transactions?: MTransaction[]
 }
 export interface MItem{

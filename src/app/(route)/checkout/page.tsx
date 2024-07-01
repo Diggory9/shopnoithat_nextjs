@@ -13,9 +13,9 @@ export default function CheckOut() {
     const [datacart, setDatacart] = useState<CartModel[]>([]);
     const [userId, setUserId] = useState("");
     const router = useRouter();
-    form.setFieldsValue({ recipientName: "ghghhgh" });
+    form.setFieldsValue({ recipientName: "The Nguyen" });
     form.setFieldsValue({ phone: "0358326432" });
-    form.setFieldsValue({ notes: "Hello" });
+    form.setFieldsValue({ notes: "Giao hang 9h-10h" });
     form.setFieldsValue({ address: "180 cao lo" });
     //Lấy data giỏ hàng và userID từ local
     useEffect(() => {
