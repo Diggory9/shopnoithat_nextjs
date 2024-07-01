@@ -28,7 +28,7 @@ export default function addDiscount() {
         console.log(body);
         try {
             const respone = await fetch(
-                "https://localhost:44372/api/Discount/create",
+                `${process.env.API_URL}Discount/create`,
                 {
                     method: "POST",
                     headers: {

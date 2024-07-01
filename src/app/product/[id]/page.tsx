@@ -15,7 +15,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    `https://localhost:44372/api/Product/${params.id}`,
+                    `${process.env.API_URL}Product/${params.id}`,
                     {
                         method: "POST",
                         headers: {
@@ -33,7 +33,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
             }
         };
         fetchData();
-    }, []);
+    }, [params.id]);
 
     const handleOnClick = (productItemId?: string) => () => {
         if (!productItemId || !product) return;
@@ -59,7 +59,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
 
         try {
             const response = await fetch(
-                "https://localhost:44372/api/Cart/add-to-cart",
+                `${process.env.API_URL}Cart/add-to-cart`,
                 {
                     method: "POST",
                     headers: {
@@ -80,7 +80,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                 toast.success("Thêm vào giỏ hàng thành công!");
                 try {
                     const response11 = await fetch(
-                        `https://localhost:44372/api/Cart/get-cart/${
+                        `${process.env.API_URL}Cart/get-cart/${
                             localStorage.getItem("userId") ?? ""
                         }`,
                         {
@@ -147,17 +147,17 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                     </div>
                     <div className="mt-10 lg:mt-0 lg:w-1/2 lg:pl-10 ">
                         <h1 className="text-3xl text-gray-900 font-serif border-b">
-                            {product && product.name}
+                            {product && product?.name}
                         </h1>
                         <p className="mt-4 text-xl text-red-500 border-b">
-                            {customMoney(product && product.price)}
+                            {customMoney(product && product?.price)}
                         </p>
                         <p className="mt-4 text-xl text-gray-900 border-b ">
                             Màu sắc:
                             {product?.productItems?.map((item) => (
                                 <Button
-                                    onClick={handleOnClick(item.id)}
-                                    key={item.id}
+                                    onClick={handleOnClick(item?.id)}
+                                    key={item?.id}
                                     className="m-1"
                                     style={{
                                         backgroundColor:
@@ -166,22 +166,23 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                                 ></Button>
                             ))}
                         </p>
-                        <p className="mt-4 text-xl text-gray-900 border-b ">
+                        {/* <p className="mt-4 text-xl text-gray-900 border-b ">
                             Số lượng:{" "}
                             <span>
                                 {product &&
-                                    product.productItems &&
-                                    product.productItems.length > 0 &&
-                                    product.productItems[0].quantity}
+                                    product?.productItems &&
+                                    product?.productItems?.length > 0 &&
+                                    product?.productItems[0]?.quantity}
                             </span>
-                        </p>
+                        </p> */}
                         <p className="mt-4 text-xl text-gray-900 border-b pb-2   ">
                             Kích thước:{" "}
                             <span className="text-base  border p-1">
                                 {" "}
                                 {product &&
-                                    product.productSpecifications &&
-                                    product.productSpecifications[0].specValue}
+                                    product?.productSpecifications &&
+                                    product?.productSpecifications[0]
+                                        ?.specValue}
                             </span>
                         </p>
                         <p className="mt-4 text-xl text-gray-900 border-b pb-2 ">
@@ -189,8 +190,9 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                             <span className="text-base border p-1">
                                 {" "}
                                 {product &&
-                                    product.productSpecifications &&
-                                    product.productSpecifications[1].specValue}
+                                    product?.productSpecifications &&
+                                    product?.productSpecifications[1]
+                                        ?.specValue}
                             </span>
                         </p>
 

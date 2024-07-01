@@ -15,7 +15,7 @@ export default function UpdateCategory({ params }: { params: { id: string } }) {
         const fetchCategory = async () => {
             try {
                 const response = await fetch(
-                    `https://localhost:44372/api/Category/${params.id}`,
+                    `${process.env.API_URL}Category/${params.id}`,
                     {
                         method: "POST",
                         headers: {
@@ -41,7 +41,7 @@ export default function UpdateCategory({ params }: { params: { id: string } }) {
         const fetchCategories = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Category/list",
+                    `${process.env.API_URL}Category/list`,
                     {
                         method: "POST",
                         headers: {
@@ -64,7 +64,7 @@ export default function UpdateCategory({ params }: { params: { id: string } }) {
         e.preventDefault();
         try {
             const response = await fetch(
-                `https://localhost:44372/api/Category/update/${params.id}`,
+                `${process.env.API_URL}Category/update/${params.id}`,
                 {
                     method: "PUT",
                     headers: {
@@ -79,7 +79,7 @@ export default function UpdateCategory({ params }: { params: { id: string } }) {
             );
             if (response.ok) {
                 toast.success("Cập nhật danh mục thành công");
-                router.push('/admin/category');
+                router.push("/admin/category");
             } else {
                 toast.error("Cập nhật danh mục thất bại");
             }
@@ -136,14 +136,17 @@ export default function UpdateCategory({ params }: { params: { id: string } }) {
                         </label>
 
                         <select
+                            key={1}
                             name="cars"
                             id="cars"
                             className="w-full p-2"
                             onChange={(e) => setCateParent(e.target.value)}
                         >
-                            {dataCate.map((item, index) => (
+                            {dataCate.map((item) => (
                                 <>
-                                    <option value={item.id}>{item.name}</option>
+                                    <option key={item.id} value={item.id}>
+                                        {item.name}
+                                    </option>
                                 </>
                             ))}
                         </select>

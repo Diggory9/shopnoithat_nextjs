@@ -17,7 +17,7 @@ export default function addSupplier() {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Supplier/list",
+                    `${process.env.API_URL}Supplier/list`,
                     {
                         method: "POST",
                         headers: {
@@ -41,7 +41,7 @@ export default function addSupplier() {
         //setErrorName(name.length < 1 ? "Tên danh mục không được để trống" : "");
         try {
             const respone = await fetch(
-                "https://localhost:44372/api/Supplier/create",
+                `${process.env.API_URL}Supplier/create`,
                 {
                     method: "POST",
                     headers: {
@@ -156,7 +156,7 @@ export default function addSupplier() {
                     type="submit"
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
                 >
-                   Thêm nhà cung cấp
+                    Thêm nhà cung cấp
                 </button>
             </form>
         </div>

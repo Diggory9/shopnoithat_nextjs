@@ -40,7 +40,7 @@ export default function addCategory() {
         setErrorName(name.length < 1 ? "Tên danh mục không được để trống" : "");
         try {
             const respone = await fetch(
-                "https://localhost:44372/api/Category/insert",
+                `${process.env.API_URL}Category/insert`,
                 {
                     method: "POST",
                     headers: {
@@ -105,7 +105,7 @@ export default function addCategory() {
                         className="w-3/5 p-2"
                         onChange={(e) => setCateParent(e.target.value)}
                     >
-                          <option value=" ">None</option>
+                        <option value=" ">None</option>
                         {dataCate.map((item, index) => (
                             <>
                                 <option value={item.id}>{item.name}</option>

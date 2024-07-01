@@ -1,4 +1,4 @@
-import NavAdmin from "../components/navadmin";
+import NavAdmin from "../../components/layout/navadmin";
 
 export default function AdminLayout({
     children,
@@ -11,7 +11,6 @@ export default function AdminLayout({
                 <h1 className="text-xl text-black font-bold uppercase">
                     My Dashboard
                 </h1>
-              
             </header>
             <div className="flex flex-1">
                 <NavAdmin />

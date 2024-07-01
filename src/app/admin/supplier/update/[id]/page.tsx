@@ -17,7 +17,7 @@ export default function updateSupplier({ params }: { params: { id: string } }) {
         const fetchSuppliers = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Supplier/list",
+                    `${process.env.API_URL}Supplier/list`,
                     {
                         method: "POST",
                         headers: {
@@ -41,7 +41,7 @@ export default function updateSupplier({ params }: { params: { id: string } }) {
         const fetchSupplier = async () => {
             try {
                 const response = await fetch(
-                    `https://localhost:44372/api/Supplier/${params.id}`,
+                    `${process.env.API_URL}Supplier/${params.id}`,
                     {
                         method: "POST",
                         headers: {
@@ -69,7 +69,7 @@ export default function updateSupplier({ params }: { params: { id: string } }) {
         e.preventDefault();
         try {
             const response = await fetch(
-                `https://localhost:44372/api/Supplier/update/${params.id}`,
+                `${process.env.API_URL}Supplier/update/${params.id}`,
                 {
                     method: "PUT",
                     headers: {
