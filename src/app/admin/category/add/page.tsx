@@ -16,7 +16,7 @@ export default function addCategory() {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Category/list",
+                    `${process.env.API_URL}Category/list`,
                     {
                         method: "POST",
                         headers: {
