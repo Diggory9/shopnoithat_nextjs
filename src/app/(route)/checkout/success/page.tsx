@@ -3,7 +3,9 @@ import { Button, Result } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 type dataOrder = {
-    data?: string;
+    data?: {
+        id?: string;
+    };
 };
 export default function Success() {
     const router = useRouter();
