@@ -31,7 +31,7 @@ export default function Success() {
                 <Button type="primary" key="home" onClick={handleBackHome}>
                     Về trang chủ
                 </Button>,
-                <Button key="detail">Chi tiết đơn hàng</Button>,
+                <Button key="detail">Chi tiết đơn hàng hehe</Button>,
             ]}
         />
     );
