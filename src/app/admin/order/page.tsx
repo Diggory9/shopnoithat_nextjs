@@ -126,16 +126,7 @@ export default function Order() {
                                     <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {item.status}
                                     </th>
-                                    {/* <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
-                                        <Link
-                                            href={`admin/order/update/${item.id}`}
-                                        >
-                                            Update Status
-                                        </Link>
-                                    </th> */}
+                                   
                                 </tr>
                             ))}
                         </tbody>
