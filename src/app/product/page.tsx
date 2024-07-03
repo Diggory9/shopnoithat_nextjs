@@ -11,7 +11,7 @@ export default function Product() {
         const fetchData = async () => {
             try {
                 const respone = await fetch(
-                    "https://localhost:44372/api/Product/list?pageNumber=1&pageSize=10",
+                    `${process.env.API_URL}Product/list?pageNumber=1&pageSize=10`,
                     {
                         method: "POST",
                         headers: {

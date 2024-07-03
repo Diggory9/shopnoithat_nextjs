@@ -1,6 +1,7 @@
 "use client";
 import { MOrder } from "@/models/ordermodel";
 import { formatDateToRender } from "@/utils/config";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Order() {
@@ -45,7 +46,7 @@ export default function Order() {
                         </form>
                     </div>
                     <div className="order-last content-center">
-                        <a href="/admin/discount/add">
+                        <a href="#">
                             <button
                                 className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
                                 type="button"
@@ -96,6 +97,9 @@ export default function Order() {
                                 <th scope="col" className="px-6 py-3">
                                     Trạng thái
                                 </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Hành động
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,16 +130,14 @@ export default function Order() {
                                     <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {item.status}
                                     </th>
-                                    {/* <th
+                                    <th
                                         scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                        className="px-6 py-4 font-medium text-sky-500 whitespace-nowrap dark:text-white hover:underline"
                                     >
-                                        <Link
-                                            href={`admin/order/update/${item.id}`}
-                                        >
-                                            Update Status
+                                        <Link href={`order/detail/${item.id}`}>
+                                            Chi tiết
                                         </Link>
-                                    </th> */}
+                                    </th>
                                 </tr>
                             ))}
                         </tbody>
