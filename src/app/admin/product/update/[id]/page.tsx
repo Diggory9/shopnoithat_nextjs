@@ -1,12 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MCategory } from "@/models/categorymodel";
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { MSupplier } from "@/models/suppliermodel";
 import { CloseOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Input, InputNumber, Row } from "antd";
-import { Select } from "antd";
+import {
+    Button,
+    Card,
+    Col,
+    Form,
+    Input,
+    InputNumber,
+    Row,
+    Select,
+    Spin,
+} from "antd";
 import {
     checkBrandName,
     checkCategory,
@@ -20,6 +28,7 @@ import { Toaster, toast } from "sonner";
 import { MProduct } from "@/models/productmodel";
 import { MDiscount } from "@/models/discount";
 import MUploadImageMultiple from "@/components/ui/UploadImageMulti";
+
 type FieldType = {
     name?: string;
     description?: string;
@@ -32,33 +41,37 @@ type FieldType = {
     productSpecifications?: Omit<ProductSpecification, "key">[];
     productItems?: ProductItem[];
 };
+
 type ProductSpecification = {
     specType?: string;
     specValue?: string;
     key?: number;
 };
+
 type ProductItem = {
     quantity?: number;
-    //colorId?: string;
     color?: { id?: string; colorName?: string; colorCode?: string };
     productImages?: ProductImage[];
 };
+
 type ProductImage = {
     url?: string;
 };
-const AddProduct = () => {
+
+const UpdateProduct = ({ params }: { params: { id: string } }) => {
     const router = useRouter();
+
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
     const [dataDis, setDataDis] = useState<MDiscount[]>([]);
+    //const [loading, setLoading] = useState(true);
     const [form] = Form.useForm();
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const respone = await fetch(
+                const response = await fetch(
                     `${process.env.API_URL}Category/list`,
-
                     {
                         method: "POST",
                         headers: {
@@ -66,14 +79,12 @@ const AddProduct = () => {
                         },
                     }
                 );
-                if (!respone.ok) {
+                if (!response.ok)
                     throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
+                const result = await response.json();
                 setDataCate(result.data);
             } catch (error) {
                 console.error("Fetch error:", error);
-            } finally {
             }
         };
         fetchCategories();
@@ -82,7 +93,7 @@ const AddProduct = () => {
     useEffect(() => {
         const fetchSuppliers = async () => {
             try {
-                const respone = await fetch(
+                const response = await fetch(
                     `${process.env.API_URL}Supplier/list`,
                     {
                         method: "POST",
@@ -91,10 +102,9 @@ const AddProduct = () => {
                         },
                     }
                 );
-                if (!respone.ok) {
+                if (!response.ok)
                     throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
+                const result = await response.json();
                 setDataSup(result.data);
             } catch (error) {
                 console.error("Fetch error:", error);
@@ -106,7 +116,7 @@ const AddProduct = () => {
     useEffect(() => {
         const fetchDiscounts = async () => {
             try {
-                const respone = await fetch(
+                const response = await fetch(
                     `${process.env.API_URL}Discount/list?pageNumber=1&pageSize=10`,
                     {
                         method: "POST",
@@ -115,10 +125,9 @@ const AddProduct = () => {
                         },
                     }
                 );
-                if (!respone.ok) {
+                if (!response.ok)
                     throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
+                const result = await response.json();
                 setDataDis(result.data);
             } catch (error) {
                 console.error("Fetch error:", error);
@@ -126,6 +135,112 @@ const AddProduct = () => {
         };
         fetchDiscounts();
     }, []);
+
+    useEffect(() => {
+        if (params.id) {
+            console.log("123");
+            const fetchProduct = async () => {
+                try {
+                    const response = await fetch(
+                        `${process.env.API_URL}Product/${params.id}`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        }
+                    );
+                    if (!response.ok)
+                        throw new Error("Network response was not ok");
+                    const result = await response.json();
+                    console.log(result.data);
+
+                    // form.setFieldsValue(result.data);
+                    // form.setFieldValue("categoryId", result.data.category.name);
+                    // form.setFieldValue("productImages", result.data.image);
+                    // form.setFieldValue(
+                    //     "supplierId",
+                    //     result.data.supplier.supplierName
+                    // );
+                    // form.setFieldValue(
+                    //     "discountId",
+                    //     result.data.productDiscount.code
+                    // );
+                    // form.setFieldValue(
+                    //     "colorId",
+                    //     result.data.productItems[0].color
+                    // );
+                    form.setFieldsValue({
+                        name: result.data.name,
+                        description: result.data.description,
+                        productBrand: result.data.productBrand,
+                        productQuantity: result.data.productQuantity,
+                        price: result.data.price,
+                        image: result.data.image,
+                        categoryId: result.data.category.id,
+                        supplierId: result.data.supplier.id,
+                        discountId: result.data.productDiscount?.id || null,
+                        productSpecifications:
+                            result.data.productSpecifications.map(
+                                (spec: { specType: any; specValue: any }) => ({
+                                    specType: spec.specType,
+                                    specValue: spec.specValue,
+                                })
+                            ),
+                        productItems: result.data.productItems.map(
+                            (
+                                item: {
+                                    quantity: any;
+                                    color: { id: any };
+                                    productImages: any[];
+                                },
+                                index: any
+                            ) => ({
+                                quantity: item.quantity,
+                                colorId: item.color.id,
+                                productImages: item.productImages.map(
+                                    (image) => ({
+                                        url: image.url,
+                                    })
+                                ),
+                            })
+                        ),
+                    });
+                } catch (error) {
+                    console.error("Fetch product error:", error);
+                } finally {
+                    //setLoading(false);
+                }
+            };
+            fetchProduct();
+        }
+    }, [params.id, form]);
+
+    const handleSubmit = async (values: MProduct) => {
+        try {
+            const response = await fetch(
+                `${process.env.API_URL}Product/${params.id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(values),
+                }
+            );
+
+            if (response.ok) {
+                toast.success("Cập nhật sản phẩm thành công");
+                router.push("/admin/product");
+            } else {
+                toast.error("Cập nhật sản phẩm thất bại");
+                throw new Error("Failed to update product");
+            }
+        } catch (error) {
+            console.error("Update product error:", error);
+        }
+    };
+
     const options = dataCate.map((item) => ({
         value: item.id,
         label: item.name,
@@ -139,54 +254,22 @@ const AddProduct = () => {
         label: item.code,
     }));
 
-    const handleSubmit = async (values: MProduct) => {
-        //console.log(values);
-
-        try {
-            const response = await fetch(
-                `${process.env.API_URL}Product/create`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(values),
-                }
-            );
-
-            if (response.ok) {
-                toast.success("Thêm sản phẩm thành công");
-                router.push("/admin/product");
-            } else {
-                toast.error("Thêm sản phẩm thất bại");
-                throw new Error("Failed to add product");
-            }
-        } catch (error) {
-            console.error("Add product error:", error);
-        }
-    };
-
     return (
         <div className="container mx-auto p-4 bg-white shadow-xl rounded-xl">
-            <h1 className="text-2xl font-bold pb-4">Thêm sản phẩm mới</h1>
+            <h1 className="text-2xl font-bold pb-4">Cập nhật sản phẩm</h1>
             <Toaster position="top-right" richColors />
             <Form
                 onFinish={handleSubmit}
                 form={form}
                 layout="vertical"
-                initialValues={{
-                    productSpecifications: [
-                        {
-                            specType: "",
-                            specValue: "",
-                        },
-                    ],
-                    productItems: [
-                        { quantity: 1, colorId: "", productImages: [] },
-                    ],
-                }}
+                // initialValues={{
+                //     productSpecifications: [{ specType: "", specValue: "" }],
+                //     productItems: [
+                //         { quantity: 1, colorId: "", productImages: [] },
+                //     ],
+                // }}
             >
-                <Row justify={"space-between"}>
+                <Row justify="space-between">
                     <Col span={8}>
                         <Form.Item<FieldType>
                             rules={[
@@ -212,7 +295,6 @@ const AddProduct = () => {
                         >
                             <Input.TextArea style={{ width: 300 }} />
                         </Form.Item>
-
                         <Form.Item<FieldType>
                             rules={[
                                 {
@@ -264,66 +346,34 @@ const AddProduct = () => {
                             name="categoryId"
                         >
                             <Select
-                                //showSearch
                                 style={{ width: 200 }}
-                                placeholder="Search to Select"
-                                optionFilterProp="children"
-                                filterOption={(input, option) =>
-                                    (option?.label ?? "").includes(input)
-                                }
-                                filterSort={(optionA, optionB) =>
-                                    (optionA?.label ?? "")
-                                        .toLowerCase()
-                                        .localeCompare(
-                                            (optionB?.label ?? "").toLowerCase()
-                                        )
-                                }
+                                placeholder="Chọn danh mục"
                                 options={options}
                             />
                         </Form.Item>
                         <Form.Item<FieldType>
-                            label="Nhà cung cấp"
-                            name="supplierId"
                             rules={[
                                 {
                                     validator: (_, value) =>
                                         checkSupplier(value),
                                 },
                             ]}
+                            label="Nhà cung cấp"
+                            name="supplierId"
                         >
                             <Select
-                                //showSearch
                                 style={{ width: 200 }}
-                                placeholder="Search to Select"
-                                optionFilterProp="children"
-                                filterOption={(input, option) =>
-                                    (option?.label ?? "").includes(input)
-                                }
-                                filterSort={(optionA, optionB) =>
-                                    (optionA?.label ?? "")
-                                        .toLowerCase()
-                                        .localeCompare(
-                                            (optionB?.label ?? "").toLowerCase()
-                                        )
-                                }
+                                placeholder="Chọn nhà cung cấp"
                                 options={optionsSup}
                             />
                         </Form.Item>
                         <Form.Item<FieldType>
                             label="Mã giảm giá"
                             name="discountId"
-                            // rules={[
-                            //     {
-                            //         validator: (_, value) =>
-                            //             checkSupplier(value),
-                            //     },
-                            // ]}
                         >
                             <Select
-                                //showSearch
                                 style={{ width: 200 }}
-                                placeholder="Search to Select"
-                                optionFilterProp="children"
+                                placeholder="Chọn mã giảm giá"
                                 options={optionsDis}
                             />
                         </Form.Item>
@@ -336,7 +386,6 @@ const AddProduct = () => {
                                         width: 300,
                                         display: "flex",
                                         rowGap: 16,
-
                                         flexDirection: "column",
                                     }}
                                 >
@@ -349,9 +398,9 @@ const AddProduct = () => {
                                             key={field.key}
                                             extra={
                                                 <CloseOutlined
-                                                    onClick={() => {
-                                                        remove(field.name);
-                                                    }}
+                                                    onClick={() =>
+                                                        remove(field.name)
+                                                    }
                                                 />
                                             }
                                         >
@@ -369,7 +418,6 @@ const AddProduct = () => {
                                             </Form.Item>
                                         </Card>
                                     ))}
-
                                     <Button
                                         type="dashed"
                                         onClick={() => add()}
@@ -399,9 +447,9 @@ const AddProduct = () => {
                                             key={field.key}
                                             extra={
                                                 <CloseOutlined
-                                                    onClick={() => {
-                                                        remove(field.name);
-                                                    }}
+                                                    onClick={() =>
+                                                        remove(field.name)
+                                                    }
                                                 />
                                             }
                                         >
@@ -416,33 +464,8 @@ const AddProduct = () => {
                                                 name={[field.name, "colorId"]}
                                             >
                                                 <Select
-                                                    //showSearch
-                                                    style={{
-                                                        width: 200,
-                                                    }}
-                                                    placeholder="Search to Select"
-                                                    optionFilterProp="children"
-                                                    filterOption={(
-                                                        input,
-                                                        option
-                                                    ) =>
-                                                        (
-                                                            option?.label || ""
-                                                        ).includes(input)
-                                                    }
-                                                    filterSort={(
-                                                        optionA,
-                                                        optionB
-                                                    ) =>
-                                                        (optionA?.label || "")
-                                                            .toLowerCase()
-                                                            .localeCompare(
-                                                                (
-                                                                    optionB?.label ??
-                                                                    ""
-                                                                ).toLowerCase()
-                                                            )
-                                                    }
+                                                    style={{ width: 200 }}
+                                                    placeholder="Chọn màu sắc"
                                                     options={[
                                                         {
                                                             value: "8ea83fdd-ecf0-4c68-8df0-d9238e098400",
@@ -467,7 +490,6 @@ const AddProduct = () => {
                                             />
                                         </Card>
                                     ))}
-
                                     <Button
                                         type="dashed"
                                         onClick={() => add()}
@@ -481,10 +503,11 @@ const AddProduct = () => {
                     </Col>
                 </Row>
                 <Button htmlType="submit" type="primary">
-                    Thêm sản phẩm
+                    Cập nhật sản phẩm
                 </Button>
             </Form>
         </div>
     );
 };
-export default AddProduct;
+
+export default UpdateProduct;
