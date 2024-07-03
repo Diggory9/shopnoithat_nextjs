@@ -1,7 +1,6 @@
 "use client";
 import { MOrder } from "@/models/ordermodel";
 import { formatDateToRender } from "@/utils/config";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Order() {
@@ -27,7 +26,7 @@ export default function Order() {
     useEffect(() => {
         fetchData();
     }, []);
-    console.log(orders);
+    //console.log(orders);
 
     return (
         <div className="bg-gray-50 w-full">
@@ -105,48 +104,26 @@ export default function Order() {
                                     key={item.id}
                                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                                 >
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
+                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {index + 1}
                                     </th>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
+                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {item.recipientName}
                                     </th>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
+                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {item.phone}
                                     </th>
-
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white"
-                                    >
+                                    <th className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white">
                                         {item.address}
                                     </th>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white"
-                                    >
+                                    <th className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white">
                                         {item.total}
                                     </th>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-red-600 whitespace-nowrap dark:text-white"
-                                    >
+                                    <th className="px-6 py-4 font-medium text-red-600 whitespace-nowrap dark:text-white">
                                         {formatDateToRender(item.dateCreate)}
                                     </th>
 
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
+                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {item.status}
                                     </th>
                                     {/* <th
