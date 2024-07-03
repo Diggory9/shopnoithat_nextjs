@@ -41,96 +41,99 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
         <div className="bg-gray-50 w-full p-5">
             <div className="bg-white p-5 rounded-xl mb-4 shadow-xl">
                 <h1 className="text-2xl font-bold mb-4">Chi tiết đơn hàng</h1>
-                <div className="flex">
-                    <div className="w-1/2">
-                        <div className="mb-4 p-3 border rounded-lg">
-                            <p>
-                                <strong>Recipient Name:</strong>{" "}
-                                {order?.recipientName}
+                <div className="flex flex-col md:flex-row">
+                    <div className="md:w-1/2 mb-4 md:mb-0">
+                        <div className="mb-4 p-5 border rounded-lg bg-gray-100">
+                            <h2 className="text-xl font-semibold mb-3">
+                                Thông tin người nhận
+                            </h2>
+                            <p className="mb-2">
+                                <strong>Tên:</strong> {order?.recipientName}
                             </p>
-                            <p>
-                                <strong>Phone:</strong> {order?.phone}
+                            <p className="mb-2">
+                                <strong>Điện thoại:</strong> {order?.phone}
                             </p>
-                            <p>
-                                <strong>Address:</strong> {order?.address}
+                            <p className="mb-2">
+                                <strong>Địa chỉ:</strong> {order?.address}
                             </p>
-                            <p>
-                                <strong>Order Type:</strong> {order?.orderType}
+                            <p className="mb-2">
+                                <strong>Loại đơn hàng:</strong>{" "}
+                                {order?.orderType}
                             </p>
-                            {/* <p>
-                                <strong>Sub Total:</strong> {order?.subTotal}
-                            </p> */}
-                            <p>
-                                <strong>Total:</strong> {order?.total}
+                            <p className="mb-2">
+                                <strong>Tổng tiền:</strong> {order?.total}
                             </p>
-                            <p>
-                                <strong>Total Discount:</strong>{" "}
+                            <p className="mb-2">
+                                <strong>Giảm giá:</strong>{" "}
                                 {order?.totalDiscount}
                             </p>
-                            {/* <p><strong>Total Ship:</strong> {order?.totalShip || 'N/A'}</p> */}
-                            <p>
-                                <strong>Status:</strong> {order?.status}
+                            <p className="mb-2">
+                                <strong>Trạng thái:</strong> {order?.status}
                             </p>
-                            <p>
-                                <strong>Date Created:</strong>{" "}
+                            <p className="mb-2">
+                                <strong>Ngày tạo:</strong>{" "}
                                 {formatDateToRender(order?.dateCreate)}
                             </p>
                             <p>
-                                <strong>Notes:</strong> {order?.notes}
+                                <strong>Ghi chú:</strong> {order?.notes}
                             </p>
                         </div>
                     </div>
-                    <div className="w-1/2">
-                        <div className="mb-4">
+                    <div className="md:w-1/2">
+                        <div className="mb-4 p-5 border rounded-lg bg-gray-100">
+                            <h2 className="text-xl font-semibold mb-3">
+                                Sản phẩm
+                            </h2>
                             {order?.orderItems?.map((item, index) => (
                                 <div
                                     key={index}
-                                    className="mb-2 p-3 border rounded-lg"
+                                    className="mb-2 p-3 border rounded-lg bg-white shadow-sm"
                                 >
-                                    <p>
-                                        <strong>Product Name:</strong>{" "}
+                                    <p className="mb-1">
+                                        <strong>Tên sản phẩm:</strong>{" "}
                                         {item?.product?.productName}
                                     </p>
-                                    <p>
-                                        <strong>Color:</strong>{" "}
+                                    <p className="mb-1">
+                                        <strong>Màu sắc:</strong>{" "}
                                         {item?.product?.colorItem?.colorName}
                                     </p>
-                                    <p>
-                                        <strong>Quantity:</strong>{" "}
+                                    <p className="mb-1">
+                                        <strong>Số lượng:</strong>{" "}
                                         {item?.quantity}
                                     </p>
-                                    <p>
-                                        <strong>Price:</strong> {item?.price}
+                                    <p className="mb-1">
+                                        <strong>Giá:</strong> {item?.price}
                                     </p>
                                     <p>
-                                        <strong>Amount Discount:</strong>{" "}
+                                        <strong>Giảm giá:</strong>{" "}
                                         {item.amountDiscount}
                                     </p>
                                 </div>
                             ))}
                         </div>
-
-                        <div>
+                        <div className="p-5 border rounded-lg bg-gray-100">
+                            <h2 className="text-xl font-semibold mb-3">
+                                Giao dịch
+                            </h2>
                             {order?.transactions?.map((transaction, index) => (
                                 <div
                                     key={index}
-                                    className="mb-2 p-3 border rounded-lg"
+                                    className="mb-2 p-3 border rounded-lg bg-white shadow-sm"
                                 >
-                                    {/* <p><strong>Transaction ID:</strong> {transaction.id}</p> */}
-                                    <p>
-                                        <strong>Amount:</strong>{" "}
+                                    <p className="mb-1">
+                                        <strong>Số tiền:</strong>{" "}
                                         {transaction.amount}
                                     </p>
-                                    <p>
-                                        <strong>Type:</strong>{" "}
+                                    <p className="mb-1">
+                                        <strong>Hình thức:</strong>{" "}
                                         {transaction.type}
                                     </p>
-                                    <p>
-                                        <strong>Description:</strong>{" "}
+                                    <p className="mb-1">
+                                        <strong>Mô tả:</strong>{" "}
                                         {transaction.description}
                                     </p>
                                     <p>
-                                        <strong>Status:</strong>{" "}
+                                        <strong>Trạng thái:</strong>{" "}
                                         {transaction.status}
                                     </p>
                                 </div>
