@@ -1,11 +1,12 @@
  export interface MProductImage {
+    id?: string;
     url?: string;
 }
 
  export interface MProductItem {
     selected: unknown;
     
-    id?:string;
+    id:string;
     quantity?: number;
     color?: {id?:string,colorName?:string,colorCode?:string};
     productImages?: MProductImage[];
@@ -17,15 +18,15 @@
     productQuantity?: number;
     productBrand?: string;
     price?: number;
-    supplierId?: string;
+    supplier?: {id: string, name: string};
     image?:string;
-    categoryName?:string;
+    category:{id: string, name: string};
     categoryId?: string;
     discountId?: string;
-    productItems?: MProductItem[];
+    productItems: MProductItem[];
     productSpecifications?:MProductSpecification[];
     rating?:{rate?:number,count?:number};
-    productDiscount?:{type?:null,value?:string};
+    productDiscount?:{id?:null,type?:null,value?:number};
 
 }
 export interface MProductSpecification{

@@ -1,29 +1,28 @@
 "use client";
-import { MCategory } from "@/models/categorymodel";
+import ApiProduct from "@/api/product/product-api";
 import { MProduct } from "@/models/productmodel";
 import { useEffect, useState } from "react";
-export default function Product() {
+import './style.css'
+import CategoryComponent from "@/components/category/category-component-list";
+import CartProduct from "@/components/product/card-product";
+
+export default function ProductComponent() {
     const [dataProduct, setDataProduct] = useState<MProduct[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const [dataCategories, setDataCategories] = useState<MCategory[]>([]);
+    const [showCategory, setShowCategory] = useState(false);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const respone = await fetch(
-                    `${process.env.API_URL}Product/list?pageNumber=1&pageSize=10`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setDataProduct(result.data);
+
+                ApiProduct.getProductPublics(1, 10)
+                    .then(res => {
+                        console.log(res)
+                        setDataProduct(res.data)
+                    })
+                    .catch(error => console.error(error));
+
             } catch (error) {
                 console.error("Fetch error:", error);
             } finally {
@@ -32,118 +31,60 @@ export default function Product() {
         };
         fetchData();
     }, []);
-    useEffect(() => {
-        const fetchDataCate = async () => {
+
+    const handleOnSelectCategory = (value: string) => {
+        console.log(value)
+        if (value === "All") {
             try {
-                const respone = await fetch(
-                    `${process.env.API_URL}Category/list`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                ); // Thay thế bằng URL API thực tế
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setDataCategories(result.data);
+                ApiProduct.getProductPublics(1, 10)
+                    .then(res => {
+                        console.log(res)
+                        setDataProduct(res.data)
+                    })
+                    .catch(error => console.error(error));
             } catch (error) {
                 console.error("Fetch error:", error);
             } finally {
                 setLoading(false);
             }
-        };
-        fetchDataCate();
-    }, []);
-    const filteredProducts =
-        selectedCategory === "All"
-            ? dataProduct
-            : dataProduct.filter(
-                  (product) => product.categoryName === selectedCategory
-              );
+        } else {
+            try {
+                ApiProduct.getProductPublicByCategory(value, 1, 10)
+                    .then(res => {
+                        console.log(res)
+                        setDataProduct(res.data)
+                    })
+                    .catch(error => console.error(error));
+            } catch (error) {
+                console.error("Fetch error:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+    }
 
     return (
-        <div className="bg-white">
-            <div className=" flex mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-                <div className="w-1/5 pr-4">
-                    <h2 className="text-xl font-serif text-gray-900 pb-4 uppercase">
-                        Danh mục
-                    </h2>
-                    <ul className="space-y-3">
-                        <li>
-                            <button
-                                onClick={() => setSelectedCategory("All")}
-                                className={`text-left w-full p-2 rounded ${
-                                    selectedCategory === "All"
-                                        ? "bg-gray-200"
-                                        : "bg-white"
-                                } hover:bg-gray-100`}
-                            >
-                                Tất cả sản phẩm
-                            </button>
-                        </li>
-                        {dataCategories.map((item) => (
-                            <li key={item.id}>
-                                <button
-                                    onClick={() =>
-                                        setSelectedCategory(item.name)
-                                    }
-                                    className={`text-left w-full p-2 rounded ${
-                                        selectedCategory === item.name
-                                            ? "bg-gray-200"
-                                            : "bg-white"
-                                    } hover:bg-gray-100`}
-                                >
-                                    {item.name}
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="w-3/4">
-                    {/* <h2 className="text-2xl font-serif text-gray-900 pb-8 uppercase">
-                        Sản phẩm mới
-                    </h2> */}
-                    <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8 border-y-2">
-                        {filteredProducts.map((item) => (
-                            <a
-                                key={item.id}
-                                href={`/product/${item.id}`}
-                                className="group"
-                            >
-                                <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-                                    {item &&
-                                        item.productItems &&
-                                        item.productItems.length > 0 && (
-                                            <img
-                                                src={
-                                                    item?.productItems?.find(
-                                                        (item1) =>
-                                                            item1.selected
-                                                    )?.productImages?.[0]
-                                                        ?.url ||
-                                                    item?.productItems?.[0]
-                                                        ?.productImages?.[0]
-                                                        ?.url
-                                                }
-                                                alt={item.name}
-                                                className="h-full w-full object-cover object-center"
-                                            />
-                                        )}
-                                </div>
-                                <h3 className="mt-4 text-black text-2xl">
-                                    {item.name}
-                                </h3>
-                                <p className="mt-1 text-lg text-orange-300 font-serif">
-                                    ${item.price}
-                                </p>
-                            </a>
-                        ))}
-                    </div>
+        <div className="bg-white flex flex-col sm:flex-row w-full mx-5 mt-10">
+            <button
+                className="sm:hidden mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={() => setShowCategory(!showCategory)}
+            >
+                {showCategory ? "Hide Categories" : "Show Categories"}
+            </button>
+            <div className={`w-full ${showCategory ? "block" : "hidden"} sm:block sm:w-1/4 lg:w-1/6`}>
+                <CategoryComponent
+                    onSelectCategory={handleOnSelectCategory}
+                    selectedCategory={selectedCategory}
+                />
+            </div>
+            <div className={`w-full ${showCategory ? "" : "sm:w-full"} sm:w-3/4 lg:w-5/6 p-10`}>
+                <div className="grid grid-cols-1 gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+                    {dataProduct.length == 0 || !dataProduct ? "Khong co du lieu" : dataProduct.map((product) => (
+                        <CartProduct key={product.id} product={product} />
+                    ))}
                 </div>
             </div>
         </div>
     );
+
 }

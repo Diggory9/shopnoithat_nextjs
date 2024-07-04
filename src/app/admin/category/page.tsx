@@ -162,7 +162,13 @@ export default function Category() {
                                         {item.description}
                                     </td>
                                     <td className="px-6 py-4">
-                                        {item.categoryParent}
+                                        {item.categoryParent? filteredCategories.map((i)=> {
+                                            if(i.id == item.categoryParent)
+                                                {
+                                                    return i.name
+                                                }
+                                        }): "Không có danh mục cha"
+                                        }
                                     </td>
                                     <td className="flex items-center px-6 py-4">
                                         <Link

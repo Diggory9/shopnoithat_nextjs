@@ -178,14 +178,7 @@ export default function Order() {
                                             </option>
                                         </select>
                                     </th>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-sky-500 whitespace-nowrap dark:text-white hover:underline"
-                                    >
-                                        <Link href={`order/detail/${item.id}`}>
-                                            Chi tiết
-                                        </Link>
-                                    </th>
+
                                 </tr>
                             ))}
                         </tbody>
