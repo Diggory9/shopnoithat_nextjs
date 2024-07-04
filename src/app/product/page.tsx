@@ -77,7 +77,7 @@ export default function ProductComponent() {
             </div>
             <div className={`w-full ${showCategory ? "" : "sm:w-full"} sm:w-3/4 lg:w-5/6 p-10`}>
                 <div className="grid grid-cols-1 gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-                    {dataProduct.map((product) => (
+                    {dataProduct.length == 0 || !dataProduct ? "Khong co du lieu" : dataProduct.map((product) => (
                         <CartProduct key={product.id} product={product} />
                     ))}
                 </div>

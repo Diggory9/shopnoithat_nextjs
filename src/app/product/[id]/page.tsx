@@ -6,6 +6,9 @@ import ProductTabs from "../components/tabprop";
 import { customMoney } from "@/utils/config";
 import InputQuantity from "../components/inputQuantity";
 import { toast } from "sonner";
+import Product from "@/app/admin/product/page";
+import ImageGalleryComponent from "@/components/ui/ImageGalleryComponent";
+import ApiProduct from "@/api/product/product-api";
 export default function ProductDetail({ params }: { params: { id: string } }) {
     const [product, setProduct] = useState<MProduct | null>(null);
     const [productItemId, setProductItemId] = useState("");
@@ -14,20 +17,13 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const respone = await fetch(
-                    `${process.env.API_URL}Product/${params.id}`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setProduct(result.data);
+                ApiProduct.getDetailProducts(params.id)
+                    .then(res => {
+                        console.log(res)
+                        setProductItemId(res.data.productItems[0].id)
+                        const productBeforeItemSelected = updateProductItemSelected(res.data, res.data.productItems[0].id);
+                        setProduct(productBeforeItemSelected!);
+                    }).catch(errors => console.log(errors));
             } catch (error) {
                 console.error("Fetch error:", error);
             }
@@ -35,7 +31,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
         fetchData();
     }, [params.id]);
 
-    const handleOnClick = (productItemId?: string) => () => {
+    const updateProductItemSelected = (product: MProduct, productItemId: string) => {
         if (!productItemId || !product) return;
 
         // Tìm productItem trong product với productItemId
@@ -44,13 +40,17 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                 ? { ...item, selected: true }
                 : { ...item, selected: false }
         );
-
-        // Cập nhật product với productItems đã được chọn
-        setProduct((prevProduct) => ({
-            ...prevProduct,
+        return {
+            ...product,
             productItems: updatedProductItems,
-        }));
-        setProductItemId(productItemId);
+        };
+    }
+    const handleOnClickChangeColor = (productItemId?: string) => () => {
+
+        if (!productItemId || !product) return;
+        const productBeforeItemSelected = updateProductItemSelected(product, productItemId);
+        setProduct(productBeforeItemSelected!);
+        setProductItemId(productItemId!);
         console.log(productItemId);
     };
 
@@ -64,9 +64,8 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${
-                            localStorage.getItem("access_token") ?? ""
-                        }`,
+                        Authorization: `Bearer ${localStorage.getItem("access_token") ?? ""
+                            }`,
                     },
                     body: JSON.stringify({
                         userId: localStorage.getItem("userId") ?? "",
@@ -80,16 +79,14 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                 toast.success("Thêm vào giỏ hàng thành công!");
                 try {
                     const response11 = await fetch(
-                        `${process.env.API_URL}Cart/get-cart/${
-                            localStorage.getItem("userId") ?? ""
+                        `${process.env.API_URL}Cart/get-cart/${localStorage.getItem("userId") ?? ""
                         }`,
                         {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",
-                                Authorization: `Bearer ${
-                                    localStorage.getItem("access_token") ?? ""
-                                }`,
+                                Authorization: `Bearer ${localStorage.getItem("access_token") ?? ""
+                                    }`,
                             },
                         }
                     );
@@ -117,33 +114,24 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
             toast.error("Bạn cần đăng nhập");
         }
     };
-
-    // console.log("Số lượng:" + quantity);
-    // console.log("UserID:" + userId1);
-    // console.log("ProducItem:" + productItemId);
-
+    const selectedProductItem = product?.productItems?.find((item) => item.selected);
     return (
         <div className="bg-white">
             <div className="container mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
                 <div className="lg:flex lg:items-center lg:justify-between">
                     <div className="lg:w-1/2">
-                        <div className="aspect-w-3 aspect-h-2 overflow-hidden rounded-lg bg-gray-200">
-                            {product &&
+                        {
+                            product &&
                                 product.productItems &&
-                                product.productItems.length > 0 && (
-                                    <img
-                                        src={
-                                            product?.productItems?.find(
-                                                (item) => item.selected
-                                            )?.productImages?.[0]?.url ||
-                                            product?.productItems?.[0]
-                                                ?.productImages?.[0]?.url
-                                        }
-                                        alt={product.name}
-                                        className="h-full w-full object-cover object-center"
-                                    />
-                                )}
-                        </div>
+                                product.productItems.length > 0 ?
+                                <>
+                                    <ImageGalleryComponent product={product} />
+
+                                </> : <div>
+
+                                </div>
+                        }
+
                     </div>
                     <div className="mt-10 lg:mt-0 lg:w-1/2 lg:pl-10 ">
                         <h1 className="text-3xl text-gray-900 font-serif border-b">
@@ -152,52 +140,51 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                         <p className="mt-4 text-xl text-red-500 border-b">
                             {customMoney(product && product?.price)}
                         </p>
-                        <p className="mt-4 text-xl text-gray-900 border-b ">
-                            Màu sắc:
+                        <p className="mt-4 text-xl text-gray-900 border-b flex items-center">
+                            Màu sắc: &nbsp;
                             {product?.productItems?.map((item) => (
-                                <Button
-                                    onClick={handleOnClick(item?.id)}
-                                    key={item?.id}
-                                    className="m-1"
-                                    style={{
-                                        backgroundColor:
-                                            item.color?.colorCode || "#ffffff",
-                                    }}
-                                ></Button>
+                                <div className="ml-3" key={item.id}>
+                                    <Button
+                                        onClick={handleOnClickChangeColor(item?.id)}
+
+                                        className="m-1"
+                                        style={{
+                                            backgroundColor:
+                                                item.color?.colorCode || "#ffffff",
+                                        }}
+                                    >
+                                    </Button>
+                                    <div className="text-sm font-extralight">
+                                        {
+                                            item.color?.colorName
+                                        }
+                                    </div>
+                                </div>
+
                             ))}
                         </p>
-                        {/* <p className="mt-4 text-xl text-gray-900 border-b ">
-                            Số lượng:{" "}
-                            <span>
-                                {product &&
-                                    product?.productItems &&
-                                    product?.productItems?.length > 0 &&
-                                    product?.productItems[0]?.quantity}
-                            </span>
-                        </p> */}
-                        <p className="mt-4 text-xl text-gray-900 border-b pb-2   ">
-                            Kích thước:{" "}
-                            <span className="text-base  border p-1">
-                                {" "}
-                                {product &&
-                                    product?.productSpecifications &&
-                                    product?.productSpecifications[0]
-                                        ?.specValue}
-                            </span>
-                        </p>
-                        <p className="mt-4 text-xl text-gray-900 border-b pb-2 ">
-                            Vật liệu:{" "}
-                            <span className="text-base border p-1">
-                                {" "}
-                                {product &&
-                                    product?.productSpecifications &&
-                                    product?.productSpecifications[1]
-                                        ?.specValue}
-                            </span>
-                        </p>
+                        {/* product specification */}
 
+                        {
+                            product &&
+                            product?.productSpecifications &&
+                            product?.productSpecifications.length > 0 && (
+                                product.productSpecifications.map(specification => {
+                                    return (
+                                        <div className="mt-4 text-xl text-gray-900 border-b pb-2" key={specification.id}>
+                                            {specification.specType} &nbsp;
+                                            <span className="text-base border p-1">
+                                                {specification.specValue}
+                                            </span>
+                                        </div>
+                                    )
+                                }
+                                )
+
+                            )
+                        }
                         <p className="mt-4 text-black text-lg">
-                            Danh mục: {product && product.categoryName}
+                            Danh mục: {product && product.category.name}
                         </p>
                         <div className="pt-4">
                             <div className="flex gap-4">
@@ -216,7 +203,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                                                 quantity >
                                                     (product?.productQuantity
                                                         ? product?.productQuantity -
-                                                          1
+                                                        1
                                                         : 98)
                                                     ? product?.productQuantity
                                                         ? product?.productQuantity
@@ -246,12 +233,17 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                             Thêm vào giỏ
                         </button>
                         <div dangerouslySetInnerHTML={{ __html: "" }}></div>
+
                     </div>
+
+
                 </div>
-                <div className="lg:flex lg:items-center lg:justify-between">
-                    <ProductTabs des={product?.description} />
-                    <div className="w-[55%]"></div>
-                    <div className="w-[45%] h-80"></div>
+                <div className="flex justify-end">
+                    <div className="w-1/2"></div>
+                    <div className="w-1/2 lg:flex lg:items-center lg:justify-between">
+                        <ProductTabs des={product?.description} />
+
+                    </div>
                 </div>
             </div>
         </div>

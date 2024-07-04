@@ -46,6 +46,30 @@ const ApiProduct = {
             console.error("Fetch error: ", error);
             throw error;
         }
+    },
+    async getDetailProducts(id: string){
+        try {
+            
+            const response = await fetch(
+                `${Url}/${id}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            console.log(response, id);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            
+            return data;
+        } catch (error) {
+            console.error("Fetch error: ", error);
+            throw error;
+        }
     }
 };
 export default ApiProduct;
