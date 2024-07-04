@@ -1,7 +1,9 @@
 "use client";
 import { MOrder } from "@/models/ordermodel";
 import { formatDateToRender } from "@/utils/config";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Toaster, toast } from "sonner";
 
 export default function Order() {
     const [orders, setOrders] = useState<MOrder[]>([]);
@@ -22,7 +24,31 @@ export default function Order() {
             console.error("Error fetching order data:", error);
         }
     };
-
+    const updateOrderStatus = async (id: string, newStatus: string) => {
+        try {
+            const response = await fetch(`${process.env.API_URL}Order/status`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id, status: newStatus }),
+            });
+            if (response.ok) {
+                setOrders((prevOrders) =>
+                    prevOrders.map((order) =>
+                        order.id === id
+                            ? { ...order, status: newStatus }
+                            : order
+                    )
+                );
+                toast.success("Cập nhật trạng thái thành công");
+            } else {
+                toast.error("Không thể cập nhật trạng thái");
+            }
+        } catch (error) {
+            console.error("Error updating order status:", error);
+        }
+    };
     useEffect(() => {
         fetchData();
     }, []);
@@ -32,6 +58,7 @@ export default function Order() {
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3 rounded-xl mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">All Order</h1>
+                <Toaster position="top-right" richColors></Toaster>
                 <div className="flex justify-between ">
                     <div className="p-2">
                         <form action="" method="get">
@@ -45,7 +72,7 @@ export default function Order() {
                         </form>
                     </div>
                     <div className="order-last content-center">
-                        <a href="/admin/discount/add">
+                        <a href="#">
                             <button
                                 className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
                                 type="button"
@@ -96,6 +123,9 @@ export default function Order() {
                                 <th scope="col" className="px-6 py-3">
                                     Trạng thái
                                 </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Hành động
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -124,9 +154,31 @@ export default function Order() {
                                     </th>
 
                                     <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.status}
+                                        <select
+                                            value={item.status}
+                                            onChange={(e) =>
+                                                updateOrderStatus(
+                                                    item?.id || "",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        >
+                                            <option value="NEW-ORDER">
+                                                NEW-ORDER
+                                            </option>
+                                            <option value="PROCESSING">
+                                                PROCESSING
+                                            </option>
+                                            <option value="COMPLETED">
+                                                COMPLETED
+                                            </option>
+                                            <option value="CANCELLED">
+                                                CANCELLED
+                                            </option>
+                                        </select>
                                     </th>
-                                   
+
                                 </tr>
                             ))}
                         </tbody>

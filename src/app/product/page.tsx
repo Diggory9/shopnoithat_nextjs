@@ -15,12 +15,14 @@ export default function ProductComponent() {
     useEffect(() => {
         const fetchData = async () => {
             try {
+
                 ApiProduct.getProductPublics(1, 10)
                     .then(res => {
                         console.log(res)
                         setDataProduct(res.data)
                     })
                     .catch(error => console.error(error));
+
             } catch (error) {
                 console.error("Fetch error:", error);
             } finally {
