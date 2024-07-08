@@ -5,7 +5,8 @@ import { CartModel } from "@/models/cartmodel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import InputQuantity from "../../product/components/inputQuantity";
+import InputQuantity from "../product/components/inputQuantity";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
 const CartPage = () => {
     const dispatch = useAppDispatch();

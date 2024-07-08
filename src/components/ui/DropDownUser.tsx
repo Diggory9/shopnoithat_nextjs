@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import {
     LogoutOutlined,
@@ -9,19 +11,18 @@ import { Dropdown as AntDropdown, Button, Space } from "antd";
 import Link from "next/link";
 import ApiAuth from "@/api/auth/auth-api";
 
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { login } from "@/redux/features/auth/authSlice";
+import { logout } from "@/redux/features/auth/authSlice";
 const CustomDropdown: React.FC = () => {
-    const [email, setEmail] = useState("");
-
-    useEffect(() => {
-        const storedEmail = localStorage.getItem("email");
-        if (storedEmail) {
-            setEmail(storedEmail);
-        }
-    }, []);
+    const dispatch = useAppDispatch();
+    const { status, error, isLogin, data } = useAppSelector(
+        (state) => state.auth
+    );
 
     const handleOnClick = () => {
-        if (email) {
-            ApiAuth.LogOut(email);
+        if (isLogin) {
+            dispatch(logout({ email: data?.email || "" }));
         }
     };
 

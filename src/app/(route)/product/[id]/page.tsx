@@ -1,8 +1,8 @@
 import ApiProduct from "@/api/product/product-api";
-import { DetailProduct } from "@/app/product/components/product-detail";
+import { DetailProduct } from "../components/product-detail";
 
 const getData = async (id: string) => {
-    const data = await ApiProduct.getDetailProducts(id);
+    const data = await ApiProduct.getDetailProduct(id);
     return data;
 };
 export default async function ProductDetail({
