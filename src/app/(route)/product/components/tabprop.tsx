@@ -11,10 +11,10 @@ const onChange = (key: string) => {
 
 type PropsProductTabs = {
     des?: string;
-    review?: any;
     delivery?: any;
+    id?: string;
 };
-const ProductTabs = ({ delivery, des, review }: PropsProductTabs) => {
+const ProductTabs = ({ delivery, des, id }: PropsProductTabs) => {
     const items: TabsProps["items"] = [
         {
             key: "1",
@@ -24,7 +24,13 @@ const ProductTabs = ({ delivery, des, review }: PropsProductTabs) => {
         {
             key: "2",
             label: "Đánh giá",
-            children: <Review />,
+            children: (
+                <Review
+                    params={{
+                        id: id || "",
+                    }}
+                />
+            ),
         },
         {
             key: "3",

@@ -18,7 +18,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     loading = false,
     setOpen,
 }) => {
-
     const cart = useAppSelector((state) => state.cart);
     const auth = useAppSelector((state) => state.auth);
     const dispatch = useAppDispatch();
@@ -28,13 +27,17 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         return cart?.data?.reduce((total, item) => {
             return total + item?.price! * item?.quantity!;
         }, 0);
-    }
+    };
     const handleRemoveItem = (id: string) => {
         if (cart?.data) {
-            dispatch(deleteProductFromCart({ userId: auth.data?.id || "", productItemId: id }));
+            dispatch(
+                deleteProductFromCart({
+                    userId: auth.data?.id || "",
+                    productItemId: id,
+                })
+            );
         }
-    }
-
+    };
 
     return (
         <Drawer
@@ -46,66 +49,60 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
             onClose={() => setOpen(false)}
         >
             <div>
-                {
-                    (!cart?.data || cart.data.length === 0 ?
-
-                        <div>không có sản phẩm</div> :
-                        <>
-                            {
-
-                                (cart?.data.map((item) => (
-                                    <div className="w-full flex" key={item.id}>
-                                        <div className="w-1/4">
-                                            <img src={item?.image?.url} alt="" />
-                                        </div>
-                                        <div className="w-3/4 flex justify-between items-center">
-                                            <div>
-                                                <div>{item?.name}</div>
-                                                <div>
-                                                    {item?.price} <span>x</span> {item?.quantity}
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => handleRemoveItem(item?.id || "")}
-                                            >
-                                                <FontAwesomeIcon icon={faTimes} />
-                                            </button>
+                {!cart?.data || cart.data.length === 0 ? (
+                    <div>không có sản phẩm</div>
+                ) : (
+                    <>
+                        {cart?.data.map((item) => (
+                            <div className="w-full flex" key={item.id}>
+                                <div className="w-1/4">
+                                    <img src={item?.image?.url} alt="" />
+                                </div>
+                                <div className="w-3/4 flex justify-between items-center">
+                                    <div>
+                                        <div>{item?.name}</div>
+                                        <div>
+                                            {item?.price} <span>x</span>{" "}
+                                            {item?.quantity}
                                         </div>
                                     </div>
-                                )))
-                            }
-
-
-
-                            <div className="flex justify-between items-center mt-4">
-                                <div className="text-lg font-bold">
-                                    Tổng cộng:{" "}
-                                    {totalPriceCart()?.toLocaleString("vi-VN", {
-                                        style: "currency",
-                                        currency: "VND",
-                                    })}
+                                    <button
+                                        onClick={() =>
+                                            handleRemoveItem(item?.id || "")
+                                        }
+                                    >
+                                        <FontAwesomeIcon icon={faTimes} />
+                                    </button>
                                 </div>
                             </div>
-                            <div className="mt-4">
-                                <Link href={"/cart"}>
-                                    <Button
-                                        type="primary"
-                                        style={{
-                                            marginBottom: 16,
-                                            marginRight: 34,
-                                        }}
-                                    >
-                                        Xem giỏ hàng
-                                    </Button>
-                                </Link>
-                                <Button type="primary">Thanh toán</Button>
+                        ))}
+
+                        <div className="flex justify-between items-center mt-4">
+                            <div className="text-lg font-bold">
+                                Tổng cộng:{" "}
+                                {totalPriceCart()?.toLocaleString("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                })}
                             </div>
-                        </>
-                    )
-                }
+                        </div>
+                        <div className="mt-4">
+                            <Link href={"/cart"}>
+                                <Button
+                                    type="primary"
+                                    style={{
+                                        marginBottom: 16,
+                                        marginRight: 34,
+                                    }}
+                                >
+                                    Xem giỏ hàng
+                                </Button>
+                            </Link>
+                            <Button type="primary">Thanh toán</Button>
+                        </div>
+                    </>
+                )}
             </div>
-
-
         </Drawer>
     );
 };

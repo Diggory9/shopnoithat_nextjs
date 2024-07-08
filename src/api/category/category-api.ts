@@ -3,7 +3,7 @@
 const Url = `${process.env.API_URL}Category`
 
 
-const ApiCategory ={
+const ApiCategory = {
     async getCategoryParent() {
         try {
             const response = await fetch(

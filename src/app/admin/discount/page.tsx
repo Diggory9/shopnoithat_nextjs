@@ -1,7 +1,8 @@
 "use client";
 import { MDiscount } from "@/models/discount";
 import { formatDateToRender, renderDiscountValue } from "@/utils/config";
-import { Switch } from "antd";
+import { Button, Table, TableColumnsType } from "antd";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Discount() {
@@ -30,39 +31,55 @@ export default function Discount() {
         };
         fetchData();
     }, []);
-
-    const handleSwitchChange = async (checked: boolean, discountId: string) => {
-        console.log(discountId);
-
-        try {
-            const status = checked ? "ACTIVE" : "PAUSE";
-            const response = await fetch(
-                `${process.env.API_URL}Discount/${
-                    checked ? "continue" : "pause"
-                }`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ discountId }),
-                }
-            );
-            if (!response.ok) {
-                throw new Error("Failed to update status");
-            }
-            const updatedDiscount = dataDiscount.map((item) =>
-                item.id === discountId ? { ...item, status } : item
-            );
-            setDataDiscount(updatedDiscount);
-        } catch (error) {
-            console.error("Error updating status:", error);
-        }
-    };
-
+    const columns: TableColumnsType<MDiscount> = [
+        {
+            title: "STT",
+            dataIndex: "index",
+            key: "index",
+        },
+        {
+            title: "Mã code",
+            dataIndex: "code",
+            key: "code",
+        },
+        {
+            title: "Giá trị",
+            dataIndex: "discountValue",
+            key: "discountValue",
+        },
+        {
+            title: "Giá trị tối thiểu",
+            dataIndex: "condition",
+            key: "condition",
+        },
+        {
+            title: "Ngày bắt đầu",
+            dataIndex: "dateStart",
+            key: "dateStart",
+        },
+        {
+            title: "Ngày kết thúc",
+            dataIndex: "dateEnd",
+            key: "dateEnd",
+        },
+        {
+            title: "Trạng thái",
+            dataIndex: "status",
+            key: "status",
+        },
+        {
+            title: "Hành động",
+            key: "action",
+            render: (_: any, record: { key: string }) => (
+                <Link href={`/admin/user/detail/${record.key}`}>
+                    <Button type="link">Chi tiết</Button>
+                </Link>
+            ),
+        },
+    ] as TableColumnsType<MDiscount>;
     return (
         <div className="bg-gray-50 w-full">
-            <div className=" bg-white p-3 rounded-xl mb-4 shadow-xl">
+            <div className=" bg-white p-3  mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">All Discount</h1>
                 <div className="flex justify-between ">
                     <div className="p-2">
@@ -102,104 +119,25 @@ export default function Discount() {
                     </div>
                 </div>
             </div>
-            <div className="bg-white rounded-xl mb-4 shadow-xl">
+            <div className="bg-white  mb-4 shadow-xl">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" className="px-6 py-3">
-                                    Mã Code
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Giá trị
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Giá trị tối thiểu
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Ngày bắt đầu
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Ngày kết thúc
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Trạng thái
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    hành động
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {dataDiscount.map((item) => (
-                                <tr
-                                    key={item.id}
-                                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                                >
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
-                                        {item.code}
-                                    </th>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
-                                        {renderDiscountValue(item)}
-                                    </th>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
-                                        {item.condition}
-                                    </th>
-
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white"
-                                    >
-                                        {formatDateToRender(item.dateStart)}
-                                    </th>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-red-600 whitespace-nowrap dark:text-white"
-                                    >
-                                        {formatDateToRender(item.dateEnd)}
-                                    </th>
-
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
-                                        <div className="pb-2">
-                                            {" "}
-                                            {item.status}
-                                        </div>
-                                        <Switch
-                                            defaultChecked={
-                                                item.status === "ACTIVE"
-                                            }
-                                            onChange={(checked) =>
-                                                handleSwitchChange(
-                                                    checked,
-                                                    item?.id!
-                                                )
-                                            }
-                                            disabled={
-                                                item.status !== "ACTIVE" &&
-                                                item.status !== "PAUSE"
-                                            }
-                                        ></Switch>
-                                    </th>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    ></th>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <Table
+                        pagination={{
+                            defaultPageSize: 10,
+                            showSizeChanger: true,
+                            pageSizeOptions: ["10", "20", "30"],
+                        }}
+                        columns={columns}
+                        dataSource={
+                            dataDiscount.map((item, index) => ({
+                                ...item,
+                                index: index + 1,
+                                key: item.id,
+                                dateStart: formatDateToRender(item.dateStart),
+                                dateEnd: formatDateToRender(item.dateEnd),
+                            })) || []
+                        }
+                    ></Table>
                 </div>
             </div>
         </div>

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 
 export default function CheckOut() {
-    const [dataProvince, setDataProvince] = useState<MOrder[]>([]);
+    const [dataProvince, setDataProvince] = useState<MOrderGHN[]>([]);
     const [dataDistrict, setDataDistrict] = useState<MDistrict[]>([]);
     const [dataWard, setDataWard] = useState<MWard[]>([]);
     const [form] = Form.useForm();
@@ -51,7 +51,6 @@ export default function CheckOut() {
                 }
                 const result = await response11.json();
                 setDataProvince(result.data);
-
             } catch (error) {
                 console.error("Error during fetch:", error);
             }
@@ -134,7 +133,7 @@ export default function CheckOut() {
         return (
             total +
             (item?.price! * item?.quantity! * (item?.discount?.value || 0)) /
-            100
+                100
         );
     }, 0);
     // Hàm xử lý
@@ -379,7 +378,7 @@ export default function CheckOut() {
                                             <img
                                                 src={
                                                     item.images &&
-                                                        item.images[0]
+                                                    item.images[0]
                                                         ? item.images[0].url
                                                         : ""
                                                 }

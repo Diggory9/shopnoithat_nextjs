@@ -1,6 +1,4 @@
-'use client'
-import InputQuantity from "@/app/product/components/inputQuantity";
-import ProductTabs from "@/app/product/components/tabprop";
+"use client";
 import ImageGalleryComponent from "@/components/ui/ImageGalleryComponent";
 import { MProduct } from "@/models/productmodel";
 import { addToCart } from "@/redux/features/cart/cartSlice";
@@ -11,6 +9,8 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import InputQuantity from "./inputQuantity";
+import ProductTabs from "./tabprop";
 
 export const DetailProduct = ({ data }: { data: any }) => {
     const dispatch = useAppDispatch();
@@ -22,13 +22,19 @@ export const DetailProduct = ({ data }: { data: any }) => {
     const [quantity, setQuantity] = useState<number>(1);
     const router = useRouter();
     const cart = useAppSelector((state) => state.cart);
-    const auth = useAppSelector(state => state.auth);
+    const auth = useAppSelector((state) => state.auth);
     useEffect(() => {
-        const productBeforeItemSelected = updateProductItemSelected(data, productItemId);
+        const productBeforeItemSelected = updateProductItemSelected(
+            data,
+            productItemId
+        );
         setProduct(productBeforeItemSelected!);
     }, [data]);
 
-    const updateProductItemSelected = (product: MProduct, productItemId: string) => {
+    const updateProductItemSelected = (
+        product: MProduct,
+        productItemId: string
+    ) => {
         if (!productItemId || !product) return;
 
         // Tìm productItem trong product với productItemId
@@ -41,11 +47,13 @@ export const DetailProduct = ({ data }: { data: any }) => {
             ...product,
             productItems: updatedProductItems,
         };
-    }
+    };
     const handleOnClickChangeColor = (productItemId?: string) => () => {
-
         if (!productItemId || !product) return;
-        const productBeforeItemSelected = updateProductItemSelected(product, productItemId);
+        const productBeforeItemSelected = updateProductItemSelected(
+            product,
+            productItemId
+        );
         setProduct(productBeforeItemSelected!);
         setProductItemId(productItemId!);
         console.log(productItemId);
@@ -61,46 +69,46 @@ export const DetailProduct = ({ data }: { data: any }) => {
                 let payload = {
                     userId: auth.data?.id || "",
                     productItem: productItemId,
-                    quantity: quantity
-                }
-                console.log(payload)
+                    quantity: quantity,
+                };
+                console.log(payload);
                 dispatch(addToCart(payload));
-                handleNotificationAddCart
-
+                handleNotificationAddCart;
             } catch (error) {
-                toast.error("Thêm vào giỏ hàng thất bại xin thử lại sau ít phút");
+                toast.error(
+                    "Thêm vào giỏ hàng thất bại xin thử lại sau ít phút"
+                );
             }
         }
-
     };
 
     const handleNotificationAddCart = () => {
         if (cart?.status === "succeeded") {
             toast.success("Thêm sản phẩm và giỏ hàng thành công");
-
         } else if (cart.status === "failed" && cart.error) {
-            toast.error("Thêm sản phẩm vào giỏ hàng không thanh công xin thử lại sau ít phút");
+            toast.error(
+                "Thêm sản phẩm vào giỏ hàng không thanh công xin thử lại sau ít phút"
+            );
         }
     };
 
-    const selectedProductItem = product?.productItems?.find((item) => item.selected);
+    const selectedProductItem = product?.productItems?.find(
+        (item) => item.selected
+    );
     return (
         <div className="bg-white">
             <div className="container mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
                 <div className="lg:flex lg:items-center lg:justify-between">
                     <div className="lg:w-1/2">
-                        {
-                            product &&
-                                product.productItems &&
-                                product.productItems.length > 0 ?
-                                <>
-                                    <ImageGalleryComponent product={product} />
-
-                                </> : <div>
-
-                                </div>
-                        }
-
+                        {product &&
+                        product.productItems &&
+                        product.productItems.length > 0 ? (
+                            <>
+                                <ImageGalleryComponent product={product} />
+                            </>
+                        ) : (
+                            <div></div>
+                        )}
                     </div>
                     {/* left info */}
                     <div className="mt-10 lg:mt-0 lg:w-1/2 lg:pl-10 ">
@@ -115,44 +123,42 @@ export const DetailProduct = ({ data }: { data: any }) => {
                             {product?.productItems?.map((item) => (
                                 <div className="ml-3" key={item.id}>
                                     <Button
-                                        onClick={handleOnClickChangeColor(item?.id)}
-
+                                        onClick={handleOnClickChangeColor(
+                                            item?.id
+                                        )}
                                         className="m-1"
                                         style={{
                                             backgroundColor:
-                                                item.color?.colorCode || "#ffffff",
+                                                item.color?.colorCode ||
+                                                "#ffffff",
                                         }}
-                                    >
-                                    </Button>
+                                    ></Button>
                                     <div className="text-sm font-extralight">
-                                        {
-                                            item.color?.colorName
-                                        }
+                                        {item.color?.colorName}
                                     </div>
                                 </div>
-
                             ))}
                         </p>
                         {/* product specification */}
 
-                        {
-                            product &&
+                        {product &&
                             product?.productSpecifications &&
-                            product?.productSpecifications.length > 0 && (
-                                product.productSpecifications.map(specification => {
+                            product?.productSpecifications.length > 0 &&
+                            product.productSpecifications.map(
+                                (specification) => {
                                     return (
-                                        <div className="mt-4 text-xl text-gray-900 border-b pb-2" key={specification.id}>
+                                        <div
+                                            className="mt-4 text-xl text-gray-900 border-b pb-2"
+                                            key={specification.id}
+                                        >
                                             {specification.specType} &nbsp;
                                             <span className="text-base border p-1">
                                                 {specification.specValue}
                                             </span>
                                         </div>
-                                    )
+                                    );
                                 }
-                                )
-
-                            )
-                        }
+                            )}
                         <p className="mt-4 text-black text-lg">
                             Danh mục: {product && product.category.name}
                         </p>
@@ -173,7 +179,7 @@ export const DetailProduct = ({ data }: { data: any }) => {
                                                 quantity >
                                                     (product?.productQuantity
                                                         ? product?.productQuantity -
-                                                        1
+                                                          1
                                                         : 98)
                                                     ? product?.productQuantity
                                                         ? product?.productQuantity
@@ -203,19 +209,15 @@ export const DetailProduct = ({ data }: { data: any }) => {
                             Thêm vào giỏ
                         </button>
                         <div dangerouslySetInnerHTML={{ __html: "" }}></div>
-
                     </div>
-
-
                 </div>
                 <div className="flex justify-end">
                     <div className="w-1/2"></div>
                     <div className="w-1/2 lg:flex lg:items-center lg:justify-between">
                         <ProductTabs des={product?.description} />
-
                     </div>
                 </div>
             </div>
         </div>
     );
-}
+};

@@ -6,9 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import InputQuantity from "../../product/components/inputQuantity";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-const CartPage = () => {
 
+const CartPage = () => {
     const dispatch = useAppDispatch();
 
     const { status, error, data } = useAppSelector((state) => state.cart);
@@ -17,7 +16,7 @@ const CartPage = () => {
     const router = useRouter();
     const [quantity, setQuantity] = useState<number>(1);
     useEffect(() => {
-        setDatacart(data ?? [])
+        setDatacart(data ?? []);
     }, []);
 
     const handleRemoveItem = async (itemId?: string) => {
@@ -134,13 +133,6 @@ const CartPage = () => {
                             <span>Liên hệ phí vận chuyển sau</span>
                         </div>
 
-                        <div className="flex justify-between mb-2">
-                            <input
-                                type="text"
-                                placeholder="Mã giảm giá"
-                                className="flex border py-2 px-2 mr-2"
-                            />
-                        </div>
                         <div className="flex justify-between font-bold">
                             <span>Tổng cộng</span>
                             <span>

@@ -1,29 +1,16 @@
 "use client";
+import ApiOrder from "@/api/order/order-api";
 import { MOrder } from "@/models/ordermodel";
 import { formatDateToRender } from "@/utils/config";
+import { EyeOutlined } from "@ant-design/icons";
+import { Tag } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 
 export default function Order() {
     const [orders, setOrders] = useState<MOrder[]>([]);
-    const fetchData = async () => {
-        try {
-            const response = await fetch(
-                `${process.env.API_URL}Order/list?pageNumber=1&pageSize=10`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            const data = await response.json();
-            setOrders(data.data);
-        } catch (error) {
-            console.error("Error fetching order data:", error);
-        }
-    };
+
     const updateOrderStatus = async (id: string, newStatus: string) => {
         try {
             const response = await fetch(`${process.env.API_URL}Order/status`, {
@@ -50,26 +37,41 @@ export default function Order() {
         }
     };
     useEffect(() => {
+        const fetchData = async () => {
+            try {
+                ApiOrder.getOrders(1, 10)
+                    .then((res) => {
+                        setOrders(res.data);
+                    })
+                    .catch((error) => console.log(error));
+            } catch (error) {
+                console.error("Error fetching order data:", error);
+            }
+        };
         fetchData();
     }, []);
     //console.log(orders);
-
+    const getStatusTag = (status?: string) => {
+        switch (status) {
+            case "COMPLETED":
+                return <Tag color="success">Hoàn thành</Tag>;
+            case "PROCESSING":
+                return <Tag color="processing">Đang xử lý</Tag>;
+            case "CANCELLED":
+                return <Tag color="error">Đã hủy</Tag>;
+            case "NEW-ORDER":
+                return <Tag color="cyan">Đơn hàng mới</Tag>;
+            default:
+                return <Tag>{status}</Tag>;
+        }
+    };
     return (
-        <div className="bg-gray-50 w-full">
-            <div className=" bg-white p-3 rounded-xl mb-4 shadow-xl">
-                <h1 className="p-3 text-2xl font-bold">All Order</h1>
+        <div className="bg-gray-50">
+            <div className=" bg-white p-3  mb-4 shadow-xl ">
                 <Toaster position="top-right" richColors></Toaster>
                 <div className="flex justify-between ">
                     <div className="p-2">
-                        <form action="" method="get">
-                            <input
-                                className="p-2 rounded-lg border border-gray-300"
-                                placeholder="Search for category"
-                                type="text"
-                                name=""
-                                id=""
-                            />
-                        </form>
+                        <h1 className="p-3 text-2xl font-bold">All Order</h1>
                     </div>
                     <div className="order-last content-center">
                         <a href="#">
@@ -97,8 +99,8 @@ export default function Order() {
                     </div>
                 </div>
             </div>
-            <div className="bg-white rounded-xl mb-4 shadow-xl">
-                <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <div className="bg-white  mb-4 shadow-xl ">
+                <div className="relative overflow-x-auto shadow-md sm:rounded-lg ">
                     <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
@@ -111,9 +113,9 @@ export default function Order() {
                                 <th scope="col" className="px-6 py-3">
                                     Số điện thoại
                                 </th>
-                                <th scope="col" className="px-6 py-3">
+                                {/* <th scope="col" className="px-6 py-3">
                                     Địa chỉ
-                                </th>
+                                </th> */}
                                 <th scope="col" className="px-6 py-3">
                                     Tổng tiền
                                 </th>
@@ -126,6 +128,9 @@ export default function Order() {
                                 <th scope="col" className="px-6 py-3">
                                     Hành động
                                 </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Chi tiết
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -134,8 +139,12 @@ export default function Order() {
                                     key={item.id}
                                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                                 >
-                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {index + 1}
+                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white hover:text-red-600 ">
+                                        <Link
+                                            href={`/admin/order/detail/${item.id}`}
+                                        >
+                                            {index + 1}
+                                        </Link>
                                     </th>
                                     <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {item.recipientName}
@@ -143,16 +152,18 @@ export default function Order() {
                                     <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {item.phone}
                                     </th>
-                                    <th className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white">
+                                    {/* <th className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white">
                                         {item.address}
-                                    </th>
+                                    </th> */}
                                     <th className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white">
                                         {item.total}
                                     </th>
                                     <th className="px-6 py-4 font-medium text-red-600 whitespace-nowrap dark:text-white">
                                         {formatDateToRender(item.dateCreate)}
                                     </th>
-
+                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {getStatusTag(item.status)}
+                                    </th>
                                     <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <select
                                             value={item.status}
@@ -179,6 +190,13 @@ export default function Order() {
                                         </select>
                                     </th>
 
+                                    <th className="justify-center items-center px-6 py-4 font-medium text-black whitespace-nowrap dark:text-white hover:text-red-600">
+                                        <Link
+                                            href={`/admin/order/detail/${item.id}`}
+                                        >
+                                            <EyeOutlined />
+                                        </Link>
+                                    </th>
                                 </tr>
                             ))}
                         </tbody>
