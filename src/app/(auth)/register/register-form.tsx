@@ -19,7 +19,6 @@ export default function RegisterFrom() {
 
     const handleSubmit = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); // Ngăn chặn hành vi mặc định của form
-        console.log(process.env.NEXT_PUBLIC_API_ENDPOINT);
         setErrorUser(
             userName.length < 6 ? "Tên người dùng phải có ít nhất 6 ký tự." : ""
         );

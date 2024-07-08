@@ -51,7 +51,6 @@ export default function CheckOut() {
                 }
                 const result = await response11.json();
                 setDataProvince(result.data);
-                //console.log(result);
             } catch (error) {
                 console.error("Error during fetch:", error);
             }
@@ -74,7 +73,6 @@ export default function CheckOut() {
             if (response.ok) {
                 // toast.success("Successfully fetched districts.");
                 const result = await response.json();
-                console.log(result.data);
                 setDataDistrict(result.data);
             } else {
                 toast.error("Failed to fetch districts.");
@@ -103,7 +101,6 @@ export default function CheckOut() {
             if (response.ok) {
                 // toast.success("Successfully fetched ward.");
                 const result = await response.json();
-                console.log(result);
 
                 setDataWard(result.data);
             } else {
@@ -182,7 +179,6 @@ export default function CheckOut() {
         delete finalValues.province;
         delete finalValues.ward;
         delete finalValues.typePayment;
-        console.log(finalValues);
         if (finalValues.transactions[0].type == "COD") {
             try {
                 const response = await fetch(
@@ -231,7 +227,6 @@ export default function CheckOut() {
                         "dataOrder",
                         JSON.stringify(dataOrder)
                     );
-                    console.log(dataOrder.url);
                     window.open(dataOrder.url, "_blank");
                     //router.push("/checkout/success");
                 } else {
@@ -382,9 +377,9 @@ export default function CheckOut() {
                                         <div className="w-20 h-20 overflow-hidden">
                                             <img
                                                 src={
-                                                    item.image &&
-                                                    item.image?.url
-                                                        ? item.image.url
+                                                    item.images &&
+                                                    item.images[0]
+                                                        ? item.images[0].url
                                                         : ""
                                                 }
                                                 alt=""

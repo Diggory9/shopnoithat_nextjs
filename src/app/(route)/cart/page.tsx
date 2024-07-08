@@ -5,22 +5,18 @@ import { CartModel } from "@/models/cartmodel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import InputQuantity from "../product/components/inputQuantity";
+import InputQuantity from "../../product/components/inputQuantity";
 
 const CartPage = () => {
+    const dispatch = useAppDispatch();
+
+    const { status, error, data } = useAppSelector((state) => state.cart);
     const [datacart, setDatacart] = useState<CartModel[]>([]);
     const [userId, setUserId] = useState("");
     const router = useRouter();
     const [quantity, setQuantity] = useState<number>(1);
     useEffect(() => {
-        const cartData = localStorage.getItem("CartData");
-        if (cartData) {
-            setDatacart(JSON.parse(cartData));
-        }
-        const storedUserId = localStorage.getItem("userId");
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
+        setDatacart(data ?? []);
     }, []);
 
     const handleRemoveItem = async (itemId?: string) => {

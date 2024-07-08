@@ -3,7 +3,7 @@ import ApiProduct from "@/api/product/product-api";
 import { MProduct } from "@/models/productmodel";
 import { useEffect, useState } from "react";
 import CategoryComponent from "@/components/category/category-component-list";
-import CartProduct from "@/components/product/card-product";
+import CardProduct from "@/components/product/card-product";
 
 export default function ProductComponent() {
     const [dataProduct, setDataProduct] = useState<MProduct[]>([]);
