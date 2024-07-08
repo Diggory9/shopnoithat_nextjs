@@ -9,7 +9,6 @@ interface ImageGalleryProps {
 
 const ImageGalleryComponent = ({ product }: ImageGalleryProps) => {
     const selectedProductItem = product?.productItems?.find((item) => item.selected);
-    console.log(product?.productItems);
     const images = selectedProductItem?.productImages?.map((image) => ({
         original: image.url as string,
         thumbnail: image.url as string,

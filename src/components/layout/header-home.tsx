@@ -5,70 +5,43 @@ import { Toaster, toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { Button, Input } from "antd";
-import { CartModel } from "@/models/cartmodel";
 import CartDrawer from "@/components/ui/CartDrawer";
-import Search from "antd/es/transfer/search";
 import { SearchProps } from "antd/es/input";
 
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { logout } from "@/redux/features/auth/authSlice";
 export default function HeaderHome() {
-    const [userName, setUserName] = useState("");
-    const [email, setEmail] = useState("");
-    const [userId, setUserId] = useState("");
     const router = useRouter();
-    const [datacart, setDatacart] = useState<CartModel[]>([]);
     const [open, setOpen] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
-    const isLogin = useState<boolean>(false);
+    const dispatch = useAppDispatch();
+    const auth = useAppSelector((state) => state.auth);
     const { Search } = Input;
     const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
         console.log(info?.source, value);
-    useEffect(() => {
-        const cartData = localStorage.getItem("CartData");
-        const storedUserId = localStorage.getItem("userId");
-        const storedName = localStorage.getItem("name");
-        const storedEmail = localStorage.getItem("email");
-
-        if (cartData) {
-            setDatacart(JSON.parse(cartData));
-        }
-        if (storedUserId) {
-            setUserId(storedUserId);
-            isLogin[0] = true;
-        }
-
-        if (storedEmail) {
-            setEmail(storedEmail);
-        }
-
-        if (storedName) {
-            setUserName(storedName);
-        }
-    }, []);
 
     const handerLogout = async () => {
         try {
-            const response = await fetch(
-                `${process.env.API_URL}Account/logout?userEmail=${email}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
 
-            if (response.ok) {
-                toast.success("Đăng xuất thành công");
-                router.push("/");
-                router.refresh();
-                localStorage.clear();
+            if (auth.isLogin) {
+                var logoutParams = {
+                    email: auth?.data?.email || ""
+                }
+                dispatch(logout(logoutParams));
+                toast.success("Đăng xuất thành công!");
             }
         } catch (error) {
             alert("Logout failed");
             console.error("Logout error:", error);
         }
     };
+
+
     const showLoading = () => {
+        if (!auth.isLogin) {
+            router.push(`/login`);
+            return;
+        }
         setOpen(true);
         setLoading(true);
 
@@ -76,50 +49,7 @@ export default function HeaderHome() {
             setLoading(false);
         }, 1000);
     };
-    const handleContinueBuyProduct = () => {
-        router.push("/cart");
-        setOpen(false);
-    };
 
-    console.log(datacart);
-
-    const deleteCartItem = async (userId?: string, itemId?: string) => {
-        try {
-            if (isLogin[0]) {
-                const response = await fetch(
-                    `${process.env.API_URL}Cart/${userId}/item/${itemId}`,
-                    {
-                        method: "DELETE",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${
-                                localStorage.getItem("access_token") ?? ""
-                            }`,
-                        },
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error("Failed to delete item");
-                }
-                return response.json();
-            }
-        } catch (error) {
-            console.error("Error deleting item:", error);
-            throw error;
-        }
-    };
-    const handleRemoveItem = async (userId?: string, itemId?: string) => {
-        try {
-            await deleteCartItem(userId, itemId);
-            const updatedCart = datacart.filter((item) => item.id !== itemId);
-            localStorage.setItem("CartData", JSON.stringify(updatedCart));
-
-            setDatacart(updatedCart);
-        } catch (error) {
-            console.error("Failed to remove item from cart:", error);
-        }
-    };
 
     return (
         <nav className="flex py-5 bg-white shadow-xl border-y-2">
@@ -197,11 +127,13 @@ export default function HeaderHome() {
                         </li>
                     </ul>
                 </div>
+
+
                 <div className="basis-1/4 flex">
                     <ul className="flex">
-                        {userName ? (
+                        {auth?.isLogin ? (
                             <li className="pr-6">
-                                {"Hi, " + userName}
+                                {"Hi, " + auth?.data?.userName}
                                 <button
                                     onClick={handerLogout}
                                     className="hover:text-red-500 pl-4 "
@@ -240,13 +172,7 @@ export default function HeaderHome() {
                             <CartDrawer
                                 open={open}
                                 loading={loading}
-                                datacart={datacart}
-                                userId={userId}
                                 setOpen={setOpen}
-                                handleRemoveItem={handleRemoveItem}
-                                handleContinueBuyProduct={
-                                    handleContinueBuyProduct
-                                }
                             ></CartDrawer>
                         </li>
                     </ul>

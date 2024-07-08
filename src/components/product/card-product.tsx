@@ -11,7 +11,6 @@ const hanleRedirectButton = (id?: string) => {
 }
 
 const CardProduct = ({ product }: CardProductProps) => {
-    console.log(product);
     const price = !product.productDiscount?.type ? product.price : product.price! - (product.price! * (product.productDiscount.value! / 100))
     return (<a
         key={product.id}

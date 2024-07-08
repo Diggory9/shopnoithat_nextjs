@@ -1,63 +1,42 @@
 "use client";
-import { useSelector, useDispatch } from "react-redux";
-import { jwtDecode } from "jwt-decode";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Toaster, toast } from "sonner";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { login } from "@/redux/features/auth/authSlice";
+import { getCart } from "@/redux/features/cart/cartSlice";
 export default function LoginForm() {
+    const dispatch = useAppDispatch();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
-    const handleSubmit = async (event: { preventDefault: () => void }) => {
+    const params = useSearchParams()
+
+    const { status, error, isLogin, data } = useAppSelector((state) => state.auth);
+    console.log(status);
+
+    const handleSubmit = (event: { preventDefault: () => void }) => {
         event.preventDefault();
-
         try {
-            const response = await fetch(
-                `${process.env.API_URL}Account/authenticate`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ email, password }),
-                }
-            );
-
-            const res = await response.json();
-            if (response.ok) {
-                toast.success("Đăng nhập thành công");
-                // console.log(data.data.jwToken);
-
-                const token = res.data.jwToken;
-                const role = res.data.roles;
-                console.log(role);
-
-                localStorage.setItem("userId", res.data.id);
-
-                localStorage.setItem("email", res.data.email);
-                localStorage.setItem("name", res.data.userName);
-                localStorage.setItem("access_token", res.data.jwToken);
-                localStorage.setItem("refresh_token", res.data.refreshToken);
-
-                if (!role.includes("User")) {
-                    router.push("/admin");
-                    router.refresh();
-                    console.log("Admin login");
-                } else {
-                    router.push("/");
-                    router.refresh();
-
-                    console.log("User login");
-                }
-            } else {
-                toast.error("Tài khoản hoặc mật khẩu không đúng !");
-            }
+            dispatch(login({ email, password }));
         } catch (error) {
             console.error("Error during fetch:", error);
         }
     };
+    useEffect(() => {
+        if (status === 'loading') {
+            toast.message('Logging in...');
+        } else if (status === 'succeeded' && isLogin) {
+            toast.success('Login successful!');
+            dispatch(getCart({ userId: data?.id || "" }));
+            router.push(params.get("callbackUrl") || "/");
+            console.log("id user: ", data?.id);
+        } else if (status === 'failed') {
+            toast.error(`Login failed: ${error}`);
+        }
+    }, [status, router]);
     return (
-        <form
+        <> <form
             className="flex flex-col space-y-4 bg-gray-50 px-4 py-8 sm:px-16"
             onSubmit={handleSubmit}
         >
@@ -99,12 +78,17 @@ export default function LoginForm() {
             >
                 Đăng nhập
             </button>
-            <p className="text-center text-sm text-gray-600">
+
+        </form>
+
+
+            <p className="text-center text-sm text-gray-600 m-3">
                 Bạn chưa có tài khoản?{" "}
                 <a className="font-semibold text-gray-800 " href="/register">
                     Đăng ký
                 </a>
             </p>
-        </form>
+        </>
+
     );
 }

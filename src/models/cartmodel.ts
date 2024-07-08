@@ -1,7 +1,7 @@
 export interface CartModel{
     color?:{ colorName?: string, colorCode?:string},
     id?:string,
-    images?:ImageModel[],
+    image?:ImageModel,
     name?:string,
     discount?:{type?:string,value?:number},
     price?:number,
