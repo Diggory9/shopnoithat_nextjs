@@ -1,5 +1,6 @@
 import LoginForm from "@/app/(auth)/login/login-form";
 import { Toaster, toast } from "sonner";
+
 export default function Login() {
     return (
         <div
@@ -13,6 +14,7 @@ export default function Login() {
                     <p className="text-sm text-gray-500">
                         Sử dụng email và mật khẩu để đăng nhập
                     </p>
+
                 </div>
                 <LoginForm />
             </div>

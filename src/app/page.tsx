@@ -4,6 +4,7 @@ import Category from "./(route)/category/page";
 import Footer from "../components/layout/footer";
 import Contact from "./(route)/contact/page";
 import Product from "./product/page";
+import StoreProvider from "@/app/StoreProvider";
 export default function Home() {
     return (
         <>
@@ -13,5 +14,8 @@ export default function Home() {
             <Contact />
             <Footer />
         </>
+
+
+
     );
 }

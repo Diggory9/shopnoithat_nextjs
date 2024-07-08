@@ -5,7 +5,8 @@ import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 import HeaderHome from "@/components/layout/header-home";
-
+import StoreProvider from "@/app/StoreProvider";
+import { StrictMode } from 'react';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -21,15 +22,15 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={inter.className}>
-                {/* <ReduxProvider> */}
-                {/* <ReduxPersistgate> */}
-                <HeaderHome />
-                <main>
-                    {" "}
-                    <AntdRegistry>{children}</AntdRegistry>
-                </main>
-                {/* </ReduxPersistgate> */}
-                {/* </ReduxProvider> */}
+                <StoreProvider >
+                    <HeaderHome />
+                    <main>
+                        {" "}
+                        <AntdRegistry>{children}</AntdRegistry>
+                    </main>
+                    <StrictMode />
+                </StoreProvider>
+
             </body>
         </html>
     );
