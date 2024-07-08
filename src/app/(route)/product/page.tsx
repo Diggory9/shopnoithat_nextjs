@@ -87,7 +87,7 @@ export default function ProductComponent() {
                     {dataProduct.length == 0 || !dataProduct
                         ? "Khong co du lieu"
                         : dataProduct.map((product) => (
-                              <CartProduct key={product.id} product={product} />
+                              <CardProduct key={product.id} product={product} />
                           ))}
                 </div>
             </div>
