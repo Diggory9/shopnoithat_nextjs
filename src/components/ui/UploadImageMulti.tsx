@@ -39,14 +39,14 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
     return (
         <>
             <Form.Item
-                label="Images"
+                label="Hình ảnh"
                 name={formName || "images"}
                 getValueFromEvent={getFile}
                 rules={[
-                    {
-                        required: true,
-                        message: "Image is required",
-                    },
+                    // {
+                    //     required: true,
+                    //     message: "Image is required",
+                    // },
                     {
                         validator(_, fileList) {
                             return new Promise((resolve, reject) => {

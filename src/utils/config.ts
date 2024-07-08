@@ -211,18 +211,6 @@ export const checkPhoneNumber = (phoneNumber: string) => {
 	return Promise.resolve();
 };
 
-export const generateCode = () => {
-	return Math.floor(Math.random() * Math.pow(10, 21)).toString();
-};
-
-export const generateVoucherCode = () => {
-	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	let randomString = '';
-	for (let i = 0; i < 8; i++) {
-		randomString += characters.charAt(Math.floor(Math.random() * characters.length));
-	}
-	return randomString;
-};
 
 export const dataURLtoFile = (dataurl: string, filename: string) => {
 	const arr = dataurl.split(','),
@@ -238,28 +226,4 @@ export const dataURLtoFile = (dataurl: string, filename: string) => {
 
 
 
-export const shortenCurrency = (money: number) => {
-	const units = ['', 'k', 'm', 'b'];
-	let unitIndex = 0;
-	while (Math.abs(money) >= 1000 && unitIndex < units.length - 1) {
-		money /= 1000;
-		unitIndex++;
-	}
-	return `${Math.sign(money) * Math.floor(Math.abs(money))}${units[unitIndex]}`;
-};
 
-export const getListDateFromNumberToNow = (number: number) => {
-	const today = dayjs();
-	const listDate = [];
-	for (let i = number; i >= 0; i--) {
-		const date = today.subtract(i, 'day');
-		listDate.push(formatDate(date));
-	}
-	return listDate;
-};
-
-export const getDateFromNumberPastByNow = (number: number) => {
-	const today = dayjs();
-	const date = today.subtract(number, 'day');
-	return formatDate(date);
-};

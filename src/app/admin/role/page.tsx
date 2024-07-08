@@ -1,4 +1,8 @@
 "use client";
+import ApiRole from "@/api/role/role-api";
+import { MRole } from "@/models/role";
+import { Button, Table, TableColumnsType } from "antd";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface Role {
@@ -12,15 +16,7 @@ export default function Role() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const respone = await fetch(
-                    `${process.env.API_URL}RoleManager/get-roles`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
+                const respone = await ApiRole.getAllRole();
                 if (!respone.ok) {
                     throw new Error("Network response was not ok");
                 }
@@ -34,9 +30,30 @@ export default function Role() {
         };
         fetchData();
     }, []);
+    const columns: TableColumnsType<MRole> = [
+        {
+            title: "STT",
+            dataIndex: "index",
+            key: "index",
+        },
+        {
+            title: "Tên vai trò",
+            dataIndex: "name",
+            key: "name",
+        },
+        {
+            title: "Hành động",
+            key: "action",
+            render: (_: any, record: { key: string }) => (
+                <Link href={`/admin/user/detail/${record.key}`}>
+                    <Button type="link">Chi tiết</Button>
+                </Link>
+            ),
+        },
+    ] as TableColumnsType<MRole>;
     return (
         <div className="bg-gray-50 w-full">
-            <div className=" bg-white p-3 rounded-xl mb-4 shadow-xl">
+            <div className=" bg-white p-3  mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">All Role</h1>
                 <div className="flex justify-between ">
                     <div className="p-2">
@@ -74,54 +91,16 @@ export default function Role() {
                     </div>
                 </div>
             </div>
-            <div className="bg-white rounded-xl mb-4 shadow-xl">
+            <div className="bg-white mb-4 shadow-xl">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" className="p-4">
-                                    <div className="flex items-center"></div>
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Role name
-                                </th>
-
-                                <th scope="col" className="px-6 py-3">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {dataRole.map((item) => (
-                                <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="w-4 p-4">
-                                        <div className="flex items-center"></div>
-                                    </td>
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
-                                        {item.name}
-                                    </th>
-
-                                    <td className="flex items-center px-6 py-4">
-                                        <a
-                                            href="#"
-                                            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                        >
-                                            Edit
-                                        </a>
-                                        <a
-                                            href="#"
-                                            className="font-medium text-red-600 dark:text-red-500 hover:underline ms-3"
-                                        >
-                                            Remove
-                                        </a>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <Table
+                        dataSource={dataRole.map((item, index) => ({
+                            ...item,
+                            index: index + 1,
+                            key: item.id,
+                        }))}
+                        columns={columns}
+                    ></Table>
                 </div>
             </div>
         </div>

@@ -4,6 +4,7 @@ import { Drawer, Button } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { CartModel } from "@/models/cartmodel";
+import Link from "next/link";
 
 type CartDrawerProps = {
     open: boolean;
@@ -76,7 +77,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                 >
                     Xem giỏ hàng
                 </Button>
-                <Button type="primary">Thanh toán</Button>
+                <Link href={"/checkout"}>
+                    {" "}
+                    <Button type="primary">Thanh toán</Button>
+                </Link>
             </div>
         </Drawer>
     );

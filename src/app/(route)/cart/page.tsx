@@ -5,7 +5,7 @@ import { CartModel } from "@/models/cartmodel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import InputQuantity from "../../product/components/inputQuantity";
+import InputQuantity from "../product/components/inputQuantity";
 
 const CartPage = () => {
     const [datacart, setDatacart] = useState<CartModel[]>([]);
@@ -59,7 +59,7 @@ const CartPage = () => {
                                 className="flex items-center justify-between border-b py-4"
                             >
                                 <img
-                                    src={item?.images?.[0]?.url}
+                                    src={item?.image?.url}
                                     alt={item?.name}
                                     className="w-24"
                                 />
@@ -137,13 +137,6 @@ const CartPage = () => {
                             <span>Liên hệ phí vận chuyển sau</span>
                         </div>
 
-                        <div className="flex justify-between mb-2">
-                            <input
-                                type="text"
-                                placeholder="Mã giảm giá"
-                                className="flex border py-2 px-2 mr-2"
-                            />
-                        </div>
                         <div className="flex justify-between font-bold">
                             <span>Tổng cộng</span>
                             <span>

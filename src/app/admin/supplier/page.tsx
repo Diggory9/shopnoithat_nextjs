@@ -58,7 +58,7 @@ export default function Supplier() {
     };
     return (
         <div className="bg-gray-50 w-full">
-            <div className=" bg-white p-3 rounded-xl mb-4 shadow-xl">
+            <div className=" bg-white p-3  mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">All Supplier</h1>
                 <div className="flex justify-between ">
                     <div className="p-2">
@@ -98,7 +98,7 @@ export default function Supplier() {
                     </div>
                 </div>
             </div>
-            <div className="bg-white rounded-xl mb-4 shadow-xl">
+            <div className="bg-white  mb-4 shadow-xl">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

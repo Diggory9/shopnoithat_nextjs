@@ -9,16 +9,16 @@ import { CartModel } from "@/models/cartmodel";
 import CartDrawer from "@/components/ui/CartDrawer";
 import Search from "antd/es/transfer/search";
 import { SearchProps } from "antd/es/input";
+import CustomDropdown from "../ui/DropDownUser";
 
 export default function HeaderHome() {
+    const [datacart, setDatacart] = useState<CartModel[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [open, setOpen] = useState<boolean>(false);
     const [userName, setUserName] = useState("");
-    const [email, setEmail] = useState("");
+    const isLogin = useState<boolean>(false);
     const [userId, setUserId] = useState("");
     const router = useRouter();
-    const [datacart, setDatacart] = useState<CartModel[]>([]);
-    const [open, setOpen] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true);
-    const isLogin = useState<boolean>(false);
     const { Search } = Input;
     const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
         console.log(info?.source, value);
@@ -35,39 +35,10 @@ export default function HeaderHome() {
             setUserId(storedUserId);
             isLogin[0] = true;
         }
-
-        if (storedEmail) {
-            setEmail(storedEmail);
-        }
-
         if (storedName) {
             setUserName(storedName);
         }
     }, []);
-
-    const handerLogout = async () => {
-        try {
-            const response = await fetch(
-                `${process.env.API_URL}Account/logout?userEmail=${email}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            if (response.ok) {
-                toast.success("Đăng xuất thành công");
-                router.push("/");
-                router.refresh();
-                localStorage.clear();
-            }
-        } catch (error) {
-            alert("Logout failed");
-            console.error("Logout error:", error);
-        }
-    };
     const showLoading = () => {
         setOpen(true);
         setLoading(true);
@@ -81,7 +52,7 @@ export default function HeaderHome() {
         setOpen(false);
     };
 
-    console.log(datacart);
+    //console.log(datacart);
 
     const deleteCartItem = async (userId?: string, itemId?: string) => {
         try {
@@ -125,34 +96,9 @@ export default function HeaderHome() {
         <nav className="flex py-5 bg-white shadow-xl border-y-2">
             <Toaster position="top-right" richColors duration={2000} />
             <div className="max-w-screen-2xl flex flex-wrap items-center justify-between mx-auto p-3 w-full">
-                <div className="basis-1/4 text-center font-extralight text-zinc-700">
+                <div className="basis-1/6 text-center font-extralight text-zinc-700">
                     <Link href="/">TV FURNITURE</Link>{" "}
                 </div>
-                <button
-                    data-collapse-toggle="navbar-default"
-                    type="button"
-                    className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                    aria-controls="navbar-default"
-                    aria-expanded="false"
-                >
-                    <span className="sr-only">Open main menu</span>
-                    <svg
-                        className="w-5 h-5"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 17 14"
-                    >
-                        <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M1 1h15M1 7h15M1 13h15"
-                        />
-                    </svg>
-                </button>
-
                 <div className="basis-1/2 flex">
                     <ul className=" flex">
                         <li>
@@ -197,17 +143,11 @@ export default function HeaderHome() {
                         </li>
                     </ul>
                 </div>
-                <div className="basis-1/4 flex">
+                <div className="basis-1/3 flex">
                     <ul className="flex">
                         {userName ? (
-                            <li className="pr-6">
-                                {"Hi, " + userName}
-                                <button
-                                    onClick={handerLogout}
-                                    className="hover:text-red-500 pl-4 "
-                                >
-                                    Đăng xuất
-                                </button>
+                            <li>
+                                <CustomDropdown />
                             </li>
                         ) : (
                             <>
@@ -229,6 +169,7 @@ export default function HeaderHome() {
                                 </li>
                             </>
                         )}
+
                         <li className="pl-3">
                             <Button onClick={showLoading}>
                                 <ShoppingCartOutlined

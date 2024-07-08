@@ -2,7 +2,6 @@
 import ApiProduct from "@/api/product/product-api";
 import { MProduct } from "@/models/productmodel";
 import { useEffect, useState } from "react";
-import './style.css'
 import CategoryComponent from "@/components/category/category-component-list";
 import CartProduct from "@/components/product/card-product";
 
@@ -15,14 +14,12 @@ export default function ProductComponent() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-
                 ApiProduct.getProductPublics(1, 10)
-                    .then(res => {
-                        console.log(res)
-                        setDataProduct(res.data)
+                    .then((res) => {
+                        console.log(res);
+                        setDataProduct(res.data);
                     })
-                    .catch(error => console.error(error));
-
+                    .catch((error) => console.error(error));
             } catch (error) {
                 console.error("Fetch error:", error);
             } finally {
@@ -33,15 +30,15 @@ export default function ProductComponent() {
     }, []);
 
     const handleOnSelectCategory = (value: string) => {
-        console.log(value)
+        console.log(value);
         if (value === "All") {
             try {
                 ApiProduct.getProductPublics(1, 10)
-                    .then(res => {
-                        console.log(res)
-                        setDataProduct(res.data)
+                    .then((res) => {
+                        console.log(res);
+                        setDataProduct(res.data);
                     })
-                    .catch(error => console.error(error));
+                    .catch((error) => console.error(error));
             } catch (error) {
                 console.error("Fetch error:", error);
             } finally {
@@ -50,18 +47,18 @@ export default function ProductComponent() {
         } else {
             try {
                 ApiProduct.getProductPublicByCategory(value, 1, 10)
-                    .then(res => {
-                        console.log(res)
-                        setDataProduct(res.data)
+                    .then((res) => {
+                        console.log(res);
+                        setDataProduct(res.data);
                     })
-                    .catch(error => console.error(error));
+                    .catch((error) => console.error(error));
             } catch (error) {
                 console.error("Fetch error:", error);
             } finally {
                 setLoading(false);
             }
         }
-    }
+    };
 
     return (
         <div className="bg-white flex flex-col sm:flex-row w-full mx-5 mt-10">
@@ -71,20 +68,29 @@ export default function ProductComponent() {
             >
                 {showCategory ? "Hide Categories" : "Show Categories"}
             </button>
-            <div className={`w-full ${showCategory ? "block" : "hidden"} sm:block sm:w-1/4 lg:w-1/6`}>
+            <div
+                className={`w-full ${
+                    showCategory ? "block" : "hidden"
+                } sm:block sm:w-1/4 lg:w-1/6`}
+            >
                 <CategoryComponent
                     onSelectCategory={handleOnSelectCategory}
                     selectedCategory={selectedCategory}
                 />
             </div>
-            <div className={`w-full ${showCategory ? "" : "sm:w-full"} sm:w-3/4 lg:w-5/6 p-10`}>
+            <div
+                className={`w-full ${
+                    showCategory ? "" : "sm:w-full"
+                } sm:w-3/4 lg:w-5/6 p-10`}
+            >
                 <div className="grid grid-cols-1 gap-x-3 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-                    {dataProduct.length == 0 || !dataProduct ? "Khong co du lieu" : dataProduct.map((product) => (
-                        <CartProduct key={product.id} product={product} />
-                    ))}
+                    {dataProduct.length == 0 || !dataProduct
+                        ? "Khong co du lieu"
+                        : dataProduct.map((product) => (
+                              <CartProduct key={product.id} product={product} />
+                          ))}
                 </div>
             </div>
         </div>
     );
-
 }

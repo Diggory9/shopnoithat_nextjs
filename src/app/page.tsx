@@ -3,7 +3,7 @@ import Banner from "./(route)/banner/page";
 import Category from "./(route)/category/page";
 import Footer from "../components/layout/footer";
 import Contact from "./(route)/contact/page";
-import Product from "./product/page";
+import Product from "./(route)/product/page";
 export default function Home() {
     return (
         <>

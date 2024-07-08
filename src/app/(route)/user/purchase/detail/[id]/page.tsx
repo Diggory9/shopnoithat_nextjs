@@ -3,13 +3,16 @@ import { useEffect, useState } from "react";
 import { MOrder } from "@/models/ordermodel";
 import { formatDateToRender } from "@/utils/config";
 import { useRouter } from "next/navigation";
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Tag } from "antd";
+import { ArrowLeftOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { Button, Modal, Tag } from "antd";
 import ApiOrder from "@/api/order/order-api";
+import Link from "next/link";
 
 export default function OrderDetail({ params }: { params: { id: string } }) {
     const [order, setOrder] = useState<MOrder | null>(null);
     const router = useRouter();
+    const { confirm } = Modal;
+
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
@@ -39,6 +42,33 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
                 return <Tag>{status}</Tag>;
         }
     };
+    const handleCancelOrder = async (orderId: string) => {
+        try {
+            await ApiOrder.updateStatusOrder(orderId, "CANCELLED");
+            setOrder((prevOrder) =>
+                prevOrder ? { ...prevOrder, status: "CANCELLED" } : null
+            );
+        } catch (error) {
+            console.error("Error cancelling order:", error);
+        }
+    };
+    const showDeleteConfirm = (orderId: string) => {
+        confirm({
+            title: "Bạn có muốn hủy đơn hàng",
+            icon: <ExclamationCircleFilled />,
+            content: orderId,
+            okText: "Yes",
+            okType: "danger",
+            cancelText: "No",
+            onOk() {
+                handleCancelOrder(orderId);
+            },
+            onCancel() {
+                console.log("Cancel");
+            },
+        });
+    };
+
     return (
         <div className="container mx-auto p-4">
             <div className="flex items-center">
@@ -52,10 +82,21 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
                     Chi tiết đơn hàng {getStatusTag(order?.status)}
                 </h1>
             </div>
-            <h1 className="text-xl font-bold ml-16">
-                Mã đơn hàng:{" "}
-                <span className="text-indigo-600">{order?.orderId}</span>
-            </h1>
+            <div className="flex justify-between">
+                <h1 className="text-xl font-bold ml-16">
+                    Mã đơn hàng:{" "}
+                    <span className="text-indigo-600">{order?.orderId}</span>
+                </h1>
+
+                <Button
+                    onClick={() => showDeleteConfirm(order?.orderId || "")}
+                    danger
+                    disabled={order?.status !== "NEW-ORDER"}
+                >
+                    Hủy đơn hàng
+                </Button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 mb-4">
                 <div className="bg-white shadow-md rounded-lg p-6">
                     <h1 className="text-2xl font-bold">Thông tin khách hàng</h1>
@@ -107,9 +148,23 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
                                         </p>
                                     </div>
                                 </div>
-                                <p className="text-lg">
-                                    {item?.price?.toLocaleString()} VND
-                                </p>
+                                <div className="flex">
+                                    <p className="text-lg pr-5">
+                                        {item?.price?.toLocaleString()} VND
+                                    </p>
+                                    <Link
+                                        href={`/user/review/${item?.product?.productId}`}
+                                    >
+                                        <Button
+                                            type="primary"
+                                            disabled={
+                                                order?.status !== "COMPLETED"
+                                            }
+                                        >
+                                            Đánh giá sản phẩm
+                                        </Button>
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     ))}

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 
 export default function CheckOut() {
-    const [dataProvince, setDataProvince] = useState<MOrder[]>([]);
+    const [dataProvince, setDataProvince] = useState<MOrderGHN[]>([]);
     const [dataDistrict, setDataDistrict] = useState<MDistrict[]>([]);
     const [dataWard, setDataWard] = useState<MWard[]>([]);
     const [form] = Form.useForm();
@@ -382,9 +382,9 @@ export default function CheckOut() {
                                         <div className="w-20 h-20 overflow-hidden">
                                             <img
                                                 src={
-                                                    item.images &&
-                                                    item.images[0]
-                                                        ? item.images[0].url
+                                                    item.image &&
+                                                    item.image?.url
+                                                        ? item.image.url
                                                         : ""
                                                 }
                                                 alt=""

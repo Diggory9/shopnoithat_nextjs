@@ -6,15 +6,10 @@ export default function AdminLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <div className="bg-gray-50 min-h-screen flex-col">
-            <header className=" text-white p-4 flex flex-row">
-                <h1 className="text-xl text-black font-bold uppercase">
-                    My Dashboard
-                </h1>
-            </header>
-            <div className="flex flex-1">
-                <NavAdmin />
-                {children}
+        <div className="bg-white- min-h-screen flex-col">
+            <div className="flex flex-1 w-full">
+                <NavAdmin></NavAdmin>
+                <div className="bg-gray-50 w-full">{children}</div>
             </div>
         </div>
     );
