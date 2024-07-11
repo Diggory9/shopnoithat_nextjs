@@ -20,6 +20,10 @@ import { Toaster, toast } from "sonner";
 import { MProduct } from "@/models/productmodel";
 import { MDiscount } from "@/models/discount";
 import MUploadImageMultiple from "@/components/ui/UploadImageMulti";
+import ApiCategory from "@/api/category/category-api";
+import ApiDiscount from "@/api/discount/discount-api";
+import ApiSupplier from "@/api/supplier/supplier-api";
+import { sumQuantity } from "@/helper/helper";
 type FieldType = {
     name?: string;
     description?: string;
@@ -52,96 +56,33 @@ const AddProduct = () => {
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
     const [dataDis, setDataDis] = useState<MDiscount[]>([]);
     const [form] = Form.useForm();
-
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const respone = await fetch(
-                    `${process.env.API_URL}Category/list`,
-
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setDataCate(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            } finally {
-            }
-        };
-        fetchCategories();
+        ApiCategory.getAllCategory()
+            .then((res) => {
+                setDataCate(res.data);
+            })
+            .catch((error) => console.log(error));
+        ApiDiscount.getAllDiscount(1, 10)
+            .then((res) => {
+                setDataDis(res.data);
+            })
+            .catch((error) => console.log(error));
+        ApiSupplier.getSuppliers()
+            .then((res) => {
+                setDataSup(res.data);
+            })
+            .catch((error) => console.log(error));
     }, []);
-
-    useEffect(() => {
-        const fetchSuppliers = async () => {
-            try {
-                const respone = await fetch(
-                    `${process.env.API_URL}Supplier/list`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setDataSup(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        };
-        fetchSuppliers();
-    }, []);
-
-    useEffect(() => {
-        const fetchDiscounts = async () => {
-            try {
-                const respone = await fetch(
-                    `${process.env.API_URL}Discount/list?pageNumber=1&pageSize=10`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setDataDis(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        };
-        fetchDiscounts();
-    }, []);
-    const options = dataCate.map((item) => ({
-        value: item.id,
-        label: item.name,
-    }));
-    const optionsSup = dataSup.map((item) => ({
-        value: item.id,
-        label: item.supplierName,
-    }));
-    const optionsDis = dataDis.map((item) => ({
-        value: item.id,
-        label: item.code,
-    }));
 
     const handleSubmit = async (values: MProduct) => {
+        const totalQuantity = sumQuantity(values.productItems);
         //console.log(values);
+        // console.log(totalQuantity);
 
+        const body = {
+            ...values,
+            productQuantity: totalQuantity,
+        };
         try {
             const response = await fetch(
                 `${process.env.API_URL}Product/create`,
@@ -150,7 +91,7 @@ const AddProduct = () => {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(values),
+                    body: JSON.stringify(body),
                 }
             );
 
@@ -226,16 +167,11 @@ const AddProduct = () => {
                             <Input style={{ width: 300 }} type="text" />
                         </Form.Item>
                         <Form.Item<FieldType>
-                            rules={[
-                                {
-                                    validator: (_, value) =>
-                                        checkQuantity(value),
-                                },
-                            ]}
                             label="Số lượng"
                             name="productQuantity"
                         >
                             <InputNumber
+                                disabled
                                 type="number"
                                 style={{ width: 300 }}
                                 min={1}
@@ -278,7 +214,10 @@ const AddProduct = () => {
                                             (optionB?.label ?? "").toLowerCase()
                                         )
                                 }
-                                options={options}
+                                options={dataCate.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                }))}
                             />
                         </Form.Item>
                         <Form.Item<FieldType>
@@ -306,7 +245,10 @@ const AddProduct = () => {
                                             (optionB?.label ?? "").toLowerCase()
                                         )
                                 }
-                                options={optionsSup}
+                                options={dataSup.map((item) => ({
+                                    value: item.id,
+                                    label: item.supplierName,
+                                }))}
                             />
                         </Form.Item>
                         <Form.Item<FieldType>
@@ -324,7 +266,10 @@ const AddProduct = () => {
                                 style={{ width: 200 }}
                                 placeholder="Search to Select"
                                 optionFilterProp="children"
-                                options={optionsDis}
+                                options={dataDis.map((item) => ({
+                                    value: item.id,
+                                    label: item.code,
+                                }))}
                             />
                         </Form.Item>
                     </Col>

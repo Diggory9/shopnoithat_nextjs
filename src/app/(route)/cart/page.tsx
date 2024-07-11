@@ -10,11 +10,10 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
 const CartPage = () => {
     const dispatch = useAppDispatch();
-
     const { status, error, data } = useAppSelector((state) => state.cart);
     const [datacart, setDatacart] = useState<CartModel[]>([]);
-    const [userId, setUserId] = useState("");
     const router = useRouter();
+
     const [quantity, setQuantity] = useState<number>(1);
     useEffect(() => {
         setDatacart(data ?? []);
@@ -24,7 +23,7 @@ const CartPage = () => {
         try {
             // Remove item logic here...
             const updatedCart = datacart.filter((item) => item.id !== itemId);
-            localStorage.setItem("CartData", JSON.stringify(updatedCart));
+            // localStorage.setItem("CartData", JSON.stringify(updatedCart));
             setDatacart(updatedCart);
         } catch (error) {
             console.error("Failed to remove item from cart:", error);

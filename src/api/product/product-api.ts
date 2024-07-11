@@ -3,7 +3,7 @@
 const Url = `${process.env.API_URL}Product`
 
 const ApiProduct = {
-    async getProductPublics(pageNumber = 1, pageSize = 10) {
+    async getAllProduct(pageNumber = 1, pageSize = 10) {
         try {
             const response = await fetch(
                 `${Url}/list?pageNumber=${pageNumber}&pageSize=${pageSize}`,
@@ -69,7 +69,8 @@ const ApiProduct = {
             console.error("Fetch error: ", error);
             throw error;
         }
-    }
+    },
+
 };
 export default ApiProduct;
 

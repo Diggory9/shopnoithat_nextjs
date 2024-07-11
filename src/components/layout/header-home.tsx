@@ -11,6 +11,7 @@ import CustomDropdown from "../ui/DropDownUser";
 
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout } from "@/redux/features/auth/authSlice";
+import CDropdown from "./dropdown";
 export default function HeaderHome() {
     const router = useRouter();
     const [open, setOpen] = useState<boolean>(false);
@@ -21,21 +22,6 @@ export default function HeaderHome() {
     const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
         console.log(info?.source, value);
 
-    const handerLogout = async () => {
-        try {
-            if (auth.isLogin) {
-                var logoutParams = {
-                    email: auth?.data?.email || "",
-                };
-                dispatch(logout(logoutParams));
-                toast.success("Đăng xuất thành công!");
-            }
-        } catch (error) {
-            alert("Logout failed");
-            console.error("Logout error:", error);
-        }
-    };
-
     const showLoading = () => {
         if (!auth.isLogin) {
             router.push(`/login`);
@@ -43,7 +29,6 @@ export default function HeaderHome() {
         }
         setOpen(true);
         setLoading(true);
-
         setTimeout(() => {
             setLoading(false);
         }, 1000);
@@ -105,13 +90,8 @@ export default function HeaderHome() {
                     <ul className="flex">
                         {auth?.isLogin ? (
                             <li className="pr-6">
-                                {"Hi, " + auth?.data?.userName}
-                                <button
-                                    onClick={handerLogout}
-                                    className="hover:text-red-500 pl-4 "
-                                >
-                                    Đăng xuất
-                                </button>
+                                {/* {"Hi, " + auth?.data?.userName} */}
+                                <CDropdown></CDropdown>
                             </li>
                         ) : (
                             <>

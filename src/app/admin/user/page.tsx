@@ -10,18 +10,11 @@ import type { TableColumnsType } from "antd";
 export default function User() {
     const [dataUsers, setDataUsers] = useState<MUser[]>([]);
     useEffect(() => {
-        const fetchData = () => {
-            try {
-                ApiUser.getAllUser(1, 10)
-                    .then((res) => {
-                        setDataUsers(res.data);
-                    })
-                    .catch((error) => console.log(error));
-            } catch (error) {
-                console.error("Error fetching order data:", error);
-            }
-        };
-        fetchData();
+        ApiUser.getAllUser(1, 10)
+            .then((res) => {
+                setDataUsers(res.data);
+            })
+            .catch((error) => console.log(error));
     }, []);
 
     const columns: TableColumnsType<MUser> = [
@@ -42,8 +35,8 @@ export default function User() {
         },
         {
             title: "Số điện thoại",
-            dataIndex: "phone",
-            key: "phone",
+            dataIndex: "phoneNumber",
+            key: "phoneNumber",
         },
         {
             title: "Hành động",

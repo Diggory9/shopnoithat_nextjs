@@ -2,55 +2,41 @@
 import ApiOrder from "@/api/order/order-api";
 import { MOrder } from "@/models/ordermodel";
 import { formatDateToRender } from "@/utils/config";
-import { EyeOutlined } from "@ant-design/icons";
-import { Tag } from "antd";
+import { Button, Table, TableColumnsType, Tag } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 
 export default function Order() {
-    const [orders, setOrders] = useState<MOrder[]>([]);
+    const [dataorders, setDataorders] = useState<MOrder[]>([]);
 
-    const updateOrderStatus = async (id: string, newStatus: string) => {
-        try {
-            const response = await fetch(`${process.env.API_URL}Order/status`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ id, status: newStatus }),
-            });
-            if (response.ok) {
-                setOrders((prevOrders) =>
-                    prevOrders.map((order) =>
-                        order.id === id
-                            ? { ...order, status: newStatus }
-                            : order
-                    )
-                );
-                toast.success("Cập nhật trạng thái thành công");
-            } else {
-                toast.error("Không thể cập nhật trạng thái");
-            }
-        } catch (error) {
-            console.error("Error updating order status:", error);
-        }
-    };
+    //Fetch data orders
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                ApiOrder.getOrders(1, 10)
-                    .then((res) => {
-                        setOrders(res.data);
-                    })
-                    .catch((error) => console.log(error));
-            } catch (error) {
-                console.error("Error fetching order data:", error);
-            }
-        };
-        fetchData();
+        ApiOrder.getOrders(1, 10)
+            .then((res) => {
+                setDataorders(res.data);
+            })
+            .catch((error) => console.log(error));
     }, []);
-    //console.log(orders);
+
+    // Update status order
+    const updateOrderStatus = async (id: string, newStatus: string) => {
+        ApiOrder.updateStatusOrder(id, newStatus)
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Thành công");
+                    ApiOrder.getOrders(1, 10)
+                        .then((res) => {
+                            setDataorders(res.data);
+                        })
+                        .catch((error) => console.log(error));
+                } else {
+                    toast.error("Cập nhật thất bại");
+                }
+            })
+            .catch((error) => console.log(error));
+    };
+
     const getStatusTag = (status?: string) => {
         switch (status) {
             case "COMPLETED":
@@ -65,6 +51,67 @@ export default function Order() {
                 return <Tag>{status}</Tag>;
         }
     };
+    const columns: TableColumnsType<MOrder> = [
+        {
+            title: "STT",
+            dataIndex: "index",
+            key: "index",
+        },
+        {
+            title: "Người nhận",
+            dataIndex: "recipientName",
+            key: "recipientName",
+        },
+        {
+            title: "Số điện thoại",
+            dataIndex: "phone",
+            key: "phone",
+        },
+        {
+            title: "Tổng tiền",
+            dataIndex: "total",
+            key: "total",
+        },
+        {
+            title: "Ngày tạo",
+            dataIndex: "dateCreate",
+            key: "dateCreate",
+        },
+        {
+            title: "Trạng thái",
+            dataIndex: "status",
+            key: "status",
+            render: (status: string) => getStatusTag(status),
+        },
+        {
+            title: "Hành động",
+            dataIndex: "status",
+            key: "status",
+            render: (_: any, record: MOrder) => (
+                <select
+                    value={record.status}
+                    onChange={(e) =>
+                        updateOrderStatus(record.id || "", e.target.value)
+                    }
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                >
+                    <option value="NEW-ORDER">NEW-ORDER</option>
+                    <option value="PROCESSING">PROCESSING</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                    <option value="CANCELLED">CANCELLED</option>
+                </select>
+            ),
+        },
+        {
+            title: "Chi tiết",
+            key: "view",
+            render: (_: any, record: { key: string }) => (
+                <Link href={`/admin/order/detail/${record.key}`}>
+                    <Button type="link">Chi tiết</Button>
+                </Link>
+            ),
+        },
+    ] as TableColumnsType<MOrder>;
     return (
         <div className="bg-gray-50">
             <div className=" bg-white p-3  mb-4 shadow-xl ">
@@ -101,106 +148,22 @@ export default function Order() {
             </div>
             <div className="bg-white  mb-4 shadow-xl ">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg ">
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" className="px-6 py-3">
-                                    stt
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Người nhận
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Số điện thoại
-                                </th>
-                                {/* <th scope="col" className="px-6 py-3">
-                                    Địa chỉ
-                                </th> */}
-                                <th scope="col" className="px-6 py-3">
-                                    Tổng tiền
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Ngày tạo
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Trạng thái
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Hành động
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Chi tiết
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.map((item, index) => (
-                                <tr
-                                    key={item.id}
-                                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                                >
-                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white hover:text-red-600 ">
-                                        <Link
-                                            href={`/admin/order/detail/${item.id}`}
-                                        >
-                                            {index + 1}
-                                        </Link>
-                                    </th>
-                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.recipientName}
-                                    </th>
-                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.phone}
-                                    </th>
-                                    {/* <th className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white">
-                                        {item.address}
-                                    </th> */}
-                                    <th className="px-6 py-4 font-medium text-amber-500 whitespace-nowrap dark:text-white">
-                                        {item.total}
-                                    </th>
-                                    <th className="px-6 py-4 font-medium text-red-600 whitespace-nowrap dark:text-white">
-                                        {formatDateToRender(item.dateCreate)}
-                                    </th>
-                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {getStatusTag(item.status)}
-                                    </th>
-                                    <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        <select
-                                            value={item.status}
-                                            onChange={(e) =>
-                                                updateOrderStatus(
-                                                    item?.id || "",
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        >
-                                            <option value="NEW-ORDER">
-                                                NEW-ORDER
-                                            </option>
-                                            <option value="PROCESSING">
-                                                PROCESSING
-                                            </option>
-                                            <option value="COMPLETED">
-                                                COMPLETED
-                                            </option>
-                                            <option value="CANCELLED">
-                                                CANCELLED
-                                            </option>
-                                        </select>
-                                    </th>
-
-                                    <th className="justify-center items-center px-6 py-4 font-medium text-black whitespace-nowrap dark:text-white hover:text-red-600">
-                                        <Link
-                                            href={`/admin/order/detail/${item.id}`}
-                                        >
-                                            <EyeOutlined />
-                                        </Link>
-                                    </th>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <Table
+                        pagination={{
+                            defaultPageSize: 10,
+                            showSizeChanger: true,
+                            pageSizeOptions: ["10", "20", "30"],
+                        }}
+                        columns={columns}
+                        dataSource={
+                            dataorders.map((item, index) => ({
+                                ...item,
+                                index: index + 1,
+                                key: item.id,
+                                dateCreate: formatDateToRender(item.dateCreate),
+                            })) || []
+                        }
+                    ></Table>
                 </div>
             </div>
         </div>

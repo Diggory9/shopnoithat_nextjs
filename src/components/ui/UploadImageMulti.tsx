@@ -20,8 +20,10 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
             return e;
         }
         const result = e?.fileList?.map((img) => ({
-            url: img.response?.data[0].url,
+            url: img.response?.data?.[0]?.url || img.name,
         }));
+        //console.log(result);
+
         return result;
     };
 

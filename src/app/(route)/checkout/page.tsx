@@ -1,5 +1,6 @@
 "use client";
-import { CartModel } from "@/models/cartmodel";
+
+import { useAppSelector } from "@/redux/hooks";
 import { Button, Form, Input, Radio, Select } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,24 +11,15 @@ export default function CheckOut() {
     const [dataDistrict, setDataDistrict] = useState<MDistrict[]>([]);
     const [dataWard, setDataWard] = useState<MWard[]>([]);
     const [form] = Form.useForm();
-    const [datacart, setDatacart] = useState<CartModel[]>([]);
-    const [userId, setUserId] = useState("");
     const router = useRouter();
+    const cart = useAppSelector((state) => state.cart);
+    const auth = useAppSelector((state) => state.auth);
+
     form.setFieldsValue({ recipientName: "The Nguyen" });
     form.setFieldsValue({ phone: "0358326432" });
     form.setFieldsValue({ notes: "Giao hang 9h-10h" });
     form.setFieldsValue({ address: "180 cao lo" });
-    //Lấy data giỏ hàng và userID từ local
-    useEffect(() => {
-        const cartData = localStorage.getItem("CartData");
-        if (cartData) {
-            setDatacart(JSON.parse(cartData));
-        }
-        const storedUserId = localStorage.getItem("userId");
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-    }, []);
+    console.log(cart);
 
     // Lấy data tỉnh thành phố
     useEffect(() => {
@@ -111,25 +103,13 @@ export default function CheckOut() {
             toast.error("Error during fetch.");
         }
     };
-    // Đổ dữ liệu vào option
-    const provinceOptions = dataProvince?.map((item) => ({
-        value: item?.ProvinceID,
-        label: item?.ProvinceName,
-    }));
-    const districtOptions = dataDistrict?.map((item) => ({
-        value: item?.DistrictID,
-        label: item?.DistrictName,
-    }));
-    const wardOptions = dataWard?.map((item) => ({
-        value: item?.WardCode,
-        label: item?.WardName,
-    }));
+
     // Tổng tiền
-    const totalPrice = datacart.reduce((total, item) => {
+    const totalPrice = cart?.data?.reduce((total, item) => {
         return total + item?.price! * item?.quantity!;
     }, 0);
     // Tổng tiền giảm giá
-    const totalDiscount = datacart.reduce((total, item) => {
+    const totalDiscount = cart?.data?.reduce((total, item) => {
         return (
             total +
             (item?.price! * item?.quantity! * (item?.discount?.value || 0)) /
@@ -158,8 +138,8 @@ export default function CheckOut() {
             total: totalPrice,
             subTotal: totalPrice,
             totalDiscount: totalDiscount,
-            userId: userId,
-            items: datacart.map((item) => ({
+            userId: auth?.data?.id,
+            items: cart?.data?.map((item) => ({
                 productItemId: item.id,
                 quantity: item.quantity,
                 price: item.price,
@@ -170,7 +150,7 @@ export default function CheckOut() {
                     amount: totalPrice,
                     type: values.typePayment,
                     description: "123",
-                    userId: userId,
+                    userId: auth?.data?.id,
                     status: "OK",
                 },
             ],
@@ -279,7 +259,10 @@ export default function CheckOut() {
                                             (optionB?.label ?? "").toLowerCase()
                                         )
                                 }
-                                options={provinceOptions}
+                                options={dataProvince?.map((item) => ({
+                                    value: item?.ProvinceID,
+                                    label: item?.ProvinceName,
+                                }))}
                             ></Select>
                         </Form.Item>
                         <Form.Item label="Quận/Huyện" name="district">
@@ -302,7 +285,10 @@ export default function CheckOut() {
                                             (optionB?.label ?? "").toLowerCase()
                                         )
                                 }
-                                options={districtOptions}
+                                options={dataDistrict?.map((item) => ({
+                                    value: item?.DistrictID,
+                                    label: item?.DistrictName,
+                                }))}
                             ></Select>
                         </Form.Item>
                         <Form.Item label="Phường/Xã" name="ward">
@@ -321,7 +307,10 @@ export default function CheckOut() {
                                             (optionB?.label ?? "").toLowerCase()
                                         )
                                 }
-                                options={wardOptions}
+                                options={dataWard?.map((item) => ({
+                                    value: item?.WardCode,
+                                    label: item?.WardName,
+                                }))}
                             ></Select>
                         </Form.Item>
                         <Form.Item label="Địa chỉ" name="address">
@@ -369,7 +358,7 @@ export default function CheckOut() {
                         </h2>
                         <div>
                             <div className="flex flex-col space-y-4">
-                                {datacart.map((item) => (
+                                {cart?.data?.map((item) => (
                                     <div
                                         key={item.id}
                                         className="flex items-center space-x-4 py-4 border-b border-gray-200"
@@ -377,9 +366,8 @@ export default function CheckOut() {
                                         <div className="w-20 h-20 overflow-hidden">
                                             <img
                                                 src={
-                                                    item.images &&
-                                                    item.images[0]
-                                                        ? item.images[0].url
+                                                    item.image && item.image
+                                                        ? item.image?.url
                                                         : ""
                                                 }
                                                 alt=""
@@ -404,7 +392,7 @@ export default function CheckOut() {
                                 <span>Tổng cộng</span>
                                 <span>
                                     {" "}
-                                    {totalPrice.toLocaleString("vi-VN", {
+                                    {totalPrice?.toLocaleString("vi-VN", {
                                         style: "currency",
                                         currency: "VND",
                                     })}

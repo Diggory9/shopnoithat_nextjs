@@ -1,4 +1,4 @@
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 import RegisterFrom from "./register-form";
 export default function Register() {
     return (
@@ -10,7 +10,7 @@ export default function Register() {
                 <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 py-6 pt-8 text-center sm:px-16">
                     <h3 className="text-xl font-semibold">Sign Up</h3>
                 </div>
-                <Toaster position="top-right" richColors duration={2000} />
+                <Toaster position="top-right" richColors duration={1500} />
                 <RegisterFrom />
             </div>
         </div>

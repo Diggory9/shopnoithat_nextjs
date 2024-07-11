@@ -8,7 +8,6 @@ const fetchBaseAuth = async (input: RequestInfo, init?: RequestInit): Promise<Re
     console.log('input', input);
     try {
         const { data } = store.getState().auth;// null
-
         console.log(data);
         if (data?.jwToken) {
             const checkAccessTokenExpired = checkIfTokenExpired(data?.jwToken)
@@ -16,9 +15,6 @@ const fetchBaseAuth = async (input: RequestInfo, init?: RequestInit): Promise<Re
             if (checkAccessTokenExpired)
                 store.dispatch(refreshToken({ email: data.email || "", refreshToken: data.refreshToken || "" }));
         }
-
-
-
         const updatedInit = {
             ...init,
             headers: {

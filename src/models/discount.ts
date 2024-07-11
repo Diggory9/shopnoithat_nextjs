@@ -1,15 +1,15 @@
-export interface MDiscount{
+export interface MDiscount {
     day?: any;
-    id?:string,
-    code?:string,
-    type?:string,
-    discountValue?:number,
-    condition?:number,
-    dateStart?:string,
-    dateEnd?:string,
-    description?:string,
-    status?:string,
-    
+    id?: string,
+    code?: string,
+    type?: string,
+    discountValue?: number,
+    condition?: number,
+    dateStart?: string,
+    dateEnd?: string,
+    description?: string,
+    status?: string,
+
 }
 
 // "id": "44d7e19b-e4da-464e-01e3-08dc8ce1e8f7",

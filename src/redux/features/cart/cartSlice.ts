@@ -26,8 +26,9 @@ export const addToCart = createAsyncThunk('cart/addToCart', async ({ userId, pro
 });
 export const deleteProductFromCart = createAsyncThunk('cart/deleteToCart', async ({
   userId, productItemId }: { userId: string, productItemId: string }) => {
+  console.log(userId, productItemId);
   const response = await ApiCart.deleteProductToCart({ userId: userId, productItemId: productItemId });
-  console.log(response);
+
   return response.data;
 });
 

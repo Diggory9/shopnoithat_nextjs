@@ -91,10 +91,14 @@ export const DetailProduct = ({ data }: { data: any }) => {
             );
         }
     };
+    const calculateDiscountedPrice = (
+        price: number,
+        discount: number
+    ): number => {
+        return price - (price * discount) / 100;
+    };
+    console.log(product);
 
-    const selectedProductItem = product?.productItems?.find(
-        (item) => item.selected
-    );
     return (
         <div className="bg-white">
             <div className="container mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
@@ -115,10 +119,27 @@ export const DetailProduct = ({ data }: { data: any }) => {
                         <h1 className="text-3xl text-gray-900 font-serif border-b">
                             {product && product?.name}
                         </h1>
-                        <p className="mt-4 text-xl text-red-500 border-b">
-                            {customMoney(product && product?.price)}
-                        </p>
-                        <p className="mt-4 text-xl text-gray-900 border-b flex items-center">
+                        {product?.productDiscount?.id ? (
+                            <div className="mt-4 ">
+                                <span className="text-red-500 text-xl">
+                                    {customMoney(
+                                        calculateDiscountedPrice(
+                                            product?.price || 0,
+                                            product?.productDiscount?.value || 0
+                                        )
+                                    )}
+                                </span>
+                                <span className="line-through mr-2 ml-4 text-stone-950 text-lg">
+                                    {customMoney(product?.price)}
+                                </span>
+                            </div>
+                        ) : (
+                            <p className="mt-4 text-xl text-red-500 border-b">
+                                {customMoney(product?.price)}
+                            </p>
+                        )}
+
+                        <div className="mt-4 text-xl text-gray-900 border-b flex items-center">
                             Màu sắc: &nbsp;
                             {product?.productItems?.map((item) => (
                                 <div className="ml-3" key={item.id}>
@@ -138,7 +159,7 @@ export const DetailProduct = ({ data }: { data: any }) => {
                                     </div>
                                 </div>
                             ))}
-                        </p>
+                        </div>
                         {/* product specification */}
 
                         {product &&
@@ -159,9 +180,9 @@ export const DetailProduct = ({ data }: { data: any }) => {
                                     );
                                 }
                             )}
-                        <p className="mt-4 text-black text-lg">
+                        <div className="mt-4 text-black text-lg">
                             Danh mục: {product && product.category.name}
-                        </p>
+                        </div>
                         <div className="pt-4">
                             <div className="flex gap-4">
                                 <div className="w-[120px]">
@@ -208,13 +229,14 @@ export const DetailProduct = ({ data }: { data: any }) => {
                         >
                             Thêm vào giỏ
                         </button>
-                        <div dangerouslySetInnerHTML={{ __html: "" }}></div>
                     </div>
                 </div>
-                <div className="flex justify-end">
-                    <div className="w-1/2"></div>
+                <div className="flex ">
                     <div className="w-1/2 lg:flex lg:items-center lg:justify-between">
-                        <ProductTabs des={product?.description} />
+                        <ProductTabs
+                            des={product?.description}
+                            id={product?.id}
+                        />
                     </div>
                 </div>
             </div>

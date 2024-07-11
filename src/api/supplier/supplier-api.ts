@@ -1,12 +1,9 @@
 
-
-const Url = `${process.env.API_URL}Category`
-
-const ApiCategory = {
-    async getCategoryParent() {
+const ApiSupplier = {
+    async getSupplier(id: string) {
         try {
             const response = await fetch(
-                `${Url}/categories-parent`,
+                `${process.env.API_URL}Supplier/${id}`,
                 {
                     method: "POST",
                     headers: {
@@ -14,39 +11,19 @@ const ApiCategory = {
                     },
                 }
             );
-            if (!response.ok) {
+            if (!response.ok)
                 throw new Error("Network response was not ok");
-            }
             const data = await response.json();
             return data;
-        } catch (error) {
-            console.error("Fetch error: ", error);
-        }
-    },
-    async getCategory(id: string) {
-        try {
-            const response = await fetch(
-                `${process.env.API_URL}Category/${id}`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            const data = await response.json();
-            return data;
+
         } catch (error) {
             console.error("Fetch error:", error);
         }
     },
-    async getAllCategory() {
+    async getSuppliers() {
         try {
             const response = await fetch(
-                `${Url}/list`,
+                `${process.env.API_URL}Supplier/list`,
                 {
                     method: "POST",
                     headers: {
@@ -54,9 +31,8 @@ const ApiCategory = {
                     },
                 }
             );
-            if (!response.ok) {
+            if (!response.ok)
                 throw new Error("Network response was not ok");
-            }
             const data = await response.json();
             return data;
         } catch (error) {
@@ -64,32 +40,33 @@ const ApiCategory = {
             throw error;
         }
     },
-    async addCategory(name: string, categoryParent: string, description: string) {
+    async createSupplier(values: {}) {
         try {
             const response = await fetch(
-                `${process.env.API_URL}Category/insert`,
+                `${process.env.API_URL}Supplier/create`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                        name, categoryParent, description
-                    }),
+                    body: JSON.stringify(values),
                 }
             );
+
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
             return response;
-        } catch (error) {
+        }
+        catch (error) {
             console.error("Fetch error: ", error);
+            throw error;
         }
     },
-    async deleteCategory(id: string) {
+    async deleteSupplier(id: string) {
         try {
             const response = await fetch(
-                `${process.env.API_URL}Category/${id}`,
+                `${process.env.API_URL}Supplier/${id}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -97,39 +74,38 @@ const ApiCategory = {
                     },
                 }
             );
-            if (!response.ok) {
+            if (!response.ok)
                 throw new Error("Network response was not ok");
-            }
-            return response;
+            const data = await response.json();
+            return data;
         } catch (error) {
-            console.error(" Error: ", error);
+            console.error("Delete error: ", error);
+            throw error;
         }
     },
-    async updateCategory(id: string, name: string, categoryParent: string, description: string) {
+    async updateSupplier(id: string, values: {}) {
         try {
             const response = await fetch(
-                `${process.env.API_URL}Category/update/${id}`,
+                `${process.env.API_URL}Supplier/update/${id}`,
                 {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                        name,
-                        categoryParent,
-                        description,
-                    }),
+                    body: JSON.stringify(values),
                 }
             );
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
             return response;
-        } catch (error) {
-            console.error("Fetch error: ", error);
         }
-    },
+        catch (error) {
+            console.error("Fetch error: ", error);
+            throw error;
+        }
+
+    }
 
 }
-
-export default ApiCategory
+export default ApiSupplier;

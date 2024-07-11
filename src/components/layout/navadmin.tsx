@@ -2,6 +2,7 @@
 import React from "react";
 import {
     DollarOutlined,
+    HomeOutlined,
     ProfileOutlined,
     ShoppingOutlined,
     SkinOutlined,
@@ -17,6 +18,11 @@ export default function NavAdmin() {
     type MenuItem = GetProp<MenuProps, "items">[number];
 
     const items: MenuItem[] = [
+        {
+            key: "8",
+            icon: <HomeOutlined />,
+            label: <Link href={"/admin"}>Tổng quan</Link>,
+        },
         {
             key: "1",
             icon: <ProfileOutlined />,
@@ -58,7 +64,7 @@ export default function NavAdmin() {
         <>
             <Menu
                 style={{ width: 256 }}
-                // defaultSelectedKeys={["1"]}
+                defaultSelectedKeys={["8"]}
                 items={items}
             />
         </>

@@ -4,10 +4,10 @@ import ApiUser from "@/api/user/user-api";
 import { MRole } from "@/models/role";
 import { MUser } from "@/models/user";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, Spin, Select, Form, notification, Input, Tag } from "antd";
+import { Button, Spin, Select, Form, Input, Tag } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 interface UserDetailProps {
     params: {
         id: string;
@@ -20,44 +20,37 @@ export default function UserDetail({ params }: UserDetailProps) {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        const fetchRoles = async () => {
-            try {
-                ApiRole.getAllRole()
-                    .then((res) => {
-                        setDataRoles(res.data);
-                    })
-                    .catch((error) => console.log(error));
-            } catch (error) {
-                console.error("Error fetching order details:", error);
-            }
-        };
-        fetchRoles();
+        ApiRole.getAllRole()
+            .then((res) => {
+                setDataRoles(res.data);
+            })
+            .catch((error) => console.log(error));
     }, []);
     useEffect(() => {
-        const fetchUserDetails = async () => {
-            try {
-                const response = await ApiUser.getUserById(params.id);
-                setUser(response);
-            } catch (error) {
-                console.error("Error fetching user details:", error);
-            }
-        };
-        fetchUserDetails();
+        ApiUser.getUserById(params.id)
+            .then((res) => {
+                setUser(res);
+            })
+            .catch((error) => console.log(error));
     }, [params.id]);
-    const handleUpdateRoles = async () => {
-        if (!user) return;
-        try {
-            await ApiUser.updateUserRoles(
-                params.id,
-                form.getFieldValue("roles")
-            );
-            // const updatedUser = { ...user, roles: form.getFieldValue("roles") };
-            // setUser(updatedUser);
-        } catch (error) {
-            console.error("Error updating roles:", error);
-        }
+    const handleUpdateRoles = () => {
+        ApiUser.addRoleToUser(params.id, form.getFieldValue("roles"))
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Thêm thành công");
+                } else {
+                    toast.error("Thêm thất bại");
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
-
+    const handleDeleteRole = (removedTag: string) => {
+        const newTags = user?.roles?.filter((roles) => roles !== removedTag);
+        console.log(newTags);
+        // setTags(newTags);
+    };
     return (
         <div className="bg-gray-50 max-w-screen-xl p-6 mx-auto">
             <Toaster position="top-right" richColors></Toaster>
@@ -90,7 +83,14 @@ export default function UserDetail({ params }: UserDetailProps) {
                     <p className="text-xl">
                         Roles:{" "}
                         {user?.roles?.map((role, index) => (
-                            <Tag key={index}>{role}</Tag>
+                            <Tag
+                                key={index}
+                                onClose={() => {
+                                    handleDeleteRole;
+                                }}
+                            >
+                                {role}
+                            </Tag>
                         ))}
                     </p>
                 </div>
