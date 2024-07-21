@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { MDiscount } from "@/models/discount";
@@ -8,11 +7,11 @@ import TextArea from "antd/es/input/TextArea";
 import dayjs from "dayjs";
 import { useForm } from "antd/es/form/Form";
 import {
-    checkDescription,
     checkDiscountCode,
     checkDiscountType,
     formatDate,
 } from "@/utils/config";
+import ApiDiscount from "@/api/discount/discount-api";
 export default function addDiscount() {
     const { RangePicker } = DatePicker;
     const router = useRouter();
@@ -22,36 +21,16 @@ export default function addDiscount() {
         const { day, ...rest } = value;
         const body: Omit<MDiscount, "day"> = {
             ...rest,
-            dateStart: formatDate(value.day[0].$d),
-            dateEnd: formatDate(value.day[1].$d),
+            dateStart: value.day?.[0] ? formatDate(value.day[0].$d || "") : "",
+            dateEnd: value.day?.[1] ? formatDate(value.day[1].$d || "") : "",
         };
-        console.log(body);
-        try {
-            const respone = await fetch(
-                `${process.env.API_URL}Discount/create`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(body),
-                }
-            );
-            if (respone.ok) {
-                //Thêm thành công
-                console.log("Success");
 
-                // console.log(data.data);
-                toast.success("Thêm khuyến mãi thành công");
+        ApiDiscount.createDiscount(body)
+            .then((res) => {
+                if (res.ok) toast.success("Thành công");
                 router.push("/admin/discount");
-            } else {
-                //Thêm thất bại
-                console.log("Fail !!!");
-                toast.error("Thêm khuyến mãi thất bại");
-            }
-        } catch (error) {
-            console.error("Lỗi khi gửi yêu cầu:", error);
-        }
+            })
+            .catch(() => toast.error("Thất bại"));
     };
     const handleTypeChange = () => {
         form.validateFields(["discountValue"]);

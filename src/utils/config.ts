@@ -35,6 +35,12 @@ export const vietnamesePhoneNumberRegex = /(0|\+84)(\d{9})\b/;
 // 	return EditorState.createWithContent(contentState);
 // };
 
+export const formatDateSummary = (
+    date?: Date | string | dayjs.Dayjs | null,
+    format: string = 'DD/MM'
+): string => {
+    return dayjs(date || new Date()).format(format);
+};
 
 export const checkProductName = (value: string | undefined | null): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -78,7 +84,7 @@ export const checkBrandName = (value: string | undefined | null): Promise<void> 
         } else {
             resolve();
         }
-        
+
     });
 };
 
@@ -106,42 +112,42 @@ export const checkSupplier = (supplier: string | undefined | null): Promise<void
         }
     });
 };
-export const customMoney = (money: number|null|undefined) => {
-	return (money || 0).toLocaleString('vi-VN', {
-		style: 'currency',
-		currency: 'VND',
-	});
+export const customMoney = (money: number | null | undefined) => {
+    return (money || 0).toLocaleString('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    });
 };
 
-export const customNumber = (number: number|undefined) => {
-	return number?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+export const customNumber = (number: number | undefined) => {
+    return number?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
 
 export const compareAlphabet = <T>(array: T[], key: keyof T, direction: 'asc' | 'desc' = 'asc'): T[] => {
-	return array.sort((a, b) => (direction === 'asc' ? String(a[key]).localeCompare(String(b[key])) : String(b[key]).localeCompare(String(a[key]))));
+    return array.sort((a, b) => (direction === 'asc' ? String(a[key]).localeCompare(String(b[key])) : String(b[key]).localeCompare(String(a[key]))));
 };
 
 export const handleFormatterInputNumber = (value: number | undefined) => {
-	if (value) {
-		return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-	}
-	return '0';
+    if (value) {
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+    return '0';
 };
 
 export const handleParserInputNumber = (value: string | undefined) => {
-	if (value) {
-		return Number(value.replace(/\./g, ''));
-	}
-	return 0;
+    if (value) {
+        return Number(value.replace(/\./g, ''));
+    }
+    return 0;
 };
 
 export const checkInputMoney = (value: number) => {
-	if (!value) {
-		return Promise.reject('Hãy nhập giá sản phẩm');
-	} else if (value < 1000) {
-		return Promise.reject('Giá phải lớn hơn 1000');
-	}
-	return Promise.resolve();
+    if (!value) {
+        return Promise.reject('Hãy nhập giá sản phẩm');
+    } else if (value < 1000) {
+        return Promise.reject('Giá phải lớn hơn 1000');
+    }
+    return Promise.resolve();
 };
 export const checkDiscountCode = (value: string | undefined | null): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -158,70 +164,70 @@ export const checkDiscountType = (discount: string | undefined | null): Promise<
     return new Promise((resolve, reject) => {
         // Check if the discount is undefined, null, an empty string, or a placeholder value
         if (!discount || discount.trim().length === 0 || discount === 'select') {
-         
+
             reject('Hãy chọn kiểu giảm giá');
         } else {
-           
+
             resolve();
         }
     });
 };
 export const renderDiscountValue = (item: MDiscount) => {
-	if (item.type === "PERCENTAGE") {
-		return `${item.discountValue}%`;
-	} else if (item.type === "FIX-AMOUNT") {
-		return customNumber(item.discountValue)+"đ";
-	}
-	return "";
+    if (item.type === "PERCENTAGE") {
+        return `${item.discountValue}%`;
+    } else if (item.type === "FIX-AMOUNT") {
+        return customNumber(item.discountValue) + "đ";
+    }
+    return "";
 };
 export const objectToQueryString = <T>(object: T): string => {
-	return '?' + new URLSearchParams(object as any).toString();
+    return '?' + new URLSearchParams(object as any).toString();
 };
 
 export const formatDate = (date?: Date | string | dayjs.Dayjs | null, format?: string) => {
-	return dayjs(date || new Date()).format(format || 'YYYY-MM-DD');
+    return dayjs(date || new Date()).format(format || 'YYYY-MM-DD');
 };
 
 export const formatDateTime = (date?: Date | string | dayjs.Dayjs | null, format?: string) => {
-	return dayjs(date || new Date()).format(format || 'YYYY-MM-DD HH:mm');
+    return dayjs(date || new Date()).format(format || 'YYYY-MM-DD HH:mm');
 };
 
 export const formatDateToRender = (date?: Date | string) => {
-	if (!date) return '';
-	return formatDate(date, 'DD/MM/YYYY');
+    if (!date) return '';
+    return formatDate(date, 'DD/MM/YYYY');
 };
 
 export const formatDateTimeToRender = (date?: Date | string) => {
-	if (!date) return '';
-	return formatDate(date, 'DD/MM/YYYY HH:mm');
+    if (!date) return '';
+    return formatDate(date, 'DD/MM/YYYY HH:mm');
 };
 
 export const changeDateStringToDayjs = (date: string | Date) => {
-	return dayjs(date || new Date());
+    return dayjs(date || new Date());
 };
 
 export const formatPhonenumber = (phoneNumber: string) => {
-	return phoneNumber.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+    return phoneNumber.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
 };
 
 export const checkPhoneNumber = (phoneNumber: string) => {
-	if (!vietnamesePhoneNumberRegex.test(phoneNumber)) {
-		return Promise.reject('Please enter a valid phone number');
-	}
-	return Promise.resolve();
+    if (!vietnamesePhoneNumberRegex.test(phoneNumber)) {
+        return Promise.reject('Please enter a valid phone number');
+    }
+    return Promise.resolve();
 };
 
 
 export const dataURLtoFile = (dataurl: string, filename: string) => {
-	const arr = dataurl.split(','),
-		mime = arr[0]?.match(/:(.*?);/)?.[1],
-		bstr = atob(arr[arr.length - 1]);
-	let n = bstr.length;
-	const u8arr = new Uint8Array(n);
-	while (n--) {
-		u8arr[n] = bstr.charCodeAt(n);
-	}
-	return new File([u8arr], filename, { type: mime });
+    const arr = dataurl.split(','),
+        mime = arr[0]?.match(/:(.*?);/)?.[1],
+        bstr = atob(arr[arr.length - 1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
 };
 
 

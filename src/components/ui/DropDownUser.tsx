@@ -17,7 +17,7 @@ import { logout } from "@/redux/features/auth/authSlice";
 const CustomDropdown: React.FC = () => {
     const dispatch = useAppDispatch();
     const { status, error, isLogin, data } = useAppSelector(
-        (state) => state.auth
+        (state) => state.authCredentials
     );
 
     const handleOnClick = () => {

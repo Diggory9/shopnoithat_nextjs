@@ -1,36 +1,36 @@
- export interface MProductImage {
+export interface MProductImage {
     id?: string;
     url?: string;
 }
 
- export interface MProductItem {
+export interface MProductItem {
     selected: unknown;
-    
-    id:string;
+
+    id: string;
     quantity?: number;
-    color?: {id?:string,colorName?:string,colorCode?:string};
+    color?: { id?: string, colorName?: string, colorCode?: string };
     productImages?: MProductImage[];
 }
- export interface MProduct {
-    id?:string;
+export interface MProduct {
+    id?: string;
     name?: string;
     description?: string;
     productQuantity?: number;
     productBrand?: string;
     price?: number;
-    supplier?: {id: string, name: string};
-    image?:string;
-    category:{id: string, name: string};
+    supplier?: { id: string, name: string };
+    image?: string;
+    category: { id: string, name: string };
     categoryId?: string;
     discountId?: string;
     productItems: MProductItem[];
-    productSpecifications?:MProductSpecification[];
-    rating?:{rate?:number,count?:number};
-    productDiscount?:{id?:null,type?:null,value?:number};
+    productSpecifications?: MProductSpecification[];
+    rating?: { rate?: number, count?: number };
+    productDiscount?: { id?: string, type?: string, value?: number };
 
 }
-export interface MProductSpecification{
-    id?:string;
-    specValue:string;
-    specType:string;
+export interface MProductSpecification {
+    id?: string;
+    specValue: string;
+    specType: string;
 }

@@ -1,36 +1,53 @@
 "use client";
+import ApiDiscount from "@/api/discount/discount-api";
 import { MDiscount } from "@/models/discount";
-import { formatDateToRender, renderDiscountValue } from "@/utils/config";
-import { Button, Table, TableColumnsType } from "antd";
+import { formatDateToRender } from "@/utils/config";
+import { Button, Table, TableColumnsType, Tag } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Discount() {
     const [dataDiscount, setDataDiscount] = useState<MDiscount[]>([]);
-
+    // Fetch data discount
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const respone = await fetch(
-                    `${process.env.API_URL}Discount/list?pageNumber=1&pageSize=20`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setDataDiscount(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        };
-        fetchData();
+        ApiDiscount.getAllDiscount(1, 10)
+            .then((response) => {
+                setDataDiscount(response.data);
+            })
+            .catch((error) => console.log(error));
     }, []);
+    //Update status discount
+    const handleUpdateStatus = (id: string, status: string) => {
+        ApiDiscount.updateStatusDiscount(id, status)
+            .then((response) => {
+                if (response?.ok) {
+                    toast.success("Cập nhật thành công");
+                    ApiDiscount.getAllDiscount(1, 10)
+                        .then((response) => {
+                            setDataDiscount(response.data);
+                        })
+                        .catch((error) => console.log(error));
+                } else {
+                    toast.error("Cập nhật thất bại");
+                }
+            })
+            .catch(() => toast.error("Cập nhật thất bại"));
+    };
+    const getStatusTag = (status?: string) => {
+        switch (status) {
+            case "PENDING":
+                return <Tag color="processing">Chờ đợi</Tag>;
+            case "ACTIVE":
+                return <Tag color="success">Hoạt động</Tag>;
+            case "PAUSE":
+                return <Tag color="warning">Tạm dừng</Tag>;
+            case "CANCELLED":
+                return <Tag color="error">Đã hủy</Tag>;
+            default:
+                return <Tag>{status}</Tag>;
+        }
+    };
     const columns: TableColumnsType<MDiscount> = [
         {
             title: "STT",
@@ -46,6 +63,13 @@ export default function Discount() {
             title: "Giá trị",
             dataIndex: "discountValue",
             key: "discountValue",
+            render: (discountValue: number, record: MDiscount) => (
+                <span>
+                    {record.type === "PERCENTAGE"
+                        ? `${discountValue}%`
+                        : discountValue}
+                </span>
+            ),
         },
         {
             title: "Giá trị tối thiểu",
@@ -66,14 +90,63 @@ export default function Discount() {
             title: "Trạng thái",
             dataIndex: "status",
             key: "status",
+            render: (status: string) => getStatusTag(status),
         },
         {
             title: "Hành động",
-            key: "action",
-            render: (_: any, record: { key: string }) => (
-                <Link href={`/admin/user/detail/${record.key}`}>
-                    <Button type="link">Chi tiết</Button>
-                </Link>
+            dataIndex: "status",
+            key: "status",
+            render: (_: any, record: MDiscount) => (
+                <>
+                    <Button
+                        className="mr-2"
+                        onClick={() =>
+                            handleUpdateStatus(record.id || "", "pause")
+                        }
+                        disabled={
+                            record.status === "CANCELLED" ||
+                            record.status === "PENDING" ||
+                            record.status === "PAUSE"
+                        }
+                    >
+                        Pause
+                    </Button>
+                    <Button
+                        className="mr-2"
+                        type="primary"
+                        onClick={() =>
+                            handleUpdateStatus(record.id || "", "continue")
+                        }
+                        disabled={
+                            record.status === "CANCELLED" ||
+                            record.status === "PENDING"
+                        }
+                    >
+                        Continue
+                    </Button>
+                    <Button
+                        className="mr-2"
+                        danger
+                        onClick={() =>
+                            handleUpdateStatus(record.id || "", "cancel")
+                        }
+                        disabled={
+                            record.status === "CANCELLED" ||
+                            record.status === "PENDING" ||
+                            record.status === "PAUSE"
+                        }
+                    >
+                        Cancel
+                    </Button>
+                    <Link
+                        className="text-xl"
+                        href={`/admin/discount/update/${record.id}`}
+                    >
+                        <Button disabled={record.status === "CANCELLED"}>
+                            Update Time
+                        </Button>
+                    </Link>
+                </>
             ),
         },
     ] as TableColumnsType<MDiscount>;
@@ -86,7 +159,7 @@ export default function Discount() {
                         <form action="" method="get">
                             <input
                                 className="p-2 rounded-lg border border-gray-300"
-                                placeholder="Search for category"
+                                placeholder="Search"
                                 type="text"
                                 name=""
                                 id=""
@@ -129,7 +202,7 @@ export default function Discount() {
                         }}
                         columns={columns}
                         dataSource={
-                            dataDiscount.map((item, index) => ({
+                            dataDiscount?.map((item, index) => ({
                                 ...item,
                                 index: index + 1,
                                 key: item.id,

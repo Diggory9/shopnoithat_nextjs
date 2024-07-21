@@ -8,33 +8,41 @@ import { useRouter } from "next/navigation";
 import ApiProduct from "@/api/product/product-api";
 import { MProduct } from "@/models/productmodel";
 import ApiReview from "@/api/review/review-api";
+import { useAppSelector } from "@/redux/hooks";
+import { toast } from "sonner";
 
 export default function Review({ params }: { params: { id: string } }) {
     const router = useRouter();
     const [dataProduct, setDataProduct] = useState<MProduct | null>(null);
     const [form] = Form.useForm();
+    const auth = useAppSelector((state) => state.auth);
+
+    useEffect(() => {
+        ApiProduct.getDetailProduct(params.id)
+            .then((res) => {
+                setDataProduct(res.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, [params.id]);
+
     const onFinish = async (values: MReview) => {
         const finalValues = {
             ...values,
             productId: params.id,
-            userId: localStorage.getItem("userId") || "",
+            userId: auth.data?.id || "",
         };
-        console.log("Received values of form: ", finalValues);
 
-        try {
-            await ApiReview.createReview(finalValues);
-        } catch (error) {
-            console.log(error);
-        }
+        ApiReview.createReview(finalValues)
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Đánh giá thành công");
+                    router.push("/user/purchase");
+                } else toast.error("Đánh giá thất bại");
+            })
+            .catch(() => toast.error("Đánh giá thất bại"));
     };
-    useEffect(() => {
-        const fetchData = async () => {
-            const response = await ApiProduct.getDetailProduct(params.id);
-            setDataProduct(response.data);
-            console.log(response.data);
-        };
-        fetchData();
-    }, [params.id]);
 
     return (
         <div>

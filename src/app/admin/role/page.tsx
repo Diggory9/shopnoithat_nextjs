@@ -1,35 +1,39 @@
 "use client";
 import ApiRole from "@/api/role/role-api";
 import { MRole } from "@/models/role";
-import { Button, Table, TableColumnsType } from "antd";
+import {
+    DeleteOutlined,
+    EditOutlined,
+    ExclamationCircleFilled,
+} from "@ant-design/icons";
+import { Button, Modal, Table, TableColumnsType } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-interface Role {
-    id: string;
-    name: string;
-}
+const { confirm } = Modal;
 
 export default function Role() {
-    const [dataRole, setDataRole] = useState<Role[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [dataRole, setDataRole] = useState<MRole[]>([]);
+    // Fetch data role
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const respone = await ApiRole.getAllRole();
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setDataRole(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
+        ApiRole.getAllRole()
+            .then((res) => {
+                setDataRole(res.data);
+            })
+            .catch((error) => console.log(error));
     }, []);
+    const showDeleteConfirm = (id: string) => {
+        confirm({
+            title: "Bạn muốn xóa danh mục này?",
+            icon: <ExclamationCircleFilled style={{ color: "red" }} />,
+            okText: "Có",
+            okType: "danger",
+            cancelText: "Không",
+            onOk: () => {},
+            onCancel() {
+                console.log("Cancel");
+            },
+        });
+    };
     const columns: TableColumnsType<MRole> = [
         {
             title: "STT",
@@ -42,12 +46,25 @@ export default function Role() {
             key: "name",
         },
         {
-            title: "Hành động",
+            title: "Action",
             key: "action",
-            render: (_: any, record: { key: string }) => (
-                <Link href={`/admin/user/detail/${record.key}`}>
-                    <Button type="link">Chi tiết</Button>
-                </Link>
+            render: (_, record) => (
+                <div className="flex">
+                    <Link
+                        className="text-xl"
+                        href={`/admin/role/update/${record.id}`}
+                    >
+                        <EditOutlined />
+                    </Link>
+                    <Button
+                        onClick={() => showDeleteConfirm(record.id || "")}
+                        type="link"
+                        className="text-xl"
+                        danger
+                    >
+                        <DeleteOutlined />
+                    </Button>
+                </div>
             ),
         },
     ] as TableColumnsType<MRole>;
@@ -68,36 +85,44 @@ export default function Role() {
                         </form>
                     </div>
                     <div className="order-last content-center">
-                        <button
-                            className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
-                            type="button"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="1"
-                                stroke="currentColor"
-                                className="size-6"
+                        <a href="/admin/role/add">
+                            <button
+                                className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
+                                type="button"
                             >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                />
-                            </svg>
-                            Add Role
-                        </button>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="1"
+                                    stroke="currentColor"
+                                    className="size-6"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    />
+                                </svg>
+                                Add Role
+                            </button>
+                        </a>
                     </div>
                 </div>
             </div>
             <div className="bg-white mb-4 shadow-xl">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <Table
+                        pagination={{
+                            defaultPageSize: 5,
+                            showSizeChanger: true,
+                            pageSizeOptions: ["5", "10", "15"],
+                        }}
                         dataSource={dataRole.map((item, index) => ({
                             ...item,
                             index: index + 1,
                             key: item.id,
+                            name: item.name,
                         }))}
                         columns={columns}
                     ></Table>

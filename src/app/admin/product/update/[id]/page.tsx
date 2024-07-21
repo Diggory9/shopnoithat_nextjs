@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { MCategory } from "@/models/categorymodel";
 import { MSupplier } from "@/models/suppliermodel";
 import { CloseOutlined } from "@ant-design/icons";
@@ -25,9 +25,12 @@ import {
     checkSupplier,
 } from "@/utils/config";
 import { Toaster, toast } from "sonner";
-import { MProduct } from "@/models/productmodel";
 import { MDiscount } from "@/models/discount";
 import MUploadImageMultiple from "@/components/ui/UploadImageMulti";
+import { sumQuantity } from "@/helper/helper";
+import ApiCategory from "@/api/category/category-api";
+import ApiDiscount from "@/api/discount/discount-api";
+import ApiSupplier from "@/api/supplier/supplier-api";
 
 type FieldType = {
     name?: string;
@@ -43,102 +46,57 @@ type FieldType = {
 };
 
 type ProductSpecification = {
+    id?: string;
     specType?: string;
     specValue?: string;
     key?: number;
 };
 
 type ProductItem = {
+    id?: string;
     quantity?: number;
     color?: { id?: string; colorName?: string; colorCode?: string };
     productImages?: ProductImage[];
 };
 
 type ProductImage = {
+    id?: string;
     url?: string;
 };
 
 const UpdateProduct = ({ params }: { params: { id: string } }) => {
     const router = useRouter();
-
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
-    const [dataDis, setDataDis] = useState<MDiscount[]>([]);
-    //const [loading, setLoading] = useState(true);
+    //const [dataDis, setDataDis] = useState<MDiscount[]>([]);
     const [form] = Form.useForm();
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch(
-                    `${process.env.API_URL}Category/list`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!response.ok)
-                    throw new Error("Network response was not ok");
-                const result = await response.json();
-                setDataCate(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        };
-        fetchCategories();
+        ApiCategory.getAllCategory()
+            .then((res) => {
+                setDataCate(res.data);
+            })
+            .catch((error) => console.log(error));
+        // ApiDiscount.getAllDiscount(1, 10)
+        //     .then((res) => {
+        //         setDataDis(res.data);
+        //     })
+        //     .catch((error) => console.log(error));
+        ApiSupplier.getSuppliers()
+            .then((res) => {
+                setDataSup(res.data);
+            })
+            .catch((error) => console.log(error));
     }, []);
 
-    useEffect(() => {
-        const fetchSuppliers = async () => {
-            try {
-                const response = await fetch(
-                    `${process.env.API_URL}Supplier/list`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!response.ok)
-                    throw new Error("Network response was not ok");
-                const result = await response.json();
-                setDataSup(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        };
-        fetchSuppliers();
-    }, []);
-
-    useEffect(() => {
-        const fetchDiscounts = async () => {
-            try {
-                const response = await fetch(
-                    `${process.env.API_URL}Discount/list?pageNumber=1&pageSize=10`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!response.ok)
-                    throw new Error("Network response was not ok");
-                const result = await response.json();
-                setDataDis(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        };
-        fetchDiscounts();
-    }, []);
-
+    const handleOnchangeQuantity = () => {
+        form.setFieldValue(
+            "productQuantity",
+            sumQuantity(form.getFieldValue("productItems"))
+        );
+    };
     useEffect(() => {
         if (params.id) {
-            console.log("123");
             const fetchProduct = async () => {
                 try {
                     const response = await fetch(
@@ -154,53 +112,45 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                         throw new Error("Network response was not ok");
                     const result = await response.json();
                     console.log(result.data);
+                    // const totalQuantity = sumQuantity(result.data.productItems);
+                    // console.log(totalQuantity);
 
-                    // form.setFieldsValue(result.data);
-                    // form.setFieldValue("categoryId", result.data.category.name);
-                    // form.setFieldValue("productImages", result.data.image);
-                    // form.setFieldValue(
-                    //     "supplierId",
-                    //     result.data.supplier.supplierName
-                    // );
-                    // form.setFieldValue(
-                    //     "discountId",
-                    //     result.data.productDiscount.code
-                    // );
-                    // form.setFieldValue(
-                    //     "colorId",
-                    //     result.data.productItems[0].color
-                    // );
                     form.setFieldsValue({
-                        name: result.data.name,
-                        description: result.data.description,
-                        productBrand: result.data.productBrand,
-                        productQuantity: result.data.productQuantity,
-                        price: result.data.price,
-                        image: result.data.image,
-                        categoryId: result.data.category.id,
-                        supplierId: result.data.supplier.id,
-                        discountId: result.data.productDiscount?.id || null,
+                        name: result?.data?.name,
+                        description: result?.data?.description,
+                        productBrand: result?.data?.productBrand,
+                        productQuantity: sumQuantity(result.data.productItems),
+                        price: result?.data?.price,
+                        image: result?.data?.image,
+                        categoryId: result?.data?.category.id,
+                        supplierId: result?.data?.supplier?.id,
+
                         productSpecifications:
-                            result.data.productSpecifications.map(
-                                (spec: { specType: any; specValue: any }) => ({
-                                    specType: spec.specType,
-                                    specValue: spec.specValue,
+                            result?.data?.productSpecifications?.map(
+                                (specItem: {
+                                    id?: string;
+                                    specType?: string;
+                                    specValue?: string;
+                                }) => ({
+                                    id: specItem?.id,
+                                    specType: specItem?.specType,
+                                    specValue: specItem?.specValue,
                                 })
                             ),
-                        productItems: result.data.productItems.map(
-                            (
-                                item: {
-                                    quantity: any;
-                                    color: { id: any };
-                                    productImages: any[];
-                                },
-                                index: any
-                            ) => ({
-                                quantity: item.quantity,
-                                colorId: item.color.id,
-                                productImages: item.productImages.map(
+                        productItems: result?.data?.productItems?.map(
+                            (item: {
+                                id: string;
+                                quantity: number;
+                                color: { id: string };
+                                productImages: any[];
+                            }) => ({
+                                id: item?.id,
+                                quantity: item?.quantity,
+                                colorId: item?.color.id,
+                                productImages: item?.productImages.map(
                                     (image) => ({
-                                        url: image.url,
+                                        id: image?.id,
+                                        url: image?.url,
                                     })
                                 ),
                             })
@@ -208,15 +158,15 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                     });
                 } catch (error) {
                     console.error("Fetch product error:", error);
-                } finally {
-                    //setLoading(false);
                 }
             };
             fetchProduct();
         }
     }, [params.id, form]);
 
-    const handleSubmit = async (values: MProduct) => {
+    const handleSubmit = async (values: FieldType) => {
+        console.log(values);
+
         try {
             const response = await fetch(
                 `${process.env.API_URL}Product/${params.id}`,
@@ -241,34 +191,11 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
         }
     };
 
-    const options = dataCate.map((item) => ({
-        value: item.id,
-        label: item.name,
-    }));
-    const optionsSup = dataSup.map((item) => ({
-        value: item.id,
-        label: item.supplierName,
-    }));
-    const optionsDis = dataDis.map((item) => ({
-        value: item.id,
-        label: item.code,
-    }));
-
     return (
         <div className="container mx-auto p-4 bg-white shadow-xl rounded-xl">
             <h1 className="text-2xl font-bold pb-4">Cập nhật sản phẩm</h1>
             <Toaster position="top-right" richColors />
-            <Form
-                onFinish={handleSubmit}
-                form={form}
-                layout="vertical"
-                // initialValues={{
-                //     productSpecifications: [{ specType: "", specValue: "" }],
-                //     productItems: [
-                //         { quantity: 1, colorId: "", productImages: [] },
-                //     ],
-                // }}
-            >
+            <Form onFinish={handleSubmit} form={form} layout="vertical">
                 <Row justify="space-between">
                     <Col span={8}>
                         <Form.Item<FieldType>
@@ -318,6 +245,7 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                             name="productQuantity"
                         >
                             <InputNumber
+                                disabled
                                 type="number"
                                 style={{ width: 300 }}
                                 min={1}
@@ -348,7 +276,10 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                             <Select
                                 style={{ width: 200 }}
                                 placeholder="Chọn danh mục"
-                                options={options}
+                                options={dataCate?.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                }))}
                             />
                         </Form.Item>
                         <Form.Item<FieldType>
@@ -364,19 +295,25 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                             <Select
                                 style={{ width: 200 }}
                                 placeholder="Chọn nhà cung cấp"
-                                options={optionsSup}
+                                options={dataSup?.map((item) => ({
+                                    value: item.id,
+                                    label: item.supplierName,
+                                }))}
                             />
                         </Form.Item>
-                        <Form.Item<FieldType>
+                        {/* <Form.Item<FieldType>
                             label="Mã giảm giá"
                             name="discountId"
                         >
                             <Select
                                 style={{ width: 200 }}
                                 placeholder="Chọn mã giảm giá"
-                                options={optionsDis}
+                                options={dataDis?.map((item) => ({
+                                    value: item.id,
+                                    label: item.code,
+                                }))}
                             />
-                        </Form.Item>
+                        </Form.Item> */}
                     </Col>
                     <Col span={8}>
                         <Form.List name="productSpecifications">
@@ -398,9 +335,18 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                                             key={field.key}
                                             extra={
                                                 <CloseOutlined
-                                                    onClick={() =>
-                                                        remove(field.name)
-                                                    }
+                                                    onClick={() => {
+                                                        // const spectId =
+                                                        //     form.getFieldValue(
+                                                        //         "productSpecifications"
+                                                        //     )[field.name]?.id;
+                                                        // if (spectId) {
+                                                        //     handleRemoveProductSpecification(
+                                                        //         spectId
+                                                        //     );
+                                                        // }
+                                                        remove(field.name);
+                                                    }}
                                                 />
                                             }
                                         >
@@ -447,9 +393,18 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                                             key={field.key}
                                             extra={
                                                 <CloseOutlined
-                                                    onClick={() =>
-                                                        remove(field.name)
-                                                    }
+                                                    onClick={() => {
+                                                        // const itemId =
+                                                        //     form.getFieldValue(
+                                                        //         "productItems"
+                                                        //     )[field.name]?.id;
+                                                        // if (itemId) {
+                                                        //     handleRemoveProductItem(
+                                                        //         itemId
+                                                        //     );
+                                                        // }
+                                                        remove(field.name);
+                                                    }}
                                                 />
                                             }
                                         >
@@ -457,7 +412,12 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                                                 label="Số lượng"
                                                 name={[field.name, "quantity"]}
                                             >
-                                                <InputNumber />
+                                                <InputNumber
+                                                    min={1}
+                                                    onChange={() =>
+                                                        handleOnchangeQuantity()
+                                                    }
+                                                />
                                             </Form.Item>
                                             <Form.Item
                                                 label="Màu sắc"
@@ -482,7 +442,14 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                                                     ]}
                                                 />
                                             </Form.Item>
+
                                             <MUploadImageMultiple
+                                                initFileList={
+                                                    form.getFieldValue(
+                                                        "productItems"
+                                                    )?.[field.name]
+                                                        ?.productImages || []
+                                                }
                                                 formName={[
                                                     field.name,
                                                     "productImages",

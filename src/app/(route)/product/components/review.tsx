@@ -1,4 +1,5 @@
 import ApiReview from "@/api/review/review-api";
+import { formatDateToRender } from "@/utils/config";
 import { Rate } from "antd";
 import { useEffect, useState } from "react";
 interface Review {
@@ -58,15 +59,19 @@ export default function Review({ params }: { params: { id: string } }) {
                                 {/* {{# reviews.data }} */}
                                 <li className="py-4 border-b border-gray-200">
                                     <div className="text-gray-600">
-                                        <span className="text-sm">
+                                        <span className="text-sm text-red-500">
                                             Đánh giá bởi {item.userName} vào{" "}
-                                            {item.createAt}
+                                            {formatDateToRender(item.createAt)}
+                                        </span>
+                                        <div>
+                                            {" "}
                                             <Rate
                                                 allowHalf
                                                 disabled
                                                 defaultValue={item.rating}
                                             ></Rate>
-                                        </span>
+                                        </div>
+
                                         <p>{item.content}</p>
                                         <div className="flex">
                                             {item?.reviewImages?.map(

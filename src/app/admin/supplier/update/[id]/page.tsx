@@ -3,96 +3,41 @@ import { Toaster, toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MSupplier } from "@/models/suppliermodel";
+import { Button, Form, Input } from "antd";
+import ApiSupplier from "@/api/supplier/supplier-api";
 
 export default function updateSupplier({ params }: { params: { id: string } }) {
-    const [dataSup, setDataSup] = useState<MSupplier[]>([]);
     const router = useRouter();
-    const [contactPhone, setcontactPhone] = useState("");
-    const [contactPerson, setcontactPerson] = useState("");
-    const [supplierName, setsupplierName] = useState("");
-    const [address, setaddress] = useState("");
-    const [notes, setnotes] = useState("");
+    const [dataSupplier, setdataSupplier] = useState<MSupplier | null>(null);
+    const [form] = Form.useForm();
+
+    //Fetch data supplier
 
     useEffect(() => {
-        const fetchSuppliers = async () => {
-            try {
-                const respone = await fetch(
-                    `${process.env.API_URL}Supplier/list`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                ); // Thay thế bằng URL API thực tế
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setDataSup(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        };
-        fetchSuppliers();
-    }, []);
-
-    useEffect(() => {
-        const fetchSupplier = async () => {
-            try {
-                const response = await fetch(
-                    `${process.env.API_URL}Supplier/${params.id}`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await response.json();
-                setcontactPhone(result.data.contactPhone);
-                setcontactPerson(result.data.contactPerson);
-                setsupplierName(result.data.supplierName);
-                setaddress(result.data.address);
-                setnotes(result.data.notes);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        };
-        fetchSupplier();
+        ApiSupplier.getSupplier(params.id)
+            .then((res) => {
+                setdataSupplier(res.data);
+            })
+            .catch((error) => console.log(error));
     }, [params.id]);
 
-    const handleUpdate = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const response = await fetch(
-                `${process.env.API_URL}Supplier/update/${params.id}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        contactPhone,
-                        contactPerson,
-                        supplierName,
-                        address,
-                        notes,
-                    }),
-                }
-            );
-            if (response.ok) {
-                toast.success("Cập nhật nhà cung cấp thành công");
-                router.push("/admin/supplier");
-            } else {
-                toast.error("Cập nhật nhà cung cấp thất bại");
-            }
-        } catch (error) {
-            console.error("Update error:", error);
-        }
+    //Set data to form
+
+    useEffect(() => {
+        form.setFieldsValue(dataSupplier);
+    }, [dataSupplier]);
+
+    //Update supplier
+
+    const handleSubmit = async (value: MSupplier) => {
+        ApiSupplier.updateSupplier(params.id, value)
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Cập nhật thành công");
+                    router.push("/admin/supplier");
+                } else toast.error("Cập nhật thất bại");
+            })
+            .catch(() => toast.error("Cập nhật thất bại"));
     };
 
     return (
@@ -100,103 +45,33 @@ export default function updateSupplier({ params }: { params: { id: string } }) {
             <div className="bg-white p-3 rounded-xl mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">Update Supplier</h1>
                 <Toaster position="top-right" richColors />
-                <form onSubmit={handleUpdate} className="space-y-6">
-                    <div>
-                        <label
-                            htmlFor="name"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Name
-                        </label>
-                        <input
-                            type="text"
-                            name="supplierName"
-                            id="supplierName"
-                            value={supplierName}
-                            onChange={(e) => setsupplierName(e.target.value)}
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
-                            required
-                        />
+                <Form
+                    form={form}
+                    onFinish={handleSubmit}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 14 }}
+                    layout="horizontal"
+                    style={{ maxWidth: 600 }}
+                >
+                    <Form.Item name="supplierName" label="Tên nhà cung cấp">
+                        <Input></Input>
+                    </Form.Item>
+                    <Form.Item name="contactPhone" label="Số điện thoại">
+                        <Input></Input>
+                    </Form.Item>
+                    <Form.Item name="contactPerson" label="Người liên hệ">
+                        <Input></Input>
+                    </Form.Item>
+                    <Form.Item name="address" label="Địa chỉ">
+                        <Input></Input>
+                    </Form.Item>
+                    <Form.Item name="notes" label="Chú thích">
+                        <Input></Input>
+                    </Form.Item>
+                    <div className="justify-center items-center flex">
+                        <Button htmlType="submit">Cập nhật</Button>
                     </div>
-
-                    <div>
-                        <label
-                            htmlFor="name"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            ContactPhone
-                        </label>
-                        <input
-                            type="text"
-                            name="contactPhone"
-                            id="contactPhone"
-                            value={contactPhone}
-                            onChange={(e) => setcontactPhone(e.target.value)}
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label
-                            htmlFor="name"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            ContactPerson
-                        </label>
-                        <input
-                            type="text"
-                            name="contactPerson"
-                            id="contactPerson"
-                            value={contactPerson}
-                            onChange={(e) => setcontactPerson(e.target.value)}
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label
-                            htmlFor="name"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Address
-                        </label>
-                        <input
-                            type="text"
-                            name="address"
-                            id="address"
-                            value={address}
-                            onChange={(e) => setaddress(e.target.value)}
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label
-                            htmlFor="name"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Notes
-                        </label>
-                        <input
-                            type="text"
-                            name="notes"
-                            id="notes"
-                            value={notes}
-                            onChange={(e) => setnotes(e.target.value)}
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <button
-                            type="submit"
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring focus:ring-opacity-50"
-                        >
-                            Update Supplier
-                        </button>
-                    </div>
-                </form>
+                </Form>
             </div>
         </div>
     );

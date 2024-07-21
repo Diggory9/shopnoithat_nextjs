@@ -1,139 +1,78 @@
 "use client";
 import { useEffect, useState } from "react";
-
 import { Toaster, toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { MCategory } from "@/models/categorymodel";
+import Link from "next/link";
+import { Button, Form, Input, Select } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import TextArea from "antd/es/input/TextArea";
+import ApiCategory from "@/api/category/category-api";
 
 export default function addCategory() {
+    const [form] = Form.useForm();
     const router = useRouter();
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
-    const [name, setNameCate] = useState("");
-    const [categoryParent, setCateParent] = useState("");
-    const [description, setDesCate] = useState("");
-    const [errorName, setErrorName] = useState("");
+    // Fetch data category
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const respone = await fetch(
-                    `${process.env.API_URL}Category/list`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                ); // Thay thế bằng URL API thực tế
-                if (!respone.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const result = await respone.json();
-                setDataCate(result.data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-            }
-        };
-        fetchData();
+        ApiCategory.getAllCategory()
+            .then((res) => setDataCate(res.data))
+            .catch((error) => console.log(error));
     }, []);
-    const handleSubmit = async (event: { preventDefault: () => void }) => {
-        event.preventDefault();
-        setErrorName(name.length < 1 ? "Tên danh mục không được để trống" : "");
-        try {
-            const respone = await fetch(
-                `${process.env.API_URL}Category/insert`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        name,
-                        categoryParent,
-                        description,
-                    }),
-                }
-            ); // Thay thế bằng URL API thực tế
 
-            const data = await respone.json();
-
-            if (respone.ok) {
-                //Thêm thành công
-                console.log("Success");
-                console.log(data.data);
-                toast.success("Thêm danh mục thành công");
-                router.push("/admin/category");
-            } else {
-                //Thêm thất bại
-                console.log("Fail !!!");
-                toast.error("Thêm danh mục thất bại");
-
-                setErrorName("Tên danh mục đã tồn tại");
-            }
-        } catch (error) {
-            console.error("Lỗi khi gửi yêu cầu:", error);
-        }
+    // Handle add category
+    const handleSubmit = (values: MCategory) => {
+        ApiCategory.addCategory(
+            values.name,
+            values.categoryParent,
+            values.description
+        )
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Thêm danh mục thành công");
+                    router.push("/admin/category");
+                } else toast.error("Thêm danh mục thất bại");
+            })
+            .catch(() => toast.error("Thêm danh mục thất bại"));
     };
     return (
         <div className="container mx-auto p-4 bg-white shadow-xl rounded-xl">
+            <Link href="/admin/category">
+                <Button type="default" className="mr-2">
+                    <ArrowLeftOutlined />
+                </Button>
+            </Link>
             <h1 className="text-2xl font-bold pb-4">Thêm danh mục mới</h1>
             <Toaster position="top-right" richColors />
-            <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label
-                        htmlFor="name"
-                        className="block text-sm font-medium mb-1"
-                    >
-                        Tên danh mục
-                    </label>
-                    <input
-                        type="text"
-                        onChange={(e) => setNameCate(e.target.value)}
-                        className="w-3/5 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <Form
+                form={form}
+                onFinish={handleSubmit}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 14 }}
+                layout="horizontal"
+                style={{ maxWidth: 600 }}
+            >
+                <Form.Item name="name" label="Tên danh mục">
+                    <Input></Input>
+                </Form.Item>
+                <Form.Item name="description" label="Mô tả danh mục">
+                    <TextArea></TextArea>
+                </Form.Item>
+                <Form.Item name="categoryParent" label="Danh mục cha">
+                    <Select
+                        //showSearch
+                        style={{ width: 200 }}
+                        placeholder="Search to Select"
+                        options={dataCate.map((item) => ({
+                            value: item.id,
+                            label: item.name,
+                        }))}
                     />
-                    <p className="text-sm text-red-500">{errorName}</p>
+                </Form.Item>
+                <div className="justify-center items-center flex">
+                    <Button htmlType="submit">Thêm danh mục</Button>
                 </div>
-                <div className="mb-3">
-                    <label
-                        htmlFor="name"
-                        className="block text-sm font-medium mb-1"
-                    >
-                        Danh mục cha
-                    </label>
-                    <select
-                        name="cars"
-                        id="cars"
-                        className="w-3/5 p-2"
-                        onChange={(e) => setCateParent(e.target.value)}
-                    >
-                        <option value=" ">None</option>
-                        {dataCate.map((item, index) => (
-                            <>
-                                <option value={item.id}>{item.name}</option>
-                            </>
-                        ))}
-                    </select>
-                </div>
-                <div className="mb-3">
-                    <label
-                        htmlFor="description"
-                        className="block text-sm font-medium mb-1"
-                    >
-                        Mô tả danh mục
-                    </label>
-                    <textarea
-                        onChange={(e) => setDesCate(e.target.value)}
-                        id="description"
-                        className="w-3/5 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                <button
-                    type="submit"
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md"
-                >
-                    Thêm danh mục
-                </button>
-            </form>
+            </Form>
         </div>
     );
 }

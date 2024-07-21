@@ -1,12 +1,8 @@
-import ApiCart from '@/api/cart/cart-api';
-import { CartModel } from '@/models/cartmodel'
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import Item from 'antd/es/list/Item';
-import { getCart } from '../cart/cartSlice';
-import { MAuth } from '@/models/auth';
+
+
 import ApiAuth from '@/api/auth/auth-api';
-import { access } from 'fs';
+import { MAuth } from '@/models/auth';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 interface UserState {
   isLogin: boolean;
   data: MAuth | null;
@@ -20,60 +16,71 @@ const initialState: UserState = {
   error: null,
   status: null,
 }
-
-export const login = createAsyncThunk('user/login', async ({ email, password }: { email?: string, password?: string }, { dispatch }) => {
+export const login = createAsyncThunk('user/login', async ({ email, password }: { email?: string, password?: string }) => {
   const response = await ApiAuth.authLogin({ email, password });
-  if (response.data) {
-    let userId = response.data.id;
-  }
-  return response.data;
+  const data = response.data;
+  const { jwToken, refreshToken } = data;
+  localStorage.setItem('accessToken', JSON.stringify(jwToken));
+  localStorage.setItem('refreshToken', JSON.stringify(refreshToken));
+  localStorage.setItem('email', JSON.stringify(email));
+  return data;
+});
+export const externalLogin = createAsyncThunk('user/externalLogin', async ({ provider, idToken }: { provider: string, idToken: string }) => {
+  const response = await ApiAuth.authExternalLogin({ provider, idToken });
+  const data = response.data;
+  const { jwToken, refreshToken, email } = data;
+  console.log(data);
+  localStorage.setItem('accessToken', JSON.stringify(jwToken));
+  localStorage.setItem('refreshToken', JSON.stringify(refreshToken));
+  localStorage.setItem('email', JSON.stringify(email));
+  return data;
 });
 export const logout = createAsyncThunk('user/logout', async ({ email }: { email: string }) => {
-  const response = await ApiAuth.authLogout({ email: email });
-  return null;
-});
-export const refreshToken = createAsyncThunk('user/refresh-token', async ({ email, refreshToken }: { email: string, refreshToken: string }) => {
-
-  const response = await ApiAuth.authRefresh({ email: email, refreshToken: refreshToken });
-  console.log(response);
-  return response.data;
+  await ApiAuth.authLogout({ email })
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('email');
 });
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-
-  }, extraReducers(builder) {
-    builder
-      .addCase(login.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(login.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.isLogin = true;
-        state.data = action.payload;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message || null;
-      })
-      .addCase(logout.fulfilled, (state, action) => {
-        state.isLogin = false;
-        state.data = null;
-        state.error = null;
-        state.status = null;
-      })
-      .addCase(refreshToken.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.isLogin = true;
-        state.data = action.payload;
-      })
-      .addCase(refreshToken.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message || null;
-      })
-  },
+    resetAuthStatus(state) {
+      state.status = null;
+    },
+    setAuthData(state, action) {
+      state.isLogin = true;
+      state.data = action.payload;
+    },
+  }, extraReducers(buiders) {
+    buiders.addCase(login.fulfilled, (state, action) => {
+      state.data = action.payload;
+      state.isLogin = true;
+      state.error = null;
+      state.status = 'succeeded';
+    });
+    buiders.addCase(login.rejected, (state, action) => {
+      state.error = action.error.message || "";
+      state.status = 'failed';
+    });
+    buiders.addCase(logout.fulfilled, (state) => {
+      state.data = null;
+      state.isLogin = false;
+      state.error = null;
+      state.status = null;
+    });
+    buiders.addCase(externalLogin.fulfilled, (state, action) => {
+      state.data = action.payload;
+      state.isLogin = true;
+      state.error = null;
+      state.status = 'succeeded';
+    });
+    buiders.addCase(externalLogin.rejected, (state, action) => {
+      state.error = action.error.message || "";
+      state.status = 'failed';
+    });
+  }
 });
 
-export const { } = authSlice.actions;
+export const { resetAuthStatus, setAuthData } = authSlice.actions;
 export default authSlice.reducer;

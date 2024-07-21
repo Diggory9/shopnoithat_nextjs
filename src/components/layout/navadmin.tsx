@@ -1,7 +1,12 @@
 "use client";
 import React from "react";
 import {
+    AccountBookOutlined,
+    BgColorsOutlined,
+    BlockOutlined,
+    BoldOutlined,
     DollarOutlined,
+    HomeOutlined,
     ProfileOutlined,
     ShoppingOutlined,
     SkinOutlined,
@@ -17,6 +22,11 @@ export default function NavAdmin() {
     type MenuItem = GetProp<MenuProps, "items">[number];
 
     const items: MenuItem[] = [
+        {
+            key: "8",
+            icon: <HomeOutlined />,
+            label: <Link href={"/admin"}>Tổng quan</Link>,
+        },
         {
             key: "1",
             icon: <ProfileOutlined />,
@@ -52,13 +62,35 @@ export default function NavAdmin() {
             icon: <UsergroupAddOutlined />,
             label: <Link href={"/admin/user"}>Người dùng</Link>,
         },
+        {
+            key: "9",
+            icon: <AccountBookOutlined />,
+            label: (
+                <Link href={"/admin/productdiscount"}>Sản phẩm giảm giá</Link>
+            ),
+        },
+        {
+            key: "10",
+            icon: <BgColorsOutlined />,
+            label: <Link href={"/admin/banner"}>Banner</Link>,
+        },
+        {
+            key: "11",
+            icon: <BoldOutlined />,
+            label: <Link href={"/admin/blog"}>Blog</Link>,
+        },
+        {
+            key: "12",
+            icon: <BlockOutlined />,
+            label: <Link href={"/admin/groupblog"}>Group Blog</Link>,
+        },
     ];
 
     return (
         <>
             <Menu
                 style={{ width: 256 }}
-                // defaultSelectedKeys={["1"]}
+                // defaultSelectedKeys={["8"]}
                 items={items}
             />
         </>

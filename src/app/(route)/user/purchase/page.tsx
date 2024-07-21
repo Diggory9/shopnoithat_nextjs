@@ -5,22 +5,20 @@ import ApiOrder from "@/api/order/order-api";
 import { MOrder, OrderData } from "@/models/ordermodel";
 import Link from "next/link";
 import { ExclamationCircleFilled } from "@ant-design/icons";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
 const Purchase: React.FC = () => {
+    const dispatch = useAppDispatch();
+    const auth = useAppSelector((state) => state.auth);
     const [orders, setOrders] = useState<MOrder[]>([]);
-    const [userId, setUserId] = useState("");
     const { confirm } = Modal;
     useEffect(() => {
-        const storedUserId = localStorage.getItem("userId");
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-    }, []);
-    useEffect(() => {
-        if (userId) {
+        if (auth?.data?.id) {
             const fetchOrders = async () => {
                 try {
-                    const response = await ApiOrder.getOrdersByUserId(userId);
+                    const response = await ApiOrder.getOrdersByUserId(
+                        auth?.data?.id || ""
+                    );
                     setOrders(response.data);
                     console.log(response.data);
                 } catch (error) {
@@ -29,7 +27,7 @@ const Purchase: React.FC = () => {
             };
             fetchOrders();
         }
-    }, [userId]);
+    }, [auth?.data?.id]);
     const columns = [
         {
             title: "STT",
