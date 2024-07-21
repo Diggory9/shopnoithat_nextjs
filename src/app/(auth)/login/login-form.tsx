@@ -3,92 +3,107 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Toaster, toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { login } from "@/redux/features/auth/authSlice";
+import { login, resetAuthStatus } from "@/redux/features/auth/authSlice";
 import { getCart } from "@/redux/features/cart/cartSlice";
+import Link from "next/link";
+import { Button, Form, Input } from "antd";
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
 export default function LoginForm() {
+    const [form] = Form.useForm();
     const dispatch = useAppDispatch();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const router = useRouter();
     const params = useSearchParams();
+    const auth = useAppSelector((state) => state.authCredentials);
 
     const { status, error, isLogin, data } = useAppSelector(
-        (state) => state.auth
+        (state) => state.authCredentials
     );
-    console.log(status);
+    // console.log(status);
 
-    const handleSubmit = (event: { preventDefault: () => void }) => {
-        event.preventDefault();
+    const onFinish = (value: any) => {
+        console.log(value);
+
         try {
-            dispatch(login({ email, password }));
+            dispatch(
+                login({
+                    email: value.userNameOrEmail,
+                    password: value?.password,
+                })
+            );
         } catch (error) {
             console.error("Error during fetch:", error);
         }
     };
     useEffect(() => {
-        if (status === "loading") {
-            toast.message("Logging in...");
-        } else if (status === "succeeded" && isLogin) {
+        if (auth.status === "succeeded" && auth.isLogin) {
             toast.success("Login successful!");
-            dispatch(getCart({ userId: data?.id || "" }));
+            dispatch(resetAuthStatus());
+            dispatch(getCart({ userId: auth.data?.id || "" }));
             router.push(params.get("callbackUrl") || "/");
-            console.log("id user: ", data?.id);
-        } else if (status === "failed") {
-            //toast.error(`Login failed: ${error}`);
+        } else if (auth.status === "failed") {
+            toast.error(`Tài khoản mật khẩu không chính xác`);
+            dispatch(resetAuthStatus());
         }
-    }, [status, router]);
+    }, [status, router, params, auth, dispatch]);
     return (
         <>
-            {" "}
-            <form
-                className="flex flex-col space-y-4 bg-gray-50 px-4 py-8 sm:px-16"
-                onSubmit={handleSubmit}
+            <Form
+                form={form}
+                className="login-form"
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
             >
-                <div>
-                    <label
-                        htmlFor="email"
-                        className="block text-xs text-gray-600 uppercase"
-                    >
-                        Địa chỉ email
-                    </label>
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        required
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2"
-                    />
-                </div>
-                <div>
-                    <label
-                        htmlFor="password"
-                        className="block text-xs text-gray-600 uppercase"
-                    >
-                        Mật khẩu
-                    </label>
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        required
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2"
-                    />
-                </div>
-                <button
-                    type="submit"
-                    className="flex h-10 w-full  items-center justify-center rounded-md border border-gray-600 text-sm "
+                <Form.Item
+                    name="userNameOrEmail"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please input your Username!",
+                        },
+                    ]}
                 >
+                    <Input
+                        prefix={
+                            <UserOutlined className="site-form-item-icon" />
+                        }
+                        placeholder="Username"
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="password"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please input your Password!",
+                        },
+                    ]}
+                >
+                    <Input.Password
+                        prefix={
+                            <LockOutlined className="site-form-item-icon" />
+                        }
+                        type="password"
+                        placeholder="Password"
+                    />
+                </Form.Item>
+                <div className="flex">
+                    <Form.Item>
+                        <Link className="font-semibold" href="">
+                            Quên mật khẩu?
+                        </Link>
+                    </Form.Item>
+                </div>
+
+                <Button type="primary" htmlType="submit">
                     Đăng nhập
-                </button>
-            </form>
-            <p className="text-center text-sm text-gray-600 m-3">
-                Bạn chưa có tài khoản?{" "}
-                <a className="font-semibold text-gray-800 " href="/register">
-                    Đăng ký
-                </a>
-            </p>
+                </Button>
+                <div className="pt-3">
+                    Hoặc{" "}
+                    <Link href="/register" className="font-bold">
+                        Đăng ký ngay
+                    </Link>
+                </div>
+            </Form>
         </>
     );
 }

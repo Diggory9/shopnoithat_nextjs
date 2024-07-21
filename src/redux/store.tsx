@@ -1,49 +1,92 @@
-import { Action, combineReducers, configureStore } from "@reduxjs/toolkit";
-import storage from 'redux-persist/lib/storage';
-
 import {
-  persistReducer,
-  FLUSH,
-  REHYDRATE,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
-  persistStore,
-} from 'redux-persist';
-import cartSlice from "@/redux/features/cart/cartSlice";
-import authSlice from "@/redux/features/auth/authSlice";
-import { thunk, ThunkAction } from "redux-thunk";
+    Action,
+    combineReducers,
+    configureStore,
+    ThunkAction,
+} from "@reduxjs/toolkit";
+import {
+    persistStore,
+    persistReducer,
+    FLUSH,
+    REHYDRATE,
+    PAUSE,
+    PERSIST,
+    PURGE,
+    REGISTER,
+} from "redux-persist";
+import createWebStorage from "redux-persist/es/storage/createWebStorage";
+import authReducer from "@/redux/features/auth/authSlice";
+import cartReducer from "@/redux/features/cart/cartSlice";
 
-const persistConfig = {
-  key: 'root',
-  storage,
-  whitelist: ['auth', 'cart'],
+const createNoopStorage = () => {
+    return {
+        getItem(_key: any) {
+            return Promise.resolve(null);
+        },
+        setItem(_key: any, value: any) {
+            return Promise.resolve(value);
+        },
+        removeItem(_key: any) {
+            return Promise.resolve();
+        },
+    };
 };
 
+const storage =
+    typeof window === "undefined"
+        ? createNoopStorage()
+        : createWebStorage("local");
 
-// Combine reducers
+const authPersistConfig = {
+    key: "auth",
+    version: 1,
+    storage,
+};
+
+const cartPersistConfig = {
+    key: "cart",
+    version: 1,
+    storage,
+};
+
 const rootReducer = combineReducers({
-  cart: cartSlice,
-  auth: authSlice,
+    authCredentials: persistReducer(authPersistConfig, authReducer),
+    cartCredentials: persistReducer(cartPersistConfig, cartReducer),
 });
+
+const persistConfig = {
+    key: "root",
+    version: 1,
+    storage,
+};
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-
-// Persist the combined reducers
 export const store = configureStore({
-  reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
-    }).concat(thunk),
+    reducer: persistedReducer,
+    devTools: process.env.NODE_ENV !== "production",
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: [
+                    FLUSH,
+                    REHYDRATE,
+                    PAUSE,
+                    PERSIST,
+                    PURGE,
+                    REGISTER,
+                ],
+            },
+        }).concat(),
 });
-// Infer the type of makeStore
-// Infer the `RootState` and `AppDispatch` types from the store itself
+
+export const persistor = persistStore(store);
+
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
-export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
-export const persistor = persistStore(store);
+export type AppThunk<ReturnType = void> = ThunkAction<
+    ReturnType,
+    RootState,
+    unknown,
+    Action<string>
+>;

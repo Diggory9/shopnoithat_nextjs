@@ -4,18 +4,18 @@ import { Toaster } from "sonner";
 export default function Login() {
     return (
         <div
-            style={{ backgroundImage: "url(/img/hello.png)" }}
-            className="flex h-screen w-screen items-center justify-end bg-gray-50 "
+            style={{
+                backgroundImage: "url(/img/hello.png)",
+                backgroundSize: "100%",
+            }}
+            className=" bg-no-repeat overflow-x-hidden  flex h-screen w-screen items-center justify-end bg-gray-50 "
         >
-            <div className="w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl mr-52 ">
-                <div className=" flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-4 py-6 pt-8 text-center sm:px-16">
-                    <Toaster position="top-right" richColors duration={1500} />
-                    <h3 className="text-xl font-semibold">Đăng nhập</h3>
-                    <p className="text-sm text-gray-500">
-                        Sử dụng email và mật khẩu để đăng nhập
-                    </p>
+            <div className="w-full max-w-lg  rounded-2xl border border-gray-100 shadow-xl mr-52 ">
+                <div className=" flex flex-col  space-y-3 rounded-lg border-gray-200 bg-white py-8 pt-16 text-center sm:px-16">
+                    <Toaster position="top-right" richColors duration={2000} />
+                    <h3 className="text-2xl font-semibold pb-4">Đăng nhập</h3>
+                    <LoginForm />
                 </div>
-                <LoginForm />
             </div>
         </div>
     );

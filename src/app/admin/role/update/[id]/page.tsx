@@ -31,7 +31,20 @@ export default function UpdateRole({ params }: { params: { id: string } }) {
         form.setFieldValue("name", dataRole?.name);
     }, [dataRole]);
 
-    const handleSubmit = (values: MRole) => {};
+    const handleSubmit = (values: MRole) => {
+        ApiRole.updateRoleName(params.id, values.name || "")
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Cập nhật thành công");
+                    router.push("/admin/role");
+                } else {
+                    toast.error("Thất bại");
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
 
     return (
         <div className="bg-gray-50 w-full">

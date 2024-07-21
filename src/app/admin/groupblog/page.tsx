@@ -1,6 +1,7 @@
 "use client";
-import ApiRole from "@/api/role/role-api";
-import { MRole } from "@/models/role";
+import ApiGroupBlog from "@/api/groupblog/groupblog-api";
+import { GroupBlogModel } from "@/models/groupblogmodel";
+import { formatDateToRender } from "@/utils/config";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -8,51 +9,81 @@ import {
 } from "@ant-design/icons";
 import { Button, Modal, Table, TableColumnsType } from "antd";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 const { confirm } = Modal;
 
-export default function Role() {
-    const [dataRole, setDataRole] = useState<MRole[]>([]);
-    // Fetch data role
+export default function GroupBlog() {
+    const [dataBlogs, setDataBlogs] = useState<GroupBlogModel[]>([]);
+    const router = useRouter();
+
     useEffect(() => {
-        ApiRole.getAllRole()
+        ApiGroupBlog.getAllGroupBlog()
             .then((res) => {
-                setDataRole(res.data);
+                setDataBlogs(res.data);
             })
-            .catch((error) => console.log(error));
+            .catch((error) => {
+                console.log(error);
+            });
     }, []);
+    console.log(dataBlogs);
     const showDeleteConfirm = (id: string) => {
         confirm({
-            title: "Bạn muốn xóa danh mục này?",
+            title: "Bạn muốn xóa blog này?",
             icon: <ExclamationCircleFilled style={{ color: "red" }} />,
             okText: "Có",
             okType: "danger",
             cancelText: "Không",
-            onOk: () => {},
+            onOk: () => {
+                ApiGroupBlog.deleteGroupBlog(id)
+                    .then((res) => {
+                        if (res?.ok) {
+                            toast.success("Xóa thành công");
+                            router.push("/admin/blog");
+                            setDataBlogs((prevData) =>
+                                prevData.filter((blog) => blog.id !== id)
+                            );
+                        } else {
+                            toast.error("Xóa thất bại");
+                        }
+                    })
+                    .catch((error) => console.log(error));
+            },
             onCancel() {
                 console.log("Cancel");
             },
         });
     };
-    const columns: TableColumnsType<MRole> = [
+    const columns: TableColumnsType<GroupBlogModel> = [
         {
             title: "STT",
             dataIndex: "index",
             key: "index",
         },
         {
-            title: "Tên vai trò",
+            title: "Tên",
             dataIndex: "name",
             key: "name",
         },
         {
-            title: "Action",
+            title: "Mô tả",
+            dataIndex: "description",
+            key: "description",
+        },
+        {
+            title: "Ngày tạo",
+            dataIndex: "dateCreate",
+            key: "dateCreate",
+        },
+        {
+            title: "Hành động",
             key: "action",
             render: (_, record) => (
                 <div className="flex">
                     <Link
                         className="text-xl"
-                        href={`/admin/role/update/${record.id}`}
+                        href={`/admin/blog/update/${record.id}`}
                     >
                         <EditOutlined />
                     </Link>
@@ -67,25 +98,25 @@ export default function Role() {
                 </div>
             ),
         },
-    ] as TableColumnsType<MRole>;
+        {
+            title: "Chi tiết",
+            key: "detail",
+            render: (_: any, record) => (
+                <Link href={`/admin/blog/detail/${record.id}`}>
+                    <Button type="link">Chi tiết</Button>
+                </Link>
+            ),
+        },
+    ] as TableColumnsType<GroupBlogModel>;
     return (
         <div className="bg-gray-50 w-full">
-            <div className=" bg-white p-3  mb-4 shadow-xl">
-                <h1 className="p-3 text-2xl font-bold">All Role</h1>
+            <div className=" bg-white p-3 mb-4 shadow-xl ">
+                <h1 className="p-3 text-2xl font-bold">Quản lý nhóm blog</h1>
+
                 <div className="flex justify-between ">
-                    <div className="p-2">
-                        <form action="" method="get">
-                            <input
-                                className="p-2 rounded-lg border border-gray-300"
-                                placeholder="Search for category"
-                                type="text"
-                                name=""
-                                id=""
-                            />
-                        </form>
-                    </div>
+                    <div className="p-2"></div>
                     <div className="order-last content-center">
-                        <a href="/admin/role/add">
+                        <Link href="/admin/blog/add">
                             <button
                                 className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
                                 type="button"
@@ -104,27 +135,22 @@ export default function Role() {
                                         d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                                     />
                                 </svg>
-                                Add Role
+                                Add group blog
                             </button>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
             <div className="bg-white mb-4 shadow-xl">
-                <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <div className="relative overflow-x-auto shadow-md sm:rounded-xl">
                     <Table
-                        pagination={{
-                            defaultPageSize: 5,
-                            showSizeChanger: true,
-                            pageSizeOptions: ["5", "10", "15"],
-                        }}
-                        dataSource={dataRole.map((item, index) => ({
-                            ...item,
-                            index: index + 1,
-                            key: item.id,
-                            name: item.name,
-                        }))}
                         columns={columns}
+                        dataSource={dataBlogs.map((item, index) => ({
+                            ...item,
+                            key: index || item.id,
+                            index: index + 1,
+                            dateCreate: formatDateToRender(item.dateCreate),
+                        }))}
                     ></Table>
                 </div>
             </div>

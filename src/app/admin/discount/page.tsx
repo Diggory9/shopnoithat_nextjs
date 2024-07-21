@@ -63,6 +63,13 @@ export default function Discount() {
             title: "Giá trị",
             dataIndex: "discountValue",
             key: "discountValue",
+            render: (discountValue: number, record: MDiscount) => (
+                <span>
+                    {record.type === "PERCENTAGE"
+                        ? `${discountValue}%`
+                        : discountValue}
+                </span>
+            ),
         },
         {
             title: "Giá trị tối thiểu",
@@ -97,6 +104,7 @@ export default function Discount() {
                             handleUpdateStatus(record.id || "", "pause")
                         }
                         disabled={
+                            record.status === "CANCELLED" ||
                             record.status === "PENDING" ||
                             record.status === "PAUSE"
                         }
@@ -109,7 +117,10 @@ export default function Discount() {
                         onClick={() =>
                             handleUpdateStatus(record.id || "", "continue")
                         }
-                        disabled={record.status === "PENDING"}
+                        disabled={
+                            record.status === "CANCELLED" ||
+                            record.status === "PENDING"
+                        }
                     >
                         Continue
                     </Button>
@@ -119,6 +130,11 @@ export default function Discount() {
                         onClick={() =>
                             handleUpdateStatus(record.id || "", "cancel")
                         }
+                        disabled={
+                            record.status === "CANCELLED" ||
+                            record.status === "PENDING" ||
+                            record.status === "PAUSE"
+                        }
                     >
                         Cancel
                     </Button>
@@ -126,7 +142,9 @@ export default function Discount() {
                         className="text-xl"
                         href={`/admin/discount/update/${record.id}`}
                     >
-                        <Button>Update Time</Button>
+                        <Button disabled={record.status === "CANCELLED"}>
+                            Update Time
+                        </Button>
                     </Link>
                 </>
             ),
@@ -184,7 +202,7 @@ export default function Discount() {
                         }}
                         columns={columns}
                         dataSource={
-                            dataDiscount.map((item, index) => ({
+                            dataDiscount?.map((item, index) => ({
                                 ...item,
                                 index: index + 1,
                                 key: item.id,

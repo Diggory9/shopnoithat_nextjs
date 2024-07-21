@@ -12,7 +12,7 @@ export default function Order() {
 
     //Fetch data orders
     useEffect(() => {
-        ApiOrder.getOrders(1, 10)
+        ApiOrder.getOrders(1, 20)
             .then((res) => {
                 setDataorders(res.data);
             })
@@ -25,7 +25,7 @@ export default function Order() {
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Thành công");
-                    ApiOrder.getOrders(1, 10)
+                    ApiOrder.getOrders(1, 20)
                         .then((res) => {
                             setDataorders(res.data);
                         })
@@ -158,8 +158,8 @@ export default function Order() {
                         dataSource={
                             dataorders.map((item, index) => ({
                                 ...item,
-                                index: index + 1,
                                 key: item.id,
+                                index: index + 1,
                                 dateCreate: formatDateToRender(item.dateCreate),
                             })) || []
                         }

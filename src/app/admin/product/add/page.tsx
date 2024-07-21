@@ -266,7 +266,7 @@ const AddProduct = () => {
                                 style={{ width: 200 }}
                                 placeholder="Search to Select"
                                 optionFilterProp="children"
-                                options={dataDis.map((item) => ({
+                                options={dataDis?.map((item) => ({
                                     value: item.id,
                                     label: item.code,
                                 }))}

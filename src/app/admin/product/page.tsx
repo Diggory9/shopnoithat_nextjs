@@ -1,23 +1,51 @@
 "use client";
+import ApiCategory from "@/api/category/category-api";
 import ApiProduct from "@/api/product/product-api";
+import { MCategory } from "@/models/categorymodel";
 import { MProduct } from "@/models/productmodel";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Table, TableColumnsType } from "antd";
+import { Button, Select, Table, TableColumnsType } from "antd";
+import { error } from "console";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Product() {
     const [dataProduct, setDataProduct] = useState<MProduct[]>([]);
+    const [dataCategory, setDataCategory] = useState<MCategory[]>([]);
+
+    // Lấy tất cả sản phẩm và danh mục sản phẩm
     useEffect(() => {
         ApiProduct.getAllProduct(1, 20)
             .then((res) => {
                 setDataProduct(res.data);
             })
             .catch((error) => console.log(error));
+        ApiCategory.getAllCategory()
+            .then((res) => {
+                setDataCategory(res.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     }, []);
-    console.log(dataProduct);
 
+    // Lọc sản phẩm theo danh mục sản phẩm
+    const filterProductByCategory = (categoryId: string) => {
+        if (categoryId == "All") {
+            ApiProduct.getAllProduct(1, 20)
+                .then((res) => {
+                    setDataProduct(res.data);
+                })
+                .catch((error) => console.log(error));
+        } else {
+            ApiProduct.getProductPublicByCategory(categoryId, 1, 10)
+                .then((res) => {
+                    setDataProduct(res.data);
+                })
+                .catch((error) => console.log(error));
+        }
+    };
     const columns: TableColumnsType<MProduct> = [
         {
             title: "STT",
@@ -81,15 +109,18 @@ export default function Product() {
                 <h1 className="p-3 text-2xl font-bold">All Product</h1>
                 <div className="flex justify-between ">
                     <div className="p-2">
-                        {/* <form action="" method="get">
-                            <input
-                                className="p-2 rounded-lg border border-gray-300"
-                                placeholder="Search for category"
-                                type="text"
-                                name=""
-                                id=""
-                            />
-                        </form> */}
+                        <Select
+                            onChange={filterProductByCategory}
+                            defaultValue={"Tất cả sản phẩm"}
+                            style={{ width: 200 }}
+                            options={[
+                                { value: "All", label: "Tất cả sản phẩm" },
+                                ...dataCategory.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                })),
+                            ]}
+                        ></Select>
                     </div>
                     <div className="order-last content-center">
                         <a href="/admin/product/add">

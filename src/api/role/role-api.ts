@@ -3,7 +3,7 @@ const ApiRole = {
     async getRole(id: string) {
         try {
             const response = await fetch(
-                `${process.env.API_URL}RoleManager/${id}`,
+                `${process.env.API_URL}RoleManager/get-role-by-id/${id}`,
                 {
                     method: "POST",
                     headers: {

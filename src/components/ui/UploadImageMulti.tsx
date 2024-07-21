@@ -3,7 +3,7 @@ import { Form, Image, Modal, Upload, UploadFile, UploadProps } from "antd";
 
 interface MUploadImageMultipleProps extends UploadProps {
     children?: ReactNode;
-    initFileList?: string[];
+    initFileList?: any;
     formName?: (string | number)[];
 }
 
@@ -12,6 +12,8 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
     const [fileList, setFileList] = useState<UploadFile[]>([]);
 
     const onChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+        console.log(newFileList);
+
         setFileList(newFileList);
     };
 
@@ -19,20 +21,26 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
         if (Array.isArray(e)) {
             return e;
         }
-        const result = e?.fileList?.map((img) => ({
-            url: img.response?.data?.[0]?.url || img.name,
-        }));
-        //console.log(result);
+        console.log("nnnnn", e.fileList);
+
+        const result = e?.fileList?.map((img) => {
+            console.log("DASdas:,", img);
+
+            return img?.response?.data?.[0]?.url
+                ? { url: img?.response?.data?.[0]?.url }
+                : { url: img?.thumbUrl, id: img.uid };
+        });
+        console.log(result);
 
         return result;
     };
 
     useEffect(() => {
         if (initFileList) {
-            const newFileList: UploadFile[] = initFileList.map((item, i) => ({
-                thumbUrl: item,
-                uid: i + "",
-                name: item,
+            const newFileList: UploadFile[] = initFileList.map((item: any) => ({
+                thumbUrl: item?.url,
+                uid: item.id,
+                name: item?.url,
             }));
             setFileList(newFileList);
         }
@@ -52,8 +60,8 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
                     {
                         validator(_, fileList) {
                             return new Promise((resolve, reject) => {
-                                if (fileList && fileList.length > 5) {
-                                    reject("Images is limit 5");
+                                if (fileList && fileList.length > 10) {
+                                    reject("Images is limit 10");
                                 } else {
                                     resolve("Success");
                                 }
@@ -68,11 +76,12 @@ const MUploadImageMultiple: React.FC<MUploadImageMultipleProps> = (props) => {
                     listType="picture-card"
                     fileList={fileList}
                     onChange={onChange}
+                    onRemove={() => {}}
                     multiple
                     accept="image/*"
                     {...rest}
                 >
-                    {fileList.length < 5 && "Upload"}
+                    {fileList.length < 10 && "Upload"}
                 </Upload>
             </Form.Item>
         </>

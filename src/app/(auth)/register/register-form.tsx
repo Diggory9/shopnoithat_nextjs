@@ -1,55 +1,26 @@
 "use client";
-import { useState } from "react";
+import { LockOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { Toaster, toast } from "sonner";
-const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-export default function RegisterFrom() {
-    const [userName, setUserName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+import ApiAuth from "@/api/auth/auth-api";
+import { Button, Form, Input } from "antd";
+import { toast } from "sonner";
+import Link from "next/link";
 
-    const [errorUser, setErrorUser] = useState("");
-    const [errorEmail, setErrorEmail] = useState("");
-    const [errorPass, setErrorPass] = useState("");
-    const [errorConfirmPass, setErrorConfirmPass] = useState("");
+export default function RegisterForm() {
+    const [form] = Form.useForm();
+
     const router = useRouter();
 
-    const handleSubmit = async (event: { preventDefault: () => void }) => {
-        event.preventDefault(); // Ngăn chặn hành vi mặc định của form
-        setErrorUser(
-            userName.length < 6 ? "Tên người dùng phải có ít nhất 6 ký tự." : ""
-        );
-        setErrorEmail(!emailRegex.test(email) ? "Email không hợp lệ." : "");
-        setErrorPass(
-            !passwordRegex.test(password)
-                ? "Mật khẩu cần có đầy đủ ký tự thường,in hoa, kí tự đặc biệt và số"
-                : ""
-        );
-        setErrorConfirmPass(
-            password !== confirmPassword ? "Mật khẩu xác nhận không khớp." : ""
-        );
-
+    const onFinish = async (value: any) => {
         try {
-            const response = await fetch(
-                `${process.env.API_URL}Account/register`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        userName,
-                        email,
-                        password,
-                        confirmPassword,
-                    }),
-                }
-            );
-
+            const response = await ApiAuth.authRegister({
+                email: value.email,
+                password: value.password,
+                userName: value.userName,
+                confirmPassword: value.confirmPassword,
+            });
             const data = await response.json();
+            console.log(data);
 
             if (response.ok) {
                 // Đăng ký thành công, chuyển hướng hoặc xử lý tiếp
@@ -58,119 +29,105 @@ export default function RegisterFrom() {
                     router.push("/login");
                 }, 2000);
             } else {
-                //Đăng ký thất bại
-                const value = getValueBeforeSpace(data.Message);
-                if (value == "Username") {
-                    setErrorUser("Tên người dùng đã tồn tại" || "");
-                }
-                if (value == "Email") {
-                    setErrorEmail("Địa chỉ email đã tồn tại" || "");
-                }
-                if (
-                    value ==
-                    "System.Collections.Generic.List`1[Microsoft.AspNetCore.Identity.IdentityError]"
-                )
-                    setErrorPass(
-                        !passwordRegex.test(password)
-                            ? "Mật khẩu cần có đầy đủ ký tự thường,in hoa, kí tự đặc biệt, số và độ dài lớn hơn 6"
-                            : ""
-                    );
-                setErrorConfirmPass(
-                    password !== confirmPassword
-                        ? "Mật khẩu xác nhận không khớp."
-                        : ""
-                );
+                toast.error("hehe");
             }
         } catch (error) {
             console.error("Lỗi khi gửi yêu cầu:", error);
         }
     };
     return (
-        <form
-            className="flex flex-col space-y-4 bg-gray-50 px-4 py-8 sm:px-16"
-            onSubmit={handleSubmit}
+        <Form
+            form={form}
+            className="login-form"
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
         >
-            <div>
-                <label
-                    htmlFor="text"
-                    className="block text-xs text-gray-600 uppercase"
-                >
-                    User Name
-                </label>
-                <input
-                    type="text"
-                    name="userName"
-                    id="userName"
-                    onChange={(e) => setUserName(e.target.value)}
-                    className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2"
-                />
-
-                <p className="text-sm text-red-500">{errorUser}</p>
-            </div>
-            <div>
-                <label
-                    htmlFor="email"
-                    className="block text-xs text-gray-600 uppercase"
-                >
-                    Email Address
-                </label>
-                <input
-                    name="email"
-                    id="email"
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2"
-                />
-                <p className="text-sm text-red-500">{errorEmail}</p>
-            </div>
-            <div>
-                <label
-                    htmlFor="password"
-                    className="block text-xs text-gray-600 uppercase"
-                >
-                    Password
-                </label>
-                <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2"
-                />
-                <p className="text-sm text-red-500">{errorPass}</p>
-            </div>
-            <div>
-                <label
-                    htmlFor="confirmPassword"
-                    className="block text-xs text-gray-600 uppercase"
-                >
-                    Confirm Password
-                </label>
-                <input
-                    type="password"
-                    name="confirmPassword"
-                    id="confirmPassword"
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2"
-                />
-                <p className="text-sm text-red-500">{errorConfirmPass}</p>
-            </div>
-            <button
-                type="submit"
-                className="flex h-10 w-full  items-center justify-center rounded-md border border-gray-600 text-sm "
+            <Form.Item
+                name="userName"
+                rules={[
+                    {
+                        required: true,
+                        message: "Please input your Username!",
+                    },
+                    {
+                        min: 6,
+                        message: "Username must be at least 6 characters long!",
+                    },
+                ]}
             >
+                <Input
+                    allowClear
+                    prefix={<UserOutlined className="site-form-item-icon" />}
+                    placeholder="Username"
+                />
+            </Form.Item>
+            <Form.Item
+                name="email"
+                rules={[
+                    {
+                        required: true,
+                        message: "Please input your Email!",
+                    },
+                    {
+                        type: "email",
+                        message: "The input is not valid E-mail!",
+                    },
+                ]}
+            >
+                <Input
+                    prefix={<MailOutlined className="site-form-item-icon" />}
+                    placeholder="Email"
+                />
+            </Form.Item>
+            <Form.Item
+                name="password"
+                rules={[
+                    {
+                        required: true,
+                        message: "Please input your Password!",
+                    },
+                ]}
+            >
+                <Input.Password
+                    prefix={<LockOutlined className="site-form-item-icon" />}
+                    type="password"
+                    placeholder="Password"
+                />
+            </Form.Item>
+            <Form.Item
+                name="confirmPassword"
+                rules={[
+                    {
+                        required: true,
+                        message: "Please confirm your Password!",
+                    },
+                    ({ getFieldValue }) => ({
+                        validator(_, value) {
+                            if (!value || getFieldValue("password") === value) {
+                                return Promise.resolve();
+                            }
+                            return Promise.reject(
+                                new Error("Passwords do not match!")
+                            );
+                        },
+                    }),
+                ]}
+            >
+                <Input.Password
+                    prefix={<LockOutlined className="site-form-item-icon" />}
+                    type="password"
+                    placeholder="ConfirmPassword"
+                />
+            </Form.Item>
+            <Button type="primary" htmlType="submit">
                 Đăng ký
-            </button>
-            <p className="text-center text-sm text-gray-600">
-                Bạn đã có tài khoản?{" "}
-                <a className="font-semibold text-gray-800 " href="/login">
+            </Button>
+            <div className="pt-3">
+                Nếu có tài khoản{" "}
+                <Link className="font-bold" href="/login">
                     Đăng nhập
-                </a>
-            </p>
-        </form>
+                </Link>
+            </div>
+        </Form>
     );
-}
-
-function getValueBeforeSpace(str: string) {
-    const parts = str.split(" ");
-    return parts.shift();
 }

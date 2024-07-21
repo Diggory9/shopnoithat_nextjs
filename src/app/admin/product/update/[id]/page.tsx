@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { MCategory } from "@/models/categorymodel";
 import { MSupplier } from "@/models/suppliermodel";
 import { CloseOutlined } from "@ant-design/icons";
@@ -25,7 +25,6 @@ import {
     checkSupplier,
 } from "@/utils/config";
 import { Toaster, toast } from "sonner";
-import { MProduct } from "@/models/productmodel";
 import { MDiscount } from "@/models/discount";
 import MUploadImageMultiple from "@/components/ui/UploadImageMulti";
 import { sumQuantity } from "@/helper/helper";
@@ -47,12 +46,14 @@ type FieldType = {
 };
 
 type ProductSpecification = {
+    id?: string;
     specType?: string;
     specValue?: string;
     key?: number;
 };
 
 type ProductItem = {
+    id?: string;
     quantity?: number;
     color?: { id?: string; colorName?: string; colorCode?: string };
     productImages?: ProductImage[];
@@ -67,7 +68,7 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
     const router = useRouter();
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
-    const [dataDis, setDataDis] = useState<MDiscount[]>([]);
+    //const [dataDis, setDataDis] = useState<MDiscount[]>([]);
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -76,11 +77,11 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                 setDataCate(res.data);
             })
             .catch((error) => console.log(error));
-        ApiDiscount.getAllDiscount(1, 10)
-            .then((res) => {
-                setDataDis(res.data);
-            })
-            .catch((error) => console.log(error));
+        // ApiDiscount.getAllDiscount(1, 10)
+        //     .then((res) => {
+        //         setDataDis(res.data);
+        //     })
+        //     .catch((error) => console.log(error));
         ApiSupplier.getSuppliers()
             .then((res) => {
                 setDataSup(res.data);
@@ -110,41 +111,46 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                     if (!response.ok)
                         throw new Error("Network response was not ok");
                     const result = await response.json();
-                    // console.log(result.data);
+                    console.log(result.data);
                     // const totalQuantity = sumQuantity(result.data.productItems);
                     // console.log(totalQuantity);
 
                     form.setFieldsValue({
-                        name: result.data.name,
-                        description: result.data.description,
-                        productBrand: result.data.productBrand,
+                        name: result?.data?.name,
+                        description: result?.data?.description,
+                        productBrand: result?.data?.productBrand,
                         productQuantity: sumQuantity(result.data.productItems),
-                        price: result.data.price,
-                        image: result.data.image,
-                        categoryId: result.data.category.id,
-                        supplierId: result.data.supplier.id,
-                        discountId: result.data.productDiscount?.id || null,
+                        price: result?.data?.price,
+                        image: result?.data?.image,
+                        categoryId: result?.data?.category.id,
+                        supplierId: result?.data?.supplier?.id,
+
                         productSpecifications:
-                            result.data.productSpecifications.map(
+                            result?.data?.productSpecifications?.map(
                                 (specItem: {
-                                    specType: string;
-                                    specValue: string;
+                                    id?: string;
+                                    specType?: string;
+                                    specValue?: string;
                                 }) => ({
-                                    specType: specItem.specType,
-                                    specValue: specItem.specValue,
+                                    id: specItem?.id,
+                                    specType: specItem?.specType,
+                                    specValue: specItem?.specValue,
                                 })
                             ),
-                        productItems: result.data.productItems.map(
+                        productItems: result?.data?.productItems?.map(
                             (item: {
+                                id: string;
                                 quantity: number;
                                 color: { id: string };
                                 productImages: any[];
                             }) => ({
-                                quantity: item.quantity,
-                                colorId: item.color.id,
-                                productImages: item.productImages.map(
+                                id: item?.id,
+                                quantity: item?.quantity,
+                                colorId: item?.color.id,
+                                productImages: item?.productImages.map(
                                     (image) => ({
-                                        url: image.url,
+                                        id: image?.id,
+                                        url: image?.url,
                                     })
                                 ),
                             })
@@ -158,31 +164,31 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
         }
     }, [params.id, form]);
 
-    const handleSubmit = async (values: MProduct) => {
+    const handleSubmit = async (values: FieldType) => {
         console.log(values);
 
-        // try {
-        //     const response = await fetch(
-        //         `${process.env.API_URL}Product/${params.id}`,
-        //         {
-        //             method: "PATCH",
-        //             headers: {
-        //                 "Content-Type": "application/json",
-        //             },
-        //             body: JSON.stringify(values),
-        //         }
-        //     );
+        try {
+            const response = await fetch(
+                `${process.env.API_URL}Product/${params.id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(values),
+                }
+            );
 
-        //     if (response.ok) {
-        //         toast.success("Cập nhật sản phẩm thành công");
-        //         router.push("/admin/product");
-        //     } else {
-        //         toast.error("Cập nhật sản phẩm thất bại");
-        //         throw new Error("Failed to update product");
-        //     }
-        // } catch (error) {
-        //     console.error("Update product error:", error);
-        // }
+            if (response.ok) {
+                toast.success("Cập nhật sản phẩm thành công");
+                router.push("/admin/product");
+            } else {
+                toast.error("Cập nhật sản phẩm thất bại");
+                throw new Error("Failed to update product");
+            }
+        } catch (error) {
+            console.error("Update product error:", error);
+        }
     };
 
     return (
@@ -270,7 +276,7 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                             <Select
                                 style={{ width: 200 }}
                                 placeholder="Chọn danh mục"
-                                options={dataCate.map((item) => ({
+                                options={dataCate?.map((item) => ({
                                     value: item.id,
                                     label: item.name,
                                 }))}
@@ -289,25 +295,25 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                             <Select
                                 style={{ width: 200 }}
                                 placeholder="Chọn nhà cung cấp"
-                                options={dataSup.map((item) => ({
+                                options={dataSup?.map((item) => ({
                                     value: item.id,
                                     label: item.supplierName,
                                 }))}
                             />
                         </Form.Item>
-                        <Form.Item<FieldType>
+                        {/* <Form.Item<FieldType>
                             label="Mã giảm giá"
                             name="discountId"
                         >
                             <Select
                                 style={{ width: 200 }}
                                 placeholder="Chọn mã giảm giá"
-                                options={dataDis.map((item) => ({
+                                options={dataDis?.map((item) => ({
                                     value: item.id,
                                     label: item.code,
                                 }))}
                             />
-                        </Form.Item>
+                        </Form.Item> */}
                     </Col>
                     <Col span={8}>
                         <Form.List name="productSpecifications">
@@ -329,9 +335,18 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                                             key={field.key}
                                             extra={
                                                 <CloseOutlined
-                                                    onClick={() =>
-                                                        remove(field.name)
-                                                    }
+                                                    onClick={() => {
+                                                        // const spectId =
+                                                        //     form.getFieldValue(
+                                                        //         "productSpecifications"
+                                                        //     )[field.name]?.id;
+                                                        // if (spectId) {
+                                                        //     handleRemoveProductSpecification(
+                                                        //         spectId
+                                                        //     );
+                                                        // }
+                                                        remove(field.name);
+                                                    }}
                                                 />
                                             }
                                         >
@@ -378,9 +393,18 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                                             key={field.key}
                                             extra={
                                                 <CloseOutlined
-                                                    onClick={() =>
-                                                        remove(field.name)
-                                                    }
+                                                    onClick={() => {
+                                                        // const itemId =
+                                                        //     form.getFieldValue(
+                                                        //         "productItems"
+                                                        //     )[field.name]?.id;
+                                                        // if (itemId) {
+                                                        //     handleRemoveProductItem(
+                                                        //         itemId
+                                                        //     );
+                                                        // }
+                                                        remove(field.name);
+                                                    }}
                                                 />
                                             }
                                         >
@@ -421,16 +445,10 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
 
                                             <MUploadImageMultiple
                                                 initFileList={
-                                                    form
-                                                        .getFieldValue(
-                                                            "productItems"
-                                                        )
-                                                        ?.[
-                                                            field.name
-                                                        ]?.productImages?.map(
-                                                            (item: any) =>
-                                                                item.url
-                                                        ) || []
+                                                    form.getFieldValue(
+                                                        "productItems"
+                                                    )?.[field.name]
+                                                        ?.productImages || []
                                                 }
                                                 formName={[
                                                     field.name,
