@@ -52,7 +52,7 @@ const MUploadImage: React.FC<MUploadImageProps> = ({
     return (
         <Form.Item
             label={disableTitle ? "" : "Image"}
-            name={"url"}
+            name={formName || "url"}
             valuePropName="avatar"
             getValueFromEvent={getFile}
             rules={[

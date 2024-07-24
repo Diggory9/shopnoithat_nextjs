@@ -8,12 +8,16 @@ import { Button, Form, Input, Select } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import ApiCategory from "@/api/category/category-api";
+import { useAppSelector } from "@/redux/hooks";
+import { trimAndCleanObjectStrings } from "@/helper/helper";
 
 export default function UpdateCategory({ params }: { params: { id: string } }) {
     const [form] = Form.useForm();
     const router = useRouter();
     const [dataCate, setDataCate] = useState<MCategory | null>(null);
     const [dataAllCate, setDataAllCate] = useState<MCategory[]>([]);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     //Fetch data categories
     useEffect(() => {
         ApiCategory.getAllCategory()
@@ -22,8 +26,8 @@ export default function UpdateCategory({ params }: { params: { id: string } }) {
     }, []);
     // Fetch data category
     useEffect(() => {
-        ApiCategory.getCategory(params.id).then((res) => {
-            setDataCate(res.data);
+        ApiCategory.getCategory(params.id, token).then((res) => {
+            setDataCate(res?.data);
         });
     }, [params.id]);
 
@@ -35,11 +39,13 @@ export default function UpdateCategory({ params }: { params: { id: string } }) {
     }, [dataCate]);
 
     const handleSubmit = (values: MCategory) => {
+        const trimmedValues = trimAndCleanObjectStrings(values);
         ApiCategory.updateCategory(
             params.id,
-            values.name,
-            values.categoryParent,
-            values.description
+            trimmedValues.name,
+            trimmedValues.categoryParent,
+            values.description,
+            token
         )
             .then((res) => {
                 if (res?.ok) {

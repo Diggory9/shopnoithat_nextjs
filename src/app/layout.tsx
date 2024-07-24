@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import HeaderHome from "@/components/layout/header-home";
 import StoreProvider from "@/app/StoreProvider";
 import { StrictMode } from "react";
 const inter = Inter({ subsets: ["latin"] });
@@ -21,7 +20,6 @@ export default function RootLayout({
         <html lang="en">
             <body className={inter.className}>
                 <StoreProvider>
-                    <HeaderHome />
                     <main>
                         {" "}
                         <AntdRegistry>{children}</AntdRegistry>

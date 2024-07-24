@@ -4,19 +4,25 @@ import { useRouter } from "next/navigation";
 import { MSupplier } from "@/models/suppliermodel";
 import { Button, Form, Input } from "antd";
 import ApiSupplier from "@/api/supplier/supplier-api";
+import { useAppSelector } from "@/redux/hooks";
+import { trimAndCleanObjectStrings } from "@/helper/helper";
 
 export default function addSupplier() {
     const [form] = Form.useForm();
     const router = useRouter();
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     const handleSubmit = async (values: MSupplier) => {
-        ApiSupplier.createSupplier(values)
+        const trimmedValues = trimAndCleanObjectStrings(values);
+
+        ApiSupplier.createSupplier(trimmedValues, token)
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Thêm nhà cung cấp thành công");
                     router.push("/admin/supplier");
-                } else toast.error("Thêm nhà cung cấp thất bại");
+                }
             })
-            .catch(() => toast.error("Thêm nhà cung cấp thất bại"));
+            .catch(() => toast.error("Tên đã tồn tại, thêm thất bại"));
     };
     return (
         <div className="container mx-auto p-4 bg-white shadow-xl rounded-xl">

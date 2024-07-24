@@ -1,6 +1,7 @@
 "use client";
 import ApiSupplier from "@/api/supplier/supplier-api";
 import { MSupplier } from "@/models/suppliermodel";
+import { useAppSelector } from "@/redux/hooks";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -9,11 +10,13 @@ import {
 import { Button, Modal, Table, TableColumnsType } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 const { confirm } = Modal;
 
 export default function Supplier() {
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
         ApiSupplier.getSuppliers()
             .then((res) => {
@@ -29,14 +32,14 @@ export default function Supplier() {
             okType: "danger",
             cancelText: "Không",
             onOk: () => {
-                ApiSupplier.deleteSupplier(id)
+                ApiSupplier.deleteSupplier(id, token)
                     .then(() => {
                         toast.success("Xóa thành công");
                         setDataSup(
                             dataSup.filter((supplier) => supplier.id !== id)
                         );
                     })
-                    .catch(() => toast.error("Xóa thất bại"));
+                    .catch(() => toast.error("Tồn tại sản phẩm, Xóa thất bại"));
             },
             onCancel() {
                 console.log("Cancel");
@@ -102,9 +105,10 @@ export default function Supplier() {
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3  mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">Nhà cung cấp</h1>
+                <Toaster position="top-right" richColors />
                 <div className="flex justify-between ">
                     <div className="p-2">
-                        <form action="" method="get">
+                        {/* <form action="" method="get">
                             <input
                                 className="p-2 rounded-lg border border-gray-300"
                                 placeholder="Search for category"
@@ -112,10 +116,10 @@ export default function Supplier() {
                                 name=""
                                 id=""
                             />
-                        </form>
+                        </form> */}
                     </div>
                     <div className="order-last content-center">
-                        <a href="/admin/supplier/add">
+                        <Link href="/admin/supplier/add">
                             <button
                                 className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
                                 type="button"
@@ -136,7 +140,7 @@ export default function Supplier() {
                                 </svg>
                                 Thêm mới
                             </button>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

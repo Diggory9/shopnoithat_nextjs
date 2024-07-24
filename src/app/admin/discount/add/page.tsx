@@ -12,11 +12,13 @@ import {
     formatDate,
 } from "@/utils/config";
 import ApiDiscount from "@/api/discount/discount-api";
+import { useAppSelector } from "@/redux/hooks";
 export default function addDiscount() {
     const { RangePicker } = DatePicker;
     const router = useRouter();
     const [form] = useForm();
-
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     const handleSubmit = async (value: MDiscount) => {
         const { day, ...rest } = value;
         const body: Omit<MDiscount, "day"> = {
@@ -25,7 +27,7 @@ export default function addDiscount() {
             dateEnd: value.day?.[1] ? formatDate(value.day[1].$d || "") : "",
         };
 
-        ApiDiscount.createDiscount(body)
+        ApiDiscount.createDiscount(body, token)
             .then((res) => {
                 if (res.ok) toast.success("Thành công");
                 router.push("/admin/discount");

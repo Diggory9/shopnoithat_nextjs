@@ -35,11 +35,16 @@ export default function LoginForm() {
         }
     };
     useEffect(() => {
-        if (auth.status === "succeeded" && auth.isLogin) {
+        if (
+            auth.status === "succeeded" &&
+            auth.isLogin
+            // auth.data?.role?.[0] === "Admin"
+        ) {
             toast.success("Login successful!");
+            router.push("/admin");
             dispatch(resetAuthStatus());
-            dispatch(getCart({ userId: auth.data?.id || "" }));
-            router.push(params.get("callbackUrl") || "/");
+            // dispatch(getCart({ userId: auth.data?.id || "" }));
+            // router.push(params.get("callbackUrl") || "/");
         } else if (auth.status === "failed") {
             toast.error(`Tài khoản mật khẩu không chính xác`);
             dispatch(resetAuthStatus());

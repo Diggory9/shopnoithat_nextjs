@@ -54,32 +54,9 @@ export default function User() {
                 <Toaster position="top-right" richColors></Toaster>
                 <div className="flex justify-between ">
                     <div className="p-2">
-                        <h1 className="p-3 text-2xl font-bold">All User</h1>
+                        <h1 className="p-3 text-2xl font-bold">Người dùng</h1>
                     </div>
-                    <div className="order-last content-center">
-                        <a href="#">
-                            <button
-                                className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
-                                type="button"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1"
-                                    stroke="currentColor"
-                                    className="size-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                    />
-                                </svg>
-                                Add User
-                            </button>
-                        </a>
-                    </div>
+                    <div className="order-last content-center"></div>
                 </div>
             </div>
             <div className="bg-white rounded-xl mb-4 shadow-xl ">

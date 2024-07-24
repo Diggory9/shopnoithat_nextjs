@@ -45,7 +45,7 @@ export default function UpdateGroupBlog({
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Thành công");
-                    router.push("/admin/blog");
+                    router.push("/admin/groupblog");
                 } else {
                     toast.error("Thất bại");
                 }
@@ -58,7 +58,7 @@ export default function UpdateGroupBlog({
     return (
         <div className="bg-gray-50 w-full">
             <div className="bg-white p-3 rounded-xl mb-4 shadow-xl">
-                <Link href="/admin/blog">
+                <Link href="/admin/groupblog">
                     <Button type="default" className="mr-2">
                         <ArrowLeftOutlined />
                     </Button>
