@@ -8,9 +8,6 @@ export default function MyEditor() {
     );
 
     const editor = React.useRef(null);
-    function focusEditor() {
-        editor.current.focus();
-    }
 
     return (
         <div
@@ -22,7 +19,6 @@ export default function MyEditor() {
                 borderRadius: "4px",
                 outline: "none",
             }}
-            onClick={focusEditor}
         >
             <Editor
                 ref={editor}
