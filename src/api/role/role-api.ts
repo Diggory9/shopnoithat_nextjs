@@ -1,4 +1,3 @@
-
 const ApiRole = {
     async getRole(id: string) {
         try {
@@ -22,12 +21,15 @@ const ApiRole = {
     },
     async getAllRole() {
         try {
-            const response = await fetch(`${process.env.API_URL}RoleManager/get-roles`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            })
+            const response = await fetch(
+                `${process.env.API_URL}RoleManager/get-roles`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
@@ -38,16 +40,24 @@ const ApiRole = {
         }
     },
     async createRole(name: string) {
-        const response = await fetch(`${process.env.API_URL}RoleManager/create-role`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }, body: JSON.stringify({ name }),
-        })
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
+        try {
+            const response = await fetch(
+                `${process.env.API_URL}RoleManager/create-role`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ name }),
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response;
+        } catch (error) {
+            console.error("Error :", error);
         }
-        return response;
     },
     async deleteRoleName(roleName: string) {
         try {
@@ -90,5 +100,5 @@ const ApiRole = {
             console.error("Update error: ", error);
         }
     },
-}
+};
 export default ApiRole;

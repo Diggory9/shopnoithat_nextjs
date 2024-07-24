@@ -1,19 +1,14 @@
-
-
-const Url = `${process.env.API_URL}Category`
+const Url = `${process.env.API_URL}Category`;
 
 const ApiCategory = {
     async getCategoryParent() {
         try {
-            const response = await fetch(
-                `${Url}/categories-parent`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await fetch(`${Url}/categories-parent`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
@@ -23,7 +18,7 @@ const ApiCategory = {
             console.error("Fetch error: ", error);
         }
     },
-    async getCategory(id: string) {
+    async getCategory(id: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Category/${id}`,
@@ -31,6 +26,7 @@ const ApiCategory = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -45,15 +41,12 @@ const ApiCategory = {
     },
     async getAllCategory() {
         try {
-            const response = await fetch(
-                `${Url}/list`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await fetch(`${Url}/list`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
@@ -64,7 +57,12 @@ const ApiCategory = {
             throw error;
         }
     },
-    async addCategory(name: string, categoryParent: string, description: string) {
+    async addCategory(
+        name: string,
+        categoryParent: string,
+        description: string,
+        accessToken: string
+    ) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Category/insert`,
@@ -72,47 +70,7 @@ const ApiCategory = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        name, categoryParent, description
-                    }),
-                }
-            );
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return response;
-        } catch (error) {
-            console.error("Fetch error: ", error);
-        }
-    },
-    async deleteCategory(id: string) {
-        try {
-            const response = await fetch(
-                `${process.env.API_URL}Category/${id}`,
-                {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return response;
-        } catch (error) {
-            console.error(" Error: ", error);
-        }
-    },
-    async updateCategory(id: string, name: string, categoryParent: string, description: string) {
-        try {
-            const response = await fetch(
-                `${process.env.API_URL}Category/update/${id}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
                         name,
@@ -129,7 +87,57 @@ const ApiCategory = {
             console.error("Fetch error: ", error);
         }
     },
+    async deleteCategory(id: string, accessToken: string) {
+        try {
+            const response = await fetch(
+                `${process.env.API_URL}Category/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response;
+        } catch (error) {
+            console.error(" Error: ", error);
+        }
+    },
+    async updateCategory(
+        id: string,
+        name: string,
+        categoryParent: string,
+        description: string,
+        accessToken: string
+    ) {
+        try {
+            const response = await fetch(
+                `${process.env.API_URL}Category/update/${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        name,
+                        categoryParent,
+                        description,
+                    }),
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response;
+        } catch (error) {
+            console.error("Fetch error: ", error);
+        }
+    },
+};
 
-}
-
-export default ApiCategory
+export default ApiCategory;

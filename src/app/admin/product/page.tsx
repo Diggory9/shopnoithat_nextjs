@@ -3,24 +3,49 @@ import ApiCategory from "@/api/category/category-api";
 import ApiProduct from "@/api/product/product-api";
 import { MCategory } from "@/models/categorymodel";
 import { MProduct } from "@/models/productmodel";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Select, Table, TableColumnsType } from "antd";
-import { error } from "console";
+import { useAppSelector } from "@/redux/hooks";
+import { CheckOutlined, CloseOutlined, EditOutlined } from "@ant-design/icons";
+import {
+    Button,
+    Pagination,
+    PaginationProps,
+    Select,
+    Switch,
+    Table,
+    TableColumnsType,
+} from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast, Toaster } from "sonner";
 
 export default function Product() {
     const [dataProduct, setDataProduct] = useState<MProduct[]>([]);
     const [dataCategory, setDataCategory] = useState<MCategory[]>([]);
-
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
+    const [pageSize, setPageSize] = useState(10);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [totalProduct, setTotalProduct] = useState(1);
+    const onChange: PaginationProps["onChange"] = (page) => {
+        setPageNumber(page);
+        //console.log(page);
+    };
     // Lấy tất cả sản phẩm và danh mục sản phẩm
     useEffect(() => {
-        ApiProduct.getAllProduct(1, 20)
-            .then((res) => {
-                setDataProduct(res.data);
-            })
-            .catch((error) => console.log(error));
+        const fetchProducts = () => {
+            ApiProduct.getAllProduct(pageNumber, pageSize)
+                .then((res) => {
+                    setDataProduct(res.data);
+                    setTotalProduct(res.total);
+                })
+                .catch((error) => console.log(error));
+        };
+        fetchProducts();
+    }, [pageNumber, pageSize]);
+
+    useEffect(() => {
+        // fetchProducts();
         ApiCategory.getAllCategory()
             .then((res) => {
                 setDataCategory(res.data);
@@ -29,11 +54,12 @@ export default function Product() {
                 console.log(error);
             });
     }, []);
+    console.log(dataProduct);
 
     // Lọc sản phẩm theo danh mục sản phẩm
     const filterProductByCategory = (categoryId: string) => {
         if (categoryId == "All") {
-            ApiProduct.getAllProduct(1, 20)
+            ApiProduct.getAllProduct(pageNumber, pageSize)
                 .then((res) => {
                     setDataProduct(res.data);
                 })
@@ -45,6 +71,21 @@ export default function Product() {
                 })
                 .catch((error) => console.log(error));
         }
+    };
+    const handleUpdateStatus = (id: string, isPublished: boolean) => {
+        const status = isPublished ? "publish" : "draft";
+        ApiProduct.updateStatus(id, token, status)
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Cập nhật thành công");
+                    // fetchProducts();
+                } else {
+                    toast.error("Thất bại");
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
     const columns: TableColumnsType<MProduct> = [
         {
@@ -81,6 +122,26 @@ export default function Product() {
             key: "productBrand",
         },
         {
+            title: "Trạng thái",
+            dataIndex: "isPublished",
+            key: "isPublished",
+            render: (_, record: MProduct) => (
+                <div className="flex">
+                    {" "}
+                    <Switch
+                        onChange={(checked) => {
+                            if (checked !== record.isPublished) {
+                                handleUpdateStatus(record.id || "", checked);
+                            }
+                        }}
+                        checkedChildren={<CheckOutlined />}
+                        unCheckedChildren={<CloseOutlined />}
+                        defaultChecked={record.isPublished}
+                    />
+                </div>
+            ),
+        },
+        {
             title: "Action",
             key: "action",
             render: (_, record: MProduct) => (
@@ -91,14 +152,6 @@ export default function Product() {
                     >
                         <EditOutlined />
                     </Link>
-                    <Button
-                        // onClick={() => showDeleteConfirm(record.id)}
-                        type="link"
-                        className="text-xl"
-                        danger
-                    >
-                        <DeleteOutlined />
-                    </Button>
                 </div>
             ),
         },
@@ -106,7 +159,8 @@ export default function Product() {
     return (
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3  mb-4 shadow-xl ">
-                <h1 className="p-3 text-2xl font-bold">All Product</h1>
+                <h1 className="p-3 text-2xl font-bold">Danh sách sản phẩm</h1>
+                <Toaster position="top-right" richColors duration={1000} />
                 <div className="flex justify-between ">
                     <div className="p-2">
                         <Select
@@ -123,7 +177,7 @@ export default function Product() {
                         ></Select>
                     </div>
                     <div className="order-last content-center">
-                        <a href="/admin/product/add">
+                        <Link href="/admin/product/add">
                             <button
                                 className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
                                 type="button"
@@ -144,18 +198,14 @@ export default function Product() {
                                 </svg>
                                 Add product
                             </button>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
             <div className="bg-white  mb-4 shadow-xl">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-xl">
                     <Table
-                        pagination={{
-                            defaultPageSize: 10,
-                            showSizeChanger: true,
-                            pageSizeOptions: ["10", "20", "30"],
-                        }}
+                        pagination={false}
                         columns={columns}
                         dataSource={
                             dataProduct.map((item, index) => ({
@@ -165,6 +215,13 @@ export default function Product() {
                             })) || []
                         }
                     ></Table>
+                    <div className="flex justify-center py-3">
+                        <Pagination
+                            onChange={onChange}
+                            defaultCurrent={1}
+                            total={totalProduct}
+                        />
+                    </div>
                 </div>
             </div>
         </div>

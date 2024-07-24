@@ -8,15 +8,19 @@ import { toast } from "sonner";
 
 export default function AddGroupBlog() {
     const router = useRouter();
+    const token = localStorage.getItem("accessToken");
+    console.log(token);
+
     const handleSubmit = (value: any) => {
         ApiGroupBlog.createGroupBlog({
             name: value.name,
             description: value.description,
+            accessToken: token || "",
         })
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Thêm thành công");
-                    router.push("/admin/blog");
+                    router.push("/admin/groupblog");
                 } else {
                     toast.error("Thêm thất bại");
                 }

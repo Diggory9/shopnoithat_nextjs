@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { MCategory } from "@/models/categorymodel";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { MSupplier } from "@/models/suppliermodel";
-import { CloseOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, CloseOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Input, InputNumber, Row } from "antd";
 import { Select } from "antd";
 import {
@@ -24,6 +24,9 @@ import ApiCategory from "@/api/category/category-api";
 import ApiDiscount from "@/api/discount/discount-api";
 import ApiSupplier from "@/api/supplier/supplier-api";
 import { sumQuantity } from "@/helper/helper";
+import ApiProduct from "@/api/product/product-api";
+import { useAppSelector } from "@/redux/hooks";
+import Link from "next/link";
 type FieldType = {
     name?: string;
     description?: string;
@@ -54,17 +57,13 @@ const AddProduct = () => {
     const router = useRouter();
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
-    const [dataDis, setDataDis] = useState<MDiscount[]>([]);
     const [form] = Form.useForm();
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
         ApiCategory.getAllCategory()
             .then((res) => {
                 setDataCate(res.data);
-            })
-            .catch((error) => console.log(error));
-        ApiDiscount.getAllDiscount(1, 10)
-            .then((res) => {
-                setDataDis(res.data);
             })
             .catch((error) => console.log(error));
         ApiSupplier.getSuppliers()
@@ -83,32 +82,54 @@ const AddProduct = () => {
             ...values,
             productQuantity: totalQuantity,
         };
-        try {
-            const response = await fetch(
-                `${process.env.API_URL}Product/create`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(body),
+        ApiProduct.createProduct(body, token)
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Thêm thành công");
+                    router.push("/admin/product");
+                } else {
+                    toast.error("Thất bại");
                 }
-            );
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        // try {
+        //     const response = await fetch(
+        //         `${process.env.API_URL}Product/create`,
+        //         {
+        //             method: "POST",
+        //             headers: {
+        //                 "Content-Type": "application/json",
+        //             },
+        //             body: JSON.stringify(body),
+        //         }
+        //     );
 
-            if (response.ok) {
-                toast.success("Thêm sản phẩm thành công");
-                router.push("/admin/product");
-            } else {
-                toast.error("Thêm sản phẩm thất bại");
-                throw new Error("Failed to add product");
-            }
-        } catch (error) {
-            console.error("Add product error:", error);
-        }
+        //     if (response.ok) {
+        //         toast.success("Thêm sản phẩm thành công");
+        //         router.push("/admin/product");
+        //     } else {
+        //         toast.error("Thêm sản phẩm thất bại");
+        //         throw new Error("Failed to add product");
+        //     }
+        // } catch (error) {
+        //     console.error("Add product error:", error);
+        // }
     };
-
+    const handleOnchangeQuantity = () => {
+        form.setFieldValue(
+            "productQuantity",
+            sumQuantity(form.getFieldValue("productItems"))
+        );
+    };
     return (
         <div className="container mx-auto p-4 bg-white shadow-xl rounded-xl">
+            <Link href="/admin/product">
+                <Button type="default" className="mr-2">
+                    <ArrowLeftOutlined />
+                </Button>
+            </Link>
             <h1 className="text-2xl font-bold pb-4">Thêm sản phẩm mới</h1>
             <Toaster position="top-right" richColors />
             <Form
@@ -251,7 +272,7 @@ const AddProduct = () => {
                                 }))}
                             />
                         </Form.Item>
-                        <Form.Item<FieldType>
+                        {/* <Form.Item<FieldType>
                             label="Mã giảm giá"
                             name="discountId"
                             // rules={[
@@ -271,7 +292,7 @@ const AddProduct = () => {
                                     label: item.code,
                                 }))}
                             />
-                        </Form.Item>
+                        </Form.Item> */}
                     </Col>
                     <Col span={8}>
                         <Form.List name="productSpecifications">
@@ -354,7 +375,12 @@ const AddProduct = () => {
                                                 label="Số lượng"
                                                 name={[field.name, "quantity"]}
                                             >
-                                                <InputNumber />
+                                                <InputNumber
+                                                    min={1}
+                                                    onChange={() =>
+                                                        handleOnchangeQuantity()
+                                                    }
+                                                />
                                             </Form.Item>
                                             <Form.Item
                                                 label="Màu sắc"

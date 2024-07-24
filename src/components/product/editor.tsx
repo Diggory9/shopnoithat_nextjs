@@ -1,18 +1,34 @@
-import React, { useState } from "react";
-import { EditorState } from "draft-js";
-import { Editor, EditorProps } from "react-draft-wysiwyg";
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import React from "react";
+import { Editor, EditorState } from "draft-js";
+import "draft-js/dist/Draft.css";
 
-const MyEditorComponent = (props: EditorProps) => {
-    const [editorState, setEditorState] = useState(EditorState.createEmpty());
+export default function MyEditor() {
+    const [editorState, setEditorState] = React.useState(() =>
+        EditorState.createEmpty()
+    );
+
+    const editor = React.useRef(null);
+    function focusEditor() {
+        editor.current.focus();
+    }
 
     return (
-        <Editor
-            wrapperStyle={{ border: "1px solid #000" }}
-            editorStyle={{ padding: "0px 12px", maxHeight: 300 }}
-            {...props}
-        />
+        <div
+            style={{
+                border: "1px solid black",
+                minHeight: "6em",
+                padding: "10px",
+                cursor: "text",
+                borderRadius: "4px",
+                outline: "none",
+            }}
+            onClick={focusEditor}
+        >
+            <Editor
+                ref={editor}
+                editorState={editorState}
+                onChange={setEditorState}
+            />
+        </div>
     );
-};
-
-export default MyEditorComponent;
+}

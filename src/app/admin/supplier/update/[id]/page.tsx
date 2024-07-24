@@ -5,18 +5,27 @@ import { useRouter } from "next/navigation";
 import { MSupplier } from "@/models/suppliermodel";
 import { Button, Form, Input } from "antd";
 import ApiSupplier from "@/api/supplier/supplier-api";
+import { useAppSelector } from "@/redux/hooks";
+import { trimAndCleanObjectStrings } from "@/helper/helper";
 
 export default function updateSupplier({ params }: { params: { id: string } }) {
-    const router = useRouter();
     const [dataSupplier, setdataSupplier] = useState<MSupplier | null>(null);
+    const [allSuppliers, setAllSuppliers] = useState<MSupplier[]>([]);
+    const router = useRouter();
     const [form] = Form.useForm();
-
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     //Fetch data supplier
 
     useEffect(() => {
         ApiSupplier.getSupplier(params.id)
             .then((res) => {
                 setdataSupplier(res.data);
+            })
+            .catch((error) => console.log(error));
+        ApiSupplier.getSuppliers()
+            .then((res) => {
+                setAllSuppliers(res.data);
             })
             .catch((error) => console.log(error));
     }, [params.id]);
@@ -30,7 +39,18 @@ export default function updateSupplier({ params }: { params: { id: string } }) {
     //Update supplier
 
     const handleSubmit = async (value: MSupplier) => {
-        ApiSupplier.updateSupplier(params.id, value)
+        const trimmedValues = trimAndCleanObjectStrings(value);
+        const existingSupplier = allSuppliers.find(
+            (supplier) =>
+                supplier.supplierName === trimmedValues.supplierName &&
+                supplier.id !== params.id
+        );
+
+        if (existingSupplier) {
+            toast.error("Tên nhà cung cấp đã tồn tại");
+            return;
+        }
+        ApiSupplier.updateSupplier(params.id, trimmedValues, token)
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Cập nhật thành công");

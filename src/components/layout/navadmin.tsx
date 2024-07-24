@@ -10,6 +10,7 @@ import {
     ProfileOutlined,
     ShoppingOutlined,
     SkinOutlined,
+    TagOutlined,
     TruckOutlined,
     UsergroupAddOutlined,
     UserSwitchOutlined,
@@ -83,6 +84,11 @@ export default function NavAdmin() {
             key: "12",
             icon: <BlockOutlined />,
             label: <Link href={"/admin/groupblog"}>Group Blog</Link>,
+        },
+        {
+            key: "13",
+            icon: <TagOutlined />,
+            label: <Link href={"/admin/tag"}>Tag</Link>,
         },
     ];
 

@@ -3,7 +3,7 @@ import ApiDiscount from "@/api/discount/discount-api";
 import ApiProduct from "@/api/product/product-api";
 import { MDiscount } from "@/models/discount";
 import { MProduct } from "@/models/productmodel";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { useAppSelector } from "@/redux/hooks";
 import { Button, Select, Table, TableColumnsType } from "antd";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +13,8 @@ import { toast } from "sonner";
 export default function DiscountProduct() {
     const [dataProduct, setDataProduct] = useState<MProduct[]>([]);
     const [dataDis, setDataDis] = useState<MDiscount[]>([]);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
         ApiProduct.getAllProduct(1, 20)
             .then((res) => {
@@ -26,7 +28,7 @@ export default function DiscountProduct() {
             .catch((error) => console.log(error));
     }, []);
     const handleApplyDiscount = (productId: string, discountId: string) => {
-        ApiProduct.applyDiscount(productId, discountId)
+        ApiProduct.applyDiscount(productId, discountId, token)
             .then((response) => {
                 if (response?.ok) {
                     toast.success("Áp dụng giảm giá thành công");

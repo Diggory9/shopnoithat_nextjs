@@ -1,6 +1,7 @@
 "use client";
 import ApiDiscount from "@/api/discount/discount-api";
 import { MDiscount } from "@/models/discount";
+import { useAppSelector } from "@/redux/hooks";
 import { formatDate } from "@/utils/config";
 import { Button, Col, DatePicker, Form, Input, Row } from "antd";
 import dayjs from "dayjs";
@@ -10,12 +11,14 @@ import { toast } from "sonner";
 
 export default function updateDiscount({ params }: { params: { id: string } }) {
     const [dataDiscount, setDataDiscount] = useState<MDiscount | null>(null);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     const { RangePicker } = DatePicker;
     const [form] = Form.useForm();
     const router = useRouter();
     //Fetch data discount
     useEffect(() => {
-        ApiDiscount.getDetailDiscount(params.id)
+        ApiDiscount.getDetailDiscount(params.id, token)
             .then((res) => setDataDiscount(res.data))
             .catch((error) => console.log(error));
     }, [params.id]);

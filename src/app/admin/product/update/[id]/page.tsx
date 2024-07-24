@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MCategory } from "@/models/categorymodel";
 import { MSupplier } from "@/models/suppliermodel";
-import { CloseOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, CloseOutlined } from "@ant-design/icons";
 import {
     Button,
     Card,
@@ -31,6 +31,9 @@ import { sumQuantity } from "@/helper/helper";
 import ApiCategory from "@/api/category/category-api";
 import ApiDiscount from "@/api/discount/discount-api";
 import ApiSupplier from "@/api/supplier/supplier-api";
+import ApiProduct from "@/api/product/product-api";
+import { useAppSelector } from "@/redux/hooks";
+import Link from "next/link";
 
 type FieldType = {
     name?: string;
@@ -65,23 +68,19 @@ type ProductImage = {
 };
 
 const UpdateProduct = ({ params }: { params: { id: string } }) => {
+    const [form] = Form.useForm();
     const router = useRouter();
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
-    //const [dataDis, setDataDis] = useState<MDiscount[]>([]);
-    const [form] = Form.useForm();
-
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
         ApiCategory.getAllCategory()
             .then((res) => {
                 setDataCate(res.data);
             })
             .catch((error) => console.log(error));
-        // ApiDiscount.getAllDiscount(1, 10)
-        //     .then((res) => {
-        //         setDataDis(res.data);
-        //     })
-        //     .catch((error) => console.log(error));
+
         ApiSupplier.getSuppliers()
             .then((res) => {
                 setDataSup(res.data);
@@ -112,8 +111,6 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                         throw new Error("Network response was not ok");
                     const result = await response.json();
                     console.log(result.data);
-                    // const totalQuantity = sumQuantity(result.data.productItems);
-                    // console.log(totalQuantity);
 
                     form.setFieldsValue({
                         name: result?.data?.name,
@@ -124,7 +121,6 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                         image: result?.data?.image,
                         categoryId: result?.data?.category.id,
                         supplierId: result?.data?.supplier?.id,
-
                         productSpecifications:
                             result?.data?.productSpecifications?.map(
                                 (specItem: {
@@ -166,35 +162,30 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
 
     const handleSubmit = async (values: FieldType) => {
         console.log(values);
-
-        try {
-            const response = await fetch(
-                `${process.env.API_URL}Product/${params.id}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(values),
+        ApiProduct.UpdateProduct(values, params.id, token)
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Cập nhật sản phẩm thành công");
+                    router.push("/admin/product");
+                } else {
+                    toast.error("Cập nhật sản phẩm thất bại");
+                    throw new Error("Failed to update product");
                 }
-            );
-
-            if (response.ok) {
-                toast.success("Cập nhật sản phẩm thành công");
-                router.push("/admin/product");
-            } else {
-                toast.error("Cập nhật sản phẩm thất bại");
-                throw new Error("Failed to update product");
-            }
-        } catch (error) {
-            console.error("Update product error:", error);
-        }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
-
     return (
         <div className="container mx-auto p-4 bg-white shadow-xl rounded-xl">
+            <Link href="/admin/product">
+                <Button type="default" className="mr-2">
+                    <ArrowLeftOutlined />
+                </Button>
+            </Link>
             <h1 className="text-2xl font-bold pb-4">Cập nhật sản phẩm</h1>
-            <Toaster position="top-right" richColors />
+            <Toaster position="top-right" richColors duration={2000} />
+
             <Form onFinish={handleSubmit} form={form} layout="vertical">
                 <Row justify="space-between">
                     <Col span={8}>
@@ -301,19 +292,6 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                                 }))}
                             />
                         </Form.Item>
-                        {/* <Form.Item<FieldType>
-                            label="Mã giảm giá"
-                            name="discountId"
-                        >
-                            <Select
-                                style={{ width: 200 }}
-                                placeholder="Chọn mã giảm giá"
-                                options={dataDis?.map((item) => ({
-                                    value: item.id,
-                                    label: item.code,
-                                }))}
-                            />
-                        </Form.Item> */}
                     </Col>
                     <Col span={8}>
                         <Form.List name="productSpecifications">
@@ -336,15 +314,6 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                                             extra={
                                                 <CloseOutlined
                                                     onClick={() => {
-                                                        // const spectId =
-                                                        //     form.getFieldValue(
-                                                        //         "productSpecifications"
-                                                        //     )[field.name]?.id;
-                                                        // if (spectId) {
-                                                        //     handleRemoveProductSpecification(
-                                                        //         spectId
-                                                        //     );
-                                                        // }
                                                         remove(field.name);
                                                     }}
                                                 />
@@ -394,15 +363,6 @@ const UpdateProduct = ({ params }: { params: { id: string } }) => {
                                             extra={
                                                 <CloseOutlined
                                                     onClick={() => {
-                                                        // const itemId =
-                                                        //     form.getFieldValue(
-                                                        //         "productItems"
-                                                        //     )[field.name]?.id;
-                                                        // if (itemId) {
-                                                        //     handleRemoveProductItem(
-                                                        //         itemId
-                                                        //     );
-                                                        // }
                                                         remove(field.name);
                                                     }}
                                                 />

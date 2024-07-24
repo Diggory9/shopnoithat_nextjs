@@ -1,6 +1,7 @@
 "use client";
 import ApiDiscount from "@/api/discount/discount-api";
 import { MDiscount } from "@/models/discount";
+import { useAppSelector } from "@/redux/hooks";
 import { formatDateToRender } from "@/utils/config";
 import { Button, Table, TableColumnsType, Tag } from "antd";
 import Link from "next/link";
@@ -9,6 +10,8 @@ import { toast } from "sonner";
 
 export default function Discount() {
     const [dataDiscount, setDataDiscount] = useState<MDiscount[]>([]);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     // Fetch data discount
     useEffect(() => {
         ApiDiscount.getAllDiscount(1, 10)
@@ -19,7 +22,7 @@ export default function Discount() {
     }, []);
     //Update status discount
     const handleUpdateStatus = (id: string, status: string) => {
-        ApiDiscount.updateStatusDiscount(id, status)
+        ApiDiscount.updateStatusDiscount(id, status, token)
             .then((response) => {
                 if (response?.ok) {
                     toast.success("Cập nhật thành công");
@@ -153,21 +156,11 @@ export default function Discount() {
     return (
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3  mb-4 shadow-xl">
-                <h1 className="p-3 text-2xl font-bold">All Discount</h1>
+                <h1 className="p-3 text-2xl font-bold">Giảm giá</h1>
                 <div className="flex justify-between ">
-                    <div className="p-2">
-                        <form action="" method="get">
-                            <input
-                                className="p-2 rounded-lg border border-gray-300"
-                                placeholder="Search"
-                                type="text"
-                                name=""
-                                id=""
-                            />
-                        </form>
-                    </div>
+                    <div className="p-2"></div>
                     <div className="order-last content-center">
-                        <a href="/admin/discount/add">
+                        <Link href="/admin/discount/add">
                             <button
                                 className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
                                 type="button"
@@ -186,9 +179,9 @@ export default function Discount() {
                                         d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                                     />
                                 </svg>
-                                Add Discount
+                                Thêm mới
                             </button>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

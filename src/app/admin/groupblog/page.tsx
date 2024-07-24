@@ -30,7 +30,7 @@ export default function GroupBlog() {
     console.log(dataBlogs);
     const showDeleteConfirm = (id: string) => {
         confirm({
-            title: "Bạn muốn xóa blog này?",
+            title: "Bạn muốn xóa Groupblog này?",
             icon: <ExclamationCircleFilled style={{ color: "red" }} />,
             okText: "Có",
             okType: "danger",
@@ -40,7 +40,7 @@ export default function GroupBlog() {
                     .then((res) => {
                         if (res?.ok) {
                             toast.success("Xóa thành công");
-                            router.push("/admin/blog");
+                            router.push("/admin/groupblog");
                             setDataBlogs((prevData) =>
                                 prevData.filter((blog) => blog.id !== id)
                             );
@@ -83,7 +83,7 @@ export default function GroupBlog() {
                 <div className="flex">
                     <Link
                         className="text-xl"
-                        href={`/admin/blog/update/${record.id}`}
+                        href={`/admin/groupblog/update/${record.id}`}
                     >
                         <EditOutlined />
                     </Link>
@@ -102,7 +102,7 @@ export default function GroupBlog() {
             title: "Chi tiết",
             key: "detail",
             render: (_: any, record) => (
-                <Link href={`/admin/blog/detail/${record.id}`}>
+                <Link href={`/admin/groupblog/detail/${record.id}`}>
                     <Button type="link">Chi tiết</Button>
                 </Link>
             ),
@@ -116,7 +116,7 @@ export default function GroupBlog() {
                 <div className="flex justify-between ">
                     <div className="p-2"></div>
                     <div className="order-last content-center">
-                        <Link href="/admin/blog/add">
+                        <Link href="/admin/groupblog/add">
                             <button
                                 className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
                                 type="button"

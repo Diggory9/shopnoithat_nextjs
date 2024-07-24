@@ -8,7 +8,7 @@ export default function AddRole() {
     const handleSubmit = async (values: any) => {
         ApiRole.createRole(values.roleName)
             .then((response) => {
-                if (response.ok) toast.success("Thêm thành công");
+                if (response?.ok) toast.success("Thêm thành công");
             })
             .catch(() => {
                 toast.error("Thêm thất bại");

@@ -1,7 +1,5 @@
-
-
 const ApiDiscount = {
-    async getDetailDiscount(id: string) {
+    async getDetailDiscount(id: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Discount/${id}`,
@@ -9,6 +7,7 @@ const ApiDiscount = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -20,19 +19,22 @@ const ApiDiscount = {
     },
     async getAllDiscount(pageNumber: number, pageSize: number) {
         try {
-            const response = await fetch(`${process.env.API_URL}Discount/list?pageNumber=${pageNumber}&pageSize=${pageSize}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
+            const response = await fetch(
+                `${process.env.API_URL}Discount/list?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
             const data = await response.json();
             return data;
         } catch (error) {
             console.error("Error fetching :", error);
         }
     },
-    async createDiscount(values: {}) {
+    async createDiscount(values: {}, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Discount/create`,
@@ -40,6 +42,7 @@ const ApiDiscount = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify(values),
                 }
@@ -49,13 +52,16 @@ const ApiDiscount = {
                 throw new Error("Network response was not ok");
             }
             return response;
-        }
-        catch (error) {
+        } catch (error) {
             console.error("Fetch error: ", error);
             throw error;
         }
     },
-    async updateStatusDiscount(discountId: string, status: string) {
+    async updateStatusDiscount(
+        discountId: string,
+        status: string,
+        accessToken: string
+    ) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Discount/${status}`,
@@ -63,6 +69,7 @@ const ApiDiscount = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({ discountId }),
                 }
@@ -72,27 +79,31 @@ const ApiDiscount = {
             console.error("Update:", error);
         }
     },
-    async updateTimeDiscount(idDiscount: string, dateStart: string, dateEnd: string) {
+    async updateTimeDiscount(
+        idDiscount: string,
+        dateStart: string,
+        dateEnd: string
+    ) {
         try {
-            const response = await fetch(`${process.env.API_URL}Discount/update-time/${idDiscount}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ dateStart, dateEnd }),
-            })
+            const response = await fetch(
+                `${process.env.API_URL}Discount/update-time/${idDiscount}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ dateStart, dateEnd }),
+                }
+            );
 
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
             return response;
-        }
-        catch (error) {
+        } catch (error) {
             console.error("Fetch error: ", error);
             throw error;
         }
     },
-
-
-}
+};
 export default ApiDiscount;

@@ -8,11 +8,17 @@ import { Button, Form, Input, Select } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import ApiCategory from "@/api/category/category-api";
+import { useAppSelector } from "@/redux/hooks";
+import { trimAndCleanObjectStrings } from "@/helper/helper";
 
 export default function addCategory() {
     const [form] = Form.useForm();
     const router = useRouter();
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken;
+    console.log(token);
+
     // Fetch data category
     useEffect(() => {
         ApiCategory.getAllCategory()
@@ -22,10 +28,12 @@ export default function addCategory() {
 
     // Handle add category
     const handleSubmit = (values: MCategory) => {
+        const trimmedValues = trimAndCleanObjectStrings(values);
         ApiCategory.addCategory(
-            values.name,
-            values.categoryParent,
-            values.description
+            trimmedValues.name,
+            trimmedValues.categoryParent,
+            trimmedValues.description,
+            token || ""
         )
             .then((res) => {
                 if (res?.ok) {

@@ -71,10 +71,10 @@ export default function Role() {
     return (
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3  mb-4 shadow-xl">
-                <h1 className="p-3 text-2xl font-bold">All Role</h1>
+                <h1 className="p-3 text-2xl font-bold">Vai trò</h1>
                 <div className="flex justify-between ">
                     <div className="p-2">
-                        <form action="" method="get">
+                        {/* <form action="" method="get">
                             <input
                                 className="p-2 rounded-lg border border-gray-300"
                                 placeholder="Search for category"
@@ -82,10 +82,10 @@ export default function Role() {
                                 name=""
                                 id=""
                             />
-                        </form>
+                        </form> */}
                     </div>
                     <div className="order-last content-center">
-                        <a href="/admin/role/add">
+                        <Link href="/admin/role/add">
                             <button
                                 className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
                                 type="button"
@@ -104,9 +104,9 @@ export default function Role() {
                                         d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                                     />
                                 </svg>
-                                Add Role
+                                Thêm mới
                             </button>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

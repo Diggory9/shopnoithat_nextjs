@@ -11,11 +11,13 @@ import {
     ExclamationCircleFilled,
 } from "@ant-design/icons";
 import ApiCategory from "@/api/category/category-api";
+import { useAppSelector } from "@/redux/hooks";
 const { confirm } = Modal;
 export default function Category() {
     const [dataAllCate, setDataAllCate] = useState<MCategory[]>([]);
     const router = useRouter();
-
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken;
     //Fetch data categories
     useEffect(() => {
         ApiCategory.getAllCategory()
@@ -31,7 +33,7 @@ export default function Category() {
             okType: "danger",
             cancelText: "Không",
             onOk: () => {
-                ApiCategory.deleteCategory(id)
+                ApiCategory.deleteCategory(id, token || "")
                     .then((res) => {
                         if (res?.ok) {
                             toast.success("Xóa thành công");
@@ -40,7 +42,7 @@ export default function Category() {
                                 prevData.filter((cate) => cate.id !== id)
                             );
                         } else {
-                            toast.error("Xóa thất bại");
+                            toast.error("Danh mục chứa sản phẩm, xóa thất bại");
                         }
                     })
                     .catch((error) => console.log(error));
@@ -104,20 +106,12 @@ export default function Category() {
     return (
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3 mb-4 shadow-xl ">
-                <h1 className="p-3 text-2xl font-bold">All Category</h1>
+                <h1 className="p-3 text-2xl font-bold">Danh mục sản phẩm</h1>
                 <Toaster position="top-right" richColors />
                 <div className="flex justify-between ">
-                    <div className="p-2">
-                        <form action="" method="get">
-                            <input
-                                className="p-2 rounded-lg border border-gray-300"
-                                placeholder="Search for category"
-                                type="text"
-                            />
-                        </form>
-                    </div>
+                    <div className="p-2"></div>
                     <div className="order-last content-center">
-                        <a href="/admin/category/add">
+                        <Link href="/admin/category/add">
                             <button
                                 className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
                                 type="button"
@@ -136,9 +130,9 @@ export default function Category() {
                                         d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                                     />
                                 </svg>
-                                Add category
+                                Thêm mới
                             </button>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
