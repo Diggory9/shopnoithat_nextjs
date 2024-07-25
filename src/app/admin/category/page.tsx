@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Toaster, toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { MCategory } from "@/models/categorymodel";
-import { Button, Modal, Table, TableColumnsType } from "antd";
+import { Button, Modal, Table, TableColumnsType, Skeleton } from "antd";
 import {
     DeleteOutlined,
     EditOutlined,
@@ -13,17 +13,27 @@ import {
 import ApiCategory from "@/api/category/category-api";
 import { useAppSelector } from "@/redux/hooks";
 const { confirm } = Modal;
+
 export default function Category() {
     const [dataAllCate, setDataAllCate] = useState<MCategory[]>([]);
+    const [loading, setLoading] = useState(true); // Add loading state
     const router = useRouter();
     const auth = useAppSelector((state) => state.authCredentials);
     const token = auth.data?.jwToken;
-    //Fetch data categories
+
+    // Fetch data categories
     useEffect(() => {
+        setLoading(true); // Set loading to true before fetching
         ApiCategory.getAllCategory()
-            .then((res) => setDataAllCate(res.data))
-            .catch((error) => console.log(error));
-    }, []);
+            .then((res) => {
+                setDataAllCate(res.data);
+                setLoading(false); // Set loading to false after data is fetched
+            })
+            .catch((error) => {
+                console.log(error);
+                setLoading(false); // Ensure loading is set to false even if there's an error
+            });
+    }, [token]);
 
     const showDeleteConfirm = (id: string) => {
         confirm({
@@ -52,6 +62,7 @@ export default function Category() {
             },
         });
     };
+
     const columns: TableColumnsType<MCategory> = [
         {
             title: "STT",
@@ -103,17 +114,18 @@ export default function Category() {
             ),
         },
     ] as TableColumnsType<MCategory>;
+
     return (
         <div className="bg-gray-50 w-full">
-            <div className=" bg-white p-3 mb-4 shadow-xl ">
+            <div className="bg-white p-3 mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">Danh mục sản phẩm</h1>
                 <Toaster position="top-right" richColors />
-                <div className="flex justify-between ">
+                <div className="flex justify-between">
                     <div className="p-2"></div>
                     <div className="order-last content-center">
                         <Link href="/admin/category/add">
                             <button
-                                className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
+                                className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex"
                                 type="button"
                             >
                                 <svg
@@ -138,21 +150,27 @@ export default function Category() {
             </div>
             <div className="bg-white mb-4 shadow-xl">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-xl">
-                    <Table
-                        pagination={{
-                            defaultPageSize: 10,
-                            showSizeChanger: true,
-                            pageSizeOptions: ["5", "10", "15"],
-                        }}
-                        columns={columns}
-                        dataSource={
-                            dataAllCate.map((item, index) => ({
-                                ...item,
-                                index: index + 1,
-                                key: item.id,
-                            })) || []
-                        }
-                    ></Table>
+                    {loading ? (
+                        <div className="p-4">
+                            <Skeleton active paragraph={{ rows: 5 }} />
+                        </div>
+                    ) : (
+                        <Table
+                            pagination={{
+                                defaultPageSize: 10,
+                                showSizeChanger: true,
+                                pageSizeOptions: ["5", "10", "15"],
+                            }}
+                            columns={columns}
+                            dataSource={
+                                dataAllCate.map((item, index) => ({
+                                    ...item,
+                                    index: index + 1,
+                                    key: item.id,
+                                })) || []
+                            }
+                        />
+                    )}
                 </div>
             </div>
         </div>

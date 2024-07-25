@@ -1,6 +1,5 @@
 const ApiReport = {
-
-    async getSummary(startDate: string, endDate: string) {
+    async getSummary(startDate: string, endDate: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Report/sales-summary?startDate=${startDate}&endDate=${endDate}`,
@@ -8,6 +7,7 @@ const ApiReport = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -22,5 +22,5 @@ const ApiReport = {
             throw error;
         }
     },
-}
+};
 export default ApiReport;

@@ -1,26 +1,36 @@
 "use client";
 import ApiRole from "@/api/role/role-api";
 import { MRole } from "@/models/role";
+import { useAppSelector } from "@/redux/hooks";
 import {
     DeleteOutlined,
     EditOutlined,
     ExclamationCircleFilled,
 } from "@ant-design/icons";
-import { Button, Modal, Table, TableColumnsType } from "antd";
+import { Button, Modal, Table, TableColumnsType, Skeleton } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 const { confirm } = Modal;
 
 export default function Role() {
     const [dataRole, setDataRole] = useState<MRole[]>([]);
-    // Fetch data role
+    const [loading, setLoading] = useState(true); // Add loading state
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
+
     useEffect(() => {
-        ApiRole.getAllRole()
+        setLoading(true); // Set loading to true before fetching
+        ApiRole.getAllRole(token)
             .then((res) => {
                 setDataRole(res.data);
+                setLoading(false); // Set loading to false after data is fetched
             })
-            .catch((error) => console.log(error));
-    }, []);
+            .catch((error) => {
+                console.log(error);
+                setLoading(false); // Ensure loading is set to false even if there's an error
+            });
+    }, [token]);
+
     const showDeleteConfirm = (id: string) => {
         confirm({
             title: "Bạn muốn xóa danh mục này?",
@@ -28,12 +38,15 @@ export default function Role() {
             okText: "Có",
             okType: "danger",
             cancelText: "Không",
-            onOk: () => {},
+            onOk: () => {
+                // Add delete logic here
+            },
             onCancel() {
                 console.log("Cancel");
             },
         });
     };
+
     const columns: TableColumnsType<MRole> = [
         {
             title: "STT",
@@ -68,11 +81,12 @@ export default function Role() {
             ),
         },
     ] as TableColumnsType<MRole>;
+
     return (
         <div className="bg-gray-50 w-full">
-            <div className=" bg-white p-3  mb-4 shadow-xl">
+            <div className="bg-white p-3 mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">Vai trò</h1>
-                <div className="flex justify-between ">
+                <div className="flex justify-between">
                     <div className="p-2">
                         {/* <form action="" method="get">
                             <input
@@ -87,7 +101,7 @@ export default function Role() {
                     <div className="order-last content-center">
                         <Link href="/admin/role/add">
                             <button
-                                className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
+                                className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex"
                                 type="button"
                             >
                                 <svg
@@ -112,20 +126,26 @@ export default function Role() {
             </div>
             <div className="bg-white mb-4 shadow-xl">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <Table
-                        pagination={{
-                            defaultPageSize: 5,
-                            showSizeChanger: true,
-                            pageSizeOptions: ["5", "10", "15"],
-                        }}
-                        dataSource={dataRole.map((item, index) => ({
-                            ...item,
-                            index: index + 1,
-                            key: item.id,
-                            name: item.name,
-                        }))}
-                        columns={columns}
-                    ></Table>
+                    {loading ? (
+                        <div className="p-4">
+                            <Skeleton active paragraph={{ rows: 5 }} />
+                        </div>
+                    ) : (
+                        <Table
+                            pagination={{
+                                defaultPageSize: 5,
+                                showSizeChanger: true,
+                                pageSizeOptions: ["5", "10", "15"],
+                            }}
+                            dataSource={dataRole.map((item, index) => ({
+                                ...item,
+                                index: index + 1,
+                                key: item.id,
+                                name: item.name,
+                            }))}
+                            columns={columns}
+                        />
+                    )}
                 </div>
             </div>
         </div>

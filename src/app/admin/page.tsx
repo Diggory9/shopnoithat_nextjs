@@ -1,5 +1,6 @@
 "use client";
 import ApiReport from "@/api/report/report-api";
+import { useAppSelector } from "@/redux/hooks";
 import { customMoney, formatDateSummary } from "@/utils/config";
 import {
     DollarOutlined,
@@ -25,12 +26,14 @@ export default function admin() {
     const [dataSummary, setDataSummary] = useState<any>([]);
     const [chartData, setChartData] = useState<any[]>([]);
     const [dateRange, setDateRange] = useState<[string, string]>([
-        "2024-07-01",
         "2024-07-20",
+        "2024-07-30",
     ]);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     const fetchData = async (startDate: string, endDate: string) => {
         try {
-            const res = await ApiReport.getSummary(startDate, endDate);
+            const res = await ApiReport.getSummary(startDate, endDate, token);
             setDataSummary(res.data);
             const transformedData = res.data.dailyOrderSummaries.map(
                 (item: any) => ({

@@ -3,30 +3,38 @@ import ApiDiscount from "@/api/discount/discount-api";
 import { MDiscount } from "@/models/discount";
 import { useAppSelector } from "@/redux/hooks";
 import { formatDateToRender } from "@/utils/config";
-import { Button, Table, TableColumnsType, Tag } from "antd";
+import { Button, Table, TableColumnsType, Tag, Skeleton } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Discount() {
     const [dataDiscount, setDataDiscount] = useState<MDiscount[]>([]);
+    const [loading, setLoading] = useState(true); // Add loading state
     const auth = useAppSelector((state) => state.authCredentials);
     const token = auth.data?.jwToken || "";
+
     // Fetch data discount
     useEffect(() => {
-        ApiDiscount.getAllDiscount(1, 10)
+        setLoading(true); // Set loading to true before fetching
+        ApiDiscount.getAllDiscount(1, 10, token)
             .then((response) => {
                 setDataDiscount(response.data);
+                setLoading(false); // Set loading to false after data is fetched
             })
-            .catch((error) => console.log(error));
-    }, []);
-    //Update status discount
+            .catch((error) => {
+                console.log(error);
+                setLoading(false); // Ensure loading is set to false even if there's an error
+            });
+    }, [token]);
+
+    // Update status discount
     const handleUpdateStatus = (id: string, status: string) => {
         ApiDiscount.updateStatusDiscount(id, status, token)
             .then((response) => {
                 if (response?.ok) {
                     toast.success("Cập nhật thành công");
-                    ApiDiscount.getAllDiscount(1, 10)
+                    ApiDiscount.getAllDiscount(1, 10, token)
                         .then((response) => {
                             setDataDiscount(response.data);
                         })
@@ -37,6 +45,7 @@ export default function Discount() {
             })
             .catch(() => toast.error("Cập nhật thất bại"));
     };
+
     const getStatusTag = (status?: string) => {
         switch (status) {
             case "PENDING":
@@ -51,6 +60,7 @@ export default function Discount() {
                 return <Tag>{status}</Tag>;
         }
     };
+
     const columns: TableColumnsType<MDiscount> = [
         {
             title: "STT",
@@ -153,16 +163,17 @@ export default function Discount() {
             ),
         },
     ] as TableColumnsType<MDiscount>;
+
     return (
         <div className="bg-gray-50 w-full">
-            <div className=" bg-white p-3  mb-4 shadow-xl">
+            <div className="bg-white p-3 mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">Giảm giá</h1>
-                <div className="flex justify-between ">
+                <div className="flex justify-between">
                     <div className="p-2"></div>
                     <div className="order-last content-center">
                         <Link href="/admin/discount/add">
                             <button
-                                className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex "
+                                className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 inline-flex"
                                 type="button"
                             >
                                 <svg
@@ -185,25 +196,33 @@ export default function Discount() {
                     </div>
                 </div>
             </div>
-            <div className="bg-white  mb-4 shadow-xl">
+            <div className="bg-white mb-4 shadow-xl">
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <Table
-                        pagination={{
-                            defaultPageSize: 10,
-                            showSizeChanger: true,
-                            pageSizeOptions: ["10", "20", "30"],
-                        }}
-                        columns={columns}
-                        dataSource={
-                            dataDiscount?.map((item, index) => ({
-                                ...item,
-                                index: index + 1,
-                                key: item.id,
-                                dateStart: formatDateToRender(item.dateStart),
-                                dateEnd: formatDateToRender(item.dateEnd),
-                            })) || []
-                        }
-                    ></Table>
+                    {loading ? (
+                        <div className="p-4">
+                            <Skeleton active paragraph={{ rows: 5 }} />
+                        </div>
+                    ) : (
+                        <Table
+                            pagination={{
+                                defaultPageSize: 10,
+                                showSizeChanger: true,
+                                pageSizeOptions: ["10", "20", "30"],
+                            }}
+                            columns={columns}
+                            dataSource={
+                                dataDiscount?.map((item, index) => ({
+                                    ...item,
+                                    index: index + 1,
+                                    key: item.id,
+                                    dateStart: formatDateToRender(
+                                        item.dateStart
+                                    ),
+                                    dateEnd: formatDateToRender(item.dateEnd),
+                                })) || []
+                            }
+                        />
+                    )}
                 </div>
             </div>
         </div>

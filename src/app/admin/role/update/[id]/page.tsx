@@ -11,14 +11,17 @@ import TextArea from "antd/es/input/TextArea";
 import { MRole } from "@/models/role";
 import ApiRole from "@/api/role/role-api";
 import { error } from "console";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function UpdateRole({ params }: { params: { id: string } }) {
     const [form] = Form.useForm();
     const router = useRouter();
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     const [dataRole, setdataRole] = useState<MRole | null>(null);
     // Fetch data role
     useEffect(() => {
-        ApiRole.getRole(params.id)
+        ApiRole.getRole(params.id, token)
             .then((res) => {
                 setdataRole(res.data);
             })
@@ -32,7 +35,7 @@ export default function UpdateRole({ params }: { params: { id: string } }) {
     }, [dataRole]);
 
     const handleSubmit = (values: MRole) => {
-        ApiRole.updateRoleName(params.id, values.name || "")
+        ApiRole.updateRoleName(params.id, values.name || "", token)
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Cập nhật thành công");

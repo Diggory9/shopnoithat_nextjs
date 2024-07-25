@@ -17,7 +17,11 @@ const ApiDiscount = {
             console.error("Error fetching :", error);
         }
     },
-    async getAllDiscount(pageNumber: number, pageSize: number) {
+    async getAllDiscount(
+        pageNumber: number,
+        pageSize: number,
+        accessToken: string
+    ) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Discount/list?pageNumber=${pageNumber}&pageSize=${pageSize}`,
@@ -25,6 +29,7 @@ const ApiDiscount = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -82,7 +87,8 @@ const ApiDiscount = {
     async updateTimeDiscount(
         idDiscount: string,
         dateStart: string,
-        dateEnd: string
+        dateEnd: string,
+        accessToken: string
     ) {
         try {
             const response = await fetch(
@@ -91,6 +97,7 @@ const ApiDiscount = {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({ dateStart, dateEnd }),
                 }

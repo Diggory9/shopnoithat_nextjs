@@ -1,7 +1,11 @@
 const Url = `${process.env.API_URL}Product`;
 
 const ApiProduct = {
-    async getAllProduct(pageNumber: number, pageSize: number) {
+    async getAllProduct(
+        pageNumber: number,
+        pageSize: number,
+        accessToken: string
+    ) {
         try {
             const response = await fetch(
                 `${Url}/list?pageNumber=${pageNumber}&pageSize=${pageSize}`,
@@ -9,6 +13,7 @@ const ApiProduct = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -26,20 +31,22 @@ const ApiProduct = {
     async getProductPublicByCategory(
         id: string,
         pageNumber = 1,
-        pageSize = 10
+        pageSize = 10,
+        accessToken: string
     ) {
         try {
             console.log("id", id);
             const response = await fetch(
-                `${Url}/get-product-by-category/${id}?offset=${pageNumber}&limit=${pageSize}`,
+                `${Url}/get-product-by-category-publish/${id}?offset=${pageNumber}&limit=${pageSize}`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
-            console.log("res", response);
+
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
@@ -50,12 +57,42 @@ const ApiProduct = {
             throw error;
         }
     },
-    async getDetailProduct(id: string) {
+    async getProductByCategory(
+        id: string,
+        pageNumber = 1,
+        pageSize = 10,
+        accessToken: string
+    ) {
+        try {
+            console.log("id", id);
+            const response = await fetch(
+                `${Url}/get-product-by-category/${id}?offset=${pageNumber}&limit=${pageSize}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error("Fetch error: ", error);
+            throw error;
+        }
+    },
+    async getDetailProduct(id: string, accessToken: string) {
         try {
             const response = await fetch(`${Url}/${id}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
                 },
             });
             if (!response.ok) {
