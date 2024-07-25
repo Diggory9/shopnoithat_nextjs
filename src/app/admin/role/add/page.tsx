@@ -1,12 +1,15 @@
 "use client";
 import ApiRole from "@/api/role/role-api";
+import { useAppSelector } from "@/redux/hooks";
 import { Button, Form, Input } from "antd";
 import { toast, Toaster } from "sonner";
 
 export default function AddRole() {
     const [form] = Form.useForm();
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     const handleSubmit = async (values: any) => {
-        ApiRole.createRole(values.roleName)
+        ApiRole.createRole(values.roleName, token)
             .then((response) => {
                 if (response?.ok) toast.success("Thêm thành công");
             })

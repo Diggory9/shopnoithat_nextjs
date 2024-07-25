@@ -6,14 +6,17 @@ import { useRouter } from "next/navigation";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Tag } from "antd";
 import ApiOrder from "@/api/order/order-api";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function OrderDetail({ params }: { params: { id: string } }) {
     const [order, setOrder] = useState<MOrder | null>(null);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     const router = useRouter();
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
-                ApiOrder.getDetailOrder(params.id)
+                ApiOrder.getDetailOrder(params.id, token)
                     .then((res) => {
                         setOrder(res.data);
                     })

@@ -33,7 +33,7 @@ export default function updateDiscount({ params }: { params: { id: string } }) {
     const handleSubmit = (value: MDiscount) => {
         const dateStart = value.day?.[0]?.$d ? formatDate(value.day[0].$d) : "";
         const dateEnd = value.day?.[1]?.$d ? formatDate(value.day[1].$d) : "";
-        ApiDiscount.updateTimeDiscount(params.id, dateStart, dateEnd)
+        ApiDiscount.updateTimeDiscount(params.id, dateStart, dateEnd, token)
             .then((response) => {
                 if (response.ok) toast.success("Thành công");
                 router.push("/admin/discount");

@@ -1,24 +1,20 @@
-
-
 const ApiOrder = {
-    async getDetailOrder(id: string) {
+    async getDetailOrder(id: string, accessToken: string) {
         try {
-            const response = await fetch(
-                `${process.env.API_URL}Order/${id}`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await fetch(`${process.env.API_URL}Order/${id}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
             const data = await response.json();
             return data;
         } catch (error) {
             console.error("Error fetching order details:", error);
         }
     },
-    async getOrders(pageNumber: number, pageSize: number) {
+    async getOrders(pageNumber: number, pageSize: number, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Order/list?pageNumber=${pageNumber}&pageSize=${pageSize}`,
@@ -26,7 +22,8 @@ const ApiOrder = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                    }
+                        Authorization: `Bearer ${accessToken}`,
+                    },
                 }
             );
             if (!response.ok) {
@@ -40,7 +37,7 @@ const ApiOrder = {
         }
     },
 
-    async getOrdersByUserId(userId: string) {
+    async getOrdersByUserId(userId?: string, accessToken?: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Order/user/${userId}`,
@@ -48,6 +45,7 @@ const ApiOrder = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -57,12 +55,17 @@ const ApiOrder = {
             console.error("Error fetching orders:", error);
         }
     },
-    async updateStatusOrder(id?: string, status?: string) {
+    async updateStatusOrder(
+        id?: string,
+        status?: string,
+        accessToken?: string
+    ) {
         try {
             const response = await fetch(`${process.env.API_URL}Order/status`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify({ id, status }),
             });
@@ -73,6 +76,6 @@ const ApiOrder = {
         } catch (error) {
             console.error("Error fetching orders:", error);
         }
-    }
-}
+    },
+};
 export default ApiOrder;

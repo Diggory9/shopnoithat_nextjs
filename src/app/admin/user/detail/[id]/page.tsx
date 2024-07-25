@@ -3,6 +3,7 @@ import ApiRole from "@/api/role/role-api";
 import ApiUser from "@/api/user/user-api";
 import { MRole } from "@/models/role";
 import { MUser } from "@/models/user";
+import { useAppSelector } from "@/redux/hooks";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Spin, Select, Form, Input, Tag } from "antd";
 import Link from "next/link";
@@ -18,23 +19,24 @@ export default function UserDetail({ params }: UserDetailProps) {
     const [user, setUser] = useState<MUser | null>(null);
     const [dataRoles, setDataRoles] = useState<MRole[]>([]);
     const [form] = Form.useForm();
-
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
-        ApiRole.getAllRole()
+        ApiRole.getAllRole(token)
             .then((res) => {
                 setDataRoles(res.data);
             })
             .catch((error) => console.log(error));
     }, []);
     useEffect(() => {
-        ApiUser.getUserById(params.id)
+        ApiUser.getUserById(params.id, token)
             .then((res) => {
                 setUser(res);
             })
             .catch((error) => console.log(error));
     }, [params.id]);
     const handleUpdateRoles = () => {
-        ApiUser.addRoleToUser(params.id, form.getFieldValue("roles"))
+        ApiUser.addRoleToUser(params.id, form.getFieldValue("roles"), token)
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Thêm thành công");

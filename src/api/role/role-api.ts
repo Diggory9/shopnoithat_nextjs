@@ -1,5 +1,5 @@
 const ApiRole = {
-    async getRole(id: string) {
+    async getRole(id: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}RoleManager/get-role-by-id/${id}`,
@@ -7,6 +7,7 @@ const ApiRole = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -19,7 +20,7 @@ const ApiRole = {
             console.error("Fetch error:", error);
         }
     },
-    async getAllRole() {
+    async getAllRole(accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}RoleManager/get-roles`,
@@ -27,6 +28,7 @@ const ApiRole = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -39,7 +41,7 @@ const ApiRole = {
             console.error("Error :", error);
         }
     },
-    async createRole(name: string) {
+    async createRole(name: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}RoleManager/create-role`,
@@ -47,6 +49,7 @@ const ApiRole = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({ name }),
                 }
@@ -59,7 +62,7 @@ const ApiRole = {
             console.error("Error :", error);
         }
     },
-    async deleteRoleName(roleName: string) {
+    async deleteRoleName(roleName: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}RoleManager/${roleName}`,
@@ -67,6 +70,7 @@ const ApiRole = {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -78,7 +82,7 @@ const ApiRole = {
             console.error(" Error: ", error);
         }
     },
-    async updateRoleName(id: string, name: string) {
+    async updateRoleName(id: string, name: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}RoleManager/update-role-name/${id}`,
@@ -86,6 +90,7 @@ const ApiRole = {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
                         name,
