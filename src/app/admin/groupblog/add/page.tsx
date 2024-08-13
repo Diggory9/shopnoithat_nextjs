@@ -1,15 +1,16 @@
 "use client";
 
 import ApiGroupBlog from "@/api/groupblog/groupblog-api";
+import { useAppSelector } from "@/redux/hooks";
 import { Button, Form, Input } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 
 export default function AddGroupBlog() {
     const router = useRouter();
-    const token = localStorage.getItem("accessToken");
-    console.log(token);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
 
     const handleSubmit = (value: any) => {
         ApiGroupBlog.createGroupBlog({
@@ -32,6 +33,7 @@ export default function AddGroupBlog() {
     return (
         <div className="container mx-auto p-4 bg-white shadow-xl rounded-xl h-full">
             <h1 className="text-2xl font-bold pb-4">Thêm mới nhóm blog</h1>
+            <Toaster position="top-right" richColors />
             <Form
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 14 }}

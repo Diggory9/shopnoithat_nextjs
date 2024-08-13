@@ -7,6 +7,8 @@ import { Button, Form, Input } from "antd";
 import ApiSupplier from "@/api/supplier/supplier-api";
 import { useAppSelector } from "@/redux/hooks";
 import { trimAndCleanObjectStrings } from "@/helper/helper";
+import Link from "next/link";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 export default function updateSupplier({ params }: { params: { id: string } }) {
     const [dataSupplier, setdataSupplier] = useState<MSupplier | null>(null);
@@ -63,6 +65,11 @@ export default function updateSupplier({ params }: { params: { id: string } }) {
     return (
         <div className="bg-gray-50 w-full">
             <div className="bg-white p-3 rounded-xl mb-4 shadow-xl">
+                <Link href="/admin/supplier">
+                    <Button type="default" className="mr-2">
+                        <ArrowLeftOutlined />
+                    </Button>
+                </Link>
                 <h1 className="p-3 text-2xl font-bold">Update Supplier</h1>
                 <Toaster position="top-right" richColors />
                 <Form

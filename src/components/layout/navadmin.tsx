@@ -5,7 +5,9 @@ import {
     BgColorsOutlined,
     BlockOutlined,
     BoldOutlined,
+    ContactsOutlined,
     DollarOutlined,
+    FundOutlined,
     HomeOutlined,
     ProfileOutlined,
     ShoppingOutlined,
@@ -29,6 +31,11 @@ export default function NavAdmin() {
             label: <Link href={"/admin"}>Tổng quan</Link>,
         },
         {
+            key: "14",
+            icon: <FundOutlined />,
+            label: <Link href={"/admin/report"}>Thống kê</Link>,
+        },
+        {
             key: "1",
             icon: <ProfileOutlined />,
             label: <Link href={"/admin/category"}>Danh mục sản phẩm</Link>,
@@ -43,10 +50,15 @@ export default function NavAdmin() {
             icon: <TruckOutlined />,
             label: <Link href={"/admin/supplier"}>Nhà cung cấp</Link>,
         },
+        // {
+        //     key: "7",
+        //     icon: <UserSwitchOutlined />,
+        //     label: <Link href={"/admin/role"}>Vai trò</Link>,
+        // },
         {
-            key: "7",
-            icon: <UserSwitchOutlined />,
-            label: <Link href={"/admin/role"}>Vai trò</Link>,
+            key: "15",
+            icon: <ContactsOutlined />,
+            label: <Link href={"/admin/contact"}>Liên hệ</Link>,
         },
         {
             key: "4",

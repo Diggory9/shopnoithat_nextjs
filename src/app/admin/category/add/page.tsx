@@ -16,8 +16,6 @@ export default function addCategory() {
     const router = useRouter();
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const auth = useAppSelector((state) => state.authCredentials);
-    const token = auth.data?.jwToken;
-    console.log(token);
 
     // Fetch data category
     useEffect(() => {
@@ -33,7 +31,7 @@ export default function addCategory() {
             trimmedValues.name,
             trimmedValues.categoryParent,
             trimmedValues.description,
-            token || ""
+            auth.data?.jwToken || ""
         )
             .then((res) => {
                 if (res?.ok) {
@@ -60,7 +58,16 @@ export default function addCategory() {
                 layout="horizontal"
                 style={{ maxWidth: 600 }}
             >
-                <Form.Item name="name" label="Tên danh mục">
+                <Form.Item
+                    name="name"
+                    label="Tên danh mục"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Tên danh mục không được để trống",
+                        },
+                    ]}
+                >
                     <Input></Input>
                 </Form.Item>
                 <Form.Item name="description" label="Mô tả danh mục">

@@ -7,13 +7,16 @@ import { toast, Toaster } from "sonner";
 import Link from "next/link";
 import { formatDateToRender } from "@/utils/config";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function Banner() {
     const [dataGroupBanners, setDataGroupBanners] = useState<
         GroupBannerModel[]
     >([]);
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
-        ApiBanner.getGroupBanners()
+        ApiBanner.getGroupBanners(token)
             .then((res) => {
                 setDataGroupBanners(res.data);
             })
@@ -31,7 +34,7 @@ export default function Banner() {
     };
 
     const handleUpdateStatus = (id: string) => {
-        ApiBanner.updateGroupBanner(id)
+        ApiBanner.updateGroupBanner(id, token)
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Cập nhật thành công");

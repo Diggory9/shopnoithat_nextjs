@@ -4,6 +4,7 @@ import ApiProduct from "@/api/product/product-api";
 import { MCategory } from "@/models/categorymodel";
 import { MProduct } from "@/models/productmodel";
 import { useAppSelector } from "@/redux/hooks";
+import { customNumber } from "@/utils/config";
 import { CheckOutlined, CloseOutlined, EditOutlined } from "@ant-design/icons";
 import {
     Button,
@@ -97,7 +98,7 @@ export default function Product() {
             });
     };
 
-    const columns: TableColumnsType<MProduct> = [
+    const columns: TableColumnsType<any> = [
         {
             title: "STT",
             dataIndex: "index",
@@ -127,9 +128,9 @@ export default function Product() {
             key: "price",
         },
         {
-            title: "Thương hiệu",
-            dataIndex: "productBrand",
-            key: "productBrand",
+            title: "Danh mục",
+            dataIndex: "category",
+            key: "category",
         },
         {
             title: "Trạng thái",
@@ -164,7 +165,7 @@ export default function Product() {
                 </div>
             ),
         },
-    ] as TableColumnsType<MProduct>;
+    ] as TableColumnsType<any>;
 
     return (
         <div className="bg-gray-50 w-full">
@@ -230,6 +231,8 @@ export default function Product() {
                                         ...item,
                                         index: index + 1,
                                         key: item.id,
+                                        category: item.category.name,
+                                        price: customNumber(item.price),
                                     })) || []
                                 }
                             />

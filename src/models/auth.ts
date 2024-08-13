@@ -1,8 +1,8 @@
-export interface MAuth{
-    id?:string;
-    userName?:string;
-    email?:string;
-    role?:[string];
-    jwToken?:string;
-    refreshToken?:string;
+export interface MAuth {
+    id?: string;
+    userName?: string;
+    email?: string;
+    roles?: [string];
+    jwToken?: string;
+    refreshToken?: string;
 }

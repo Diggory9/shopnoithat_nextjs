@@ -21,14 +21,17 @@ import {
     Legend,
     ResponsiveContainer,
 } from "recharts";
+import ExportExcel from "../../components/exportExcel";
+import { useRouter } from "next/navigation";
 const { RangePicker } = DatePicker;
 export default function admin() {
-    const [dataSummary, setDataSummary] = useState<any>([]);
+    const router = useRouter();
     const [chartData, setChartData] = useState<any[]>([]);
     const [dateRange, setDateRange] = useState<[string, string]>([
         "2024-07-20",
         "2024-07-30",
     ]);
+    const [dataSummary, setDataSummary] = useState<any>([]);
     const auth = useAppSelector((state) => state.authCredentials);
     const token = auth.data?.jwToken || "";
     const fetchData = async (startDate: string, endDate: string) => {
@@ -47,21 +50,24 @@ export default function admin() {
             console.error("Error fetching order data:", error);
         }
     };
-
     useEffect(() => {
-        fetchData(dateRange[0], dateRange[1]);
-    }, [dateRange]);
+        if (!auth?.isLogin) {
+            router.push("/login");
+        } else {
+            fetchData(dateRange[0], dateRange[1]);
+        }
+    }, [auth, dateRange, router]);
 
     const handleDateChange = (dates: any, dateStrings: [string, string]) => {
         setDateRange(dateStrings);
     };
-    return (
+    return auth?.isLogin ? (
         <div>
             <Row gutter={16}>
                 <Col span={8}>
                     <Card>
                         <Statistic
-                            title="Total Revenue"
+                            title="Tổng doanh thu"
                             value={customMoney(dataSummary.totalRevenue)}
                             precision={2}
                             valueStyle={{ color: "#3f8600" }}
@@ -72,7 +78,7 @@ export default function admin() {
                 <Col span={8}>
                     <Card>
                         <Statistic
-                            title="Total Orders"
+                            title="Tổng đơn hàng"
                             value={dataSummary.totalOrder}
                             valueStyle={{ color: "#3f8600" }}
                             prefix={<ShoppingCartOutlined />}
@@ -82,7 +88,7 @@ export default function admin() {
                 <Col span={8}>
                     <Card>
                         <Statistic
-                            title="Total Product Sold Out"
+                            title="Tổng sản phẩm đã bán"
                             value={dataSummary.totalProductSold}
                             valueStyle={{ color: "#3f8600" }}
                             prefix={<SkinOutlined />}
@@ -90,22 +96,33 @@ export default function admin() {
                     </Card>
                 </Col>
             </Row>
-
-            {"Thống kê từ  "}
-            <Row gutter={16}>
-                <Col span={24}>
-                    <RangePicker
-                        onChange={handleDateChange}
-                        defaultValue={[
-                            dayjs(dateRange[0]),
-                            dayjs(dateRange[1]),
-                        ]}
-                    />
-                </Col>
+            {"Thống kê từ  "}{" "}
+            <Row gutter={26}>
+                <div className="flex">
+                    <div className="">
+                        {" "}
+                        <Col span={24}>
+                            <RangePicker
+                                onChange={handleDateChange}
+                                defaultValue={[
+                                    dayjs(dateRange[0]),
+                                    dayjs(dateRange[1]),
+                                ]}
+                            />
+                        </Col>
+                    </div>
+                    <div className="">
+                        {" "}
+                        <Col span={24}>
+                            {" "}
+                            <ExportExcel data={dataSummary} />
+                        </Col>
+                    </div>
+                </div>
             </Row>
             <Row gutter={16} style={{ marginTop: 16 }}>
                 <Col span={24}>
-                    <Card title="Revenue and Orders">
+                    <Card title="Doanh thu và đơn hàng">
                         <ResponsiveContainer width="100%" height={400}>
                             <LineChart
                                 data={chartData}
@@ -138,5 +155,5 @@ export default function admin() {
                 </Col>
             </Row>
         </div>
-    );
+    ) : null;
 }

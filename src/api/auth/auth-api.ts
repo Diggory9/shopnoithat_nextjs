@@ -1,9 +1,13 @@
-
 import fetchBaseAuth from "../base-api";
 
 const ApiAuth = {
-
-    async authLogin({ email, password }: { email?: string, password?: string }) {
+    async authLogin({
+        email,
+        password,
+    }: {
+        email?: string;
+        password?: string;
+    }) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Account/authenticate`,
@@ -20,8 +24,7 @@ const ApiAuth = {
             }
             const data = await response.json();
             return data;
-        }
-        catch (error) {
+        } catch (error) {
             console.error("Fetch error:", error);
         }
     },
@@ -33,7 +36,7 @@ const ApiAuth = {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                    }
+                    },
                 }
             );
             if (!response.ok) {
@@ -41,24 +44,30 @@ const ApiAuth = {
             }
             const data = await response.json();
             return data;
-        }
-        catch (error) {
+        } catch (error) {
             console.error("Fetch error:", error);
         }
-    }
-    , async authRefresh({ email, refreshToken }: { email: string, refreshToken: string }) {
+    },
+    async authRefresh({
+        email,
+        refreshToken,
+    }: {
+        email: string;
+        refreshToken: string;
+    }) {
         try {
             const body = {
                 email,
-                token: refreshToken
-            }
+                token: refreshToken,
+            };
             const response = await fetch(
                 `${process.env.API_URL}Account/refreshtoken`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                    }, body: JSON.stringify(body)
+                    },
+                    body: JSON.stringify(body),
                 }
             );
             if (!response.ok) {
@@ -66,14 +75,22 @@ const ApiAuth = {
             }
             const data = await response.json();
             return data;
-        }
-        catch (error) {
+        } catch (error) {
             console.error("Fetch error:", error);
         }
     },
-    async authRegister({ email, userName, password, confirmPassword }: { email: string, userName: string, password: string, confirmPassword: string }) {
+    async authRegister({
+        email,
+        userName,
+        password,
+        confirmPassword,
+    }: {
+        email: string;
+        userName: string;
+        password: string;
+        confirmPassword: string;
+    }) {
         try {
-
             const response = await fetch(
                 `${process.env.API_URL}Account/register`,
                 {
@@ -91,14 +108,18 @@ const ApiAuth = {
             );
 
             return response;
-
         } catch (error) {
             return Promise.reject(error);
         }
     },
-    async authExternalLogin({ provider, idToken }: { provider: string, idToken: string }) {
+    async authExternalLogin({
+        provider,
+        idToken,
+    }: {
+        provider: string;
+        idToken: string;
+    }) {
         try {
-
             const response = await fetch(
                 `${process.env.API_URL}Account/ExternalLogin`,
                 {
@@ -107,7 +128,8 @@ const ApiAuth = {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        provider, idToken
+                        provider,
+                        idToken,
                     }),
                 }
             );
@@ -117,13 +139,24 @@ const ApiAuth = {
             }
             const data = await response.json();
             return data;
-
         } catch (error) {
             return Promise.reject(error);
         }
     },
 
-    async authChangePassWord({ email, currentPassword, password, confirmPassword }: { email: string, currentPassword: string, password: string, confirmPassword: string }) {
+    async authChangePassWord({
+        email,
+        currentPassword,
+        password,
+        confirmPassword,
+        accessToken,
+    }: {
+        email: string;
+        currentPassword: string;
+        password: string;
+        confirmPassword: string;
+        accessToken: string;
+    }) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Account/reset-password`,
@@ -131,6 +164,7 @@ const ApiAuth = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
                         email,
@@ -145,10 +179,9 @@ const ApiAuth = {
                 throw new Error("Network response was not ok");
             }
             return response;
-
         } catch (error) {
             console.error("Fetch error:", error);
         }
-    }
-}
+    },
+};
 export default ApiAuth;

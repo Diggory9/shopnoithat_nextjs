@@ -1,5 +1,5 @@
 const ApiTag = {
-    async createTag(tagTitle: string) {
+    async createTag(tagTitle: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}Tag/create-tag`,
@@ -7,6 +7,7 @@ const ApiTag = {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({ tagTitle }),
                 }
@@ -19,11 +20,12 @@ const ApiTag = {
             console.log(error);
         }
     },
-    async getAllTag() {
+    async getAllTag(accessToken: string) {
         try {
             const response = await fetch(`${process.env.API_URL}Tag`, {
                 method: "GET",
                 headers: {
+                    Authorization: `Bearer ${accessToken}`,
                     "Content-Type": "application/json",
                 },
             });

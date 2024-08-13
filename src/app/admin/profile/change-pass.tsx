@@ -1,10 +1,8 @@
 "use client";
-
 import ApiAuth from "@/api/auth/auth-api";
 import { useAppSelector } from "@/redux/hooks";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input } from "antd";
-import { error } from "console";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -18,15 +16,16 @@ export interface ResetPasswordModel {
 export default function ResetPasswordForm() {
     const [form] = Form.useForm();
     const auth = useAppSelector((state) => state.authCredentials);
-    console.log(auth.data);
+    // console.log(auth.data);
 
     const onFinish = async (values: ResetPasswordModel) => {
-        console.log(values);
+        // console.log(values);
         ApiAuth.authChangePassWord({
             email: auth?.data?.email || "",
             currentPassword: values.currentPassword || "",
             password: values.newPassword || "",
             confirmPassword: values.confirmPassword || "",
+            accessToken: auth.data?.jwToken || "",
         })
             .then((res) => {
                 if (res?.ok) {

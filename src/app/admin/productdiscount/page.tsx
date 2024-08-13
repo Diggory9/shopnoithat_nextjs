@@ -6,9 +6,8 @@ import { MProduct } from "@/models/productmodel";
 import { useAppSelector } from "@/redux/hooks";
 import { Button, Select, Table, TableColumnsType, Skeleton } from "antd";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 
 export default function DiscountProduct() {
     const [dataProduct, setDataProduct] = useState<MProduct[]>([]);
@@ -18,21 +17,23 @@ export default function DiscountProduct() {
     const token = auth.data?.jwToken || "";
 
     useEffect(() => {
-        setLoading(true); // Set loading to true before fetching
-        Promise.all([
-            ApiProduct.getAllProduct(1, 20, token),
-            ApiDiscount.getAllDiscount(1, 10, token),
-        ])
-            .then(([productRes, discountRes]) => {
-                setDataProduct(productRes.data);
-                setDataDis(discountRes.data);
-                setLoading(false); // Set loading to false after data is fetched
+        ApiProduct.getAllProduct(1, 20, token)
+            .then((res) => {
+                setDataProduct(res.data);
+                setLoading(false);
             })
             .catch((error) => {
                 console.log(error);
-                setLoading(false); // Ensure loading is set to false even if there's an error
             });
-    }, [token]);
+        ApiDiscount.getAllDiscount(1, 20, token)
+            .then((res) => {
+                setDataDis(res.data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, []);
 
     const handleApplyDiscount = (productId: string, discountId: string) => {
         ApiProduct.applyDiscount(productId, discountId, token)
@@ -51,7 +52,27 @@ export default function DiscountProduct() {
             })
             .catch(() => toast.error("Failed to apply discount"));
     };
-
+    const handleRemoveDiscount = (id: string) => {
+        ApiProduct.removeDiscountProduct(id)
+            .then((res) => {
+                if (res?.ok) {
+                    toast.success("Gỡ thành công");
+                    ApiProduct.getAllProduct(1, 20, token)
+                        .then((res) => {
+                            setDataProduct(res.data);
+                            setLoading(false);
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
+                } else {
+                    toast.error("Gỡ thất bại");
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
     const columns: TableColumnsType<MProduct> = [
         {
             title: "STT",
@@ -104,12 +125,26 @@ export default function DiscountProduct() {
                 ></Select>
             ),
         },
+        {
+            title: "Hành động",
+            dataIndex: "",
+            key: "",
+            render: (_: any, record: MProduct) => (
+                <Button
+                    type="primary"
+                    onClick={() => handleRemoveDiscount(record.id || "")}
+                >
+                    Gỡ giảm giá
+                </Button>
+            ),
+        },
     ] as TableColumnsType<MProduct>;
 
     return (
         <div className="bg-gray-50 w-full">
             <div className="bg-white p-3 mb-4 shadow-xl">
                 <h1 className="p-3 text-2xl font-bold">Sản phẩm giảm giá</h1>
+                <Toaster position="top-right" richColors duration={1000} />
                 <div className="flex justify-between">
                     <div className="p-2"></div>
                 </div>

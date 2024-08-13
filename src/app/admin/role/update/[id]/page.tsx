@@ -52,7 +52,7 @@ export default function UpdateRole({ params }: { params: { id: string } }) {
     return (
         <div className="bg-gray-50 w-full">
             <div className="bg-white p-3 rounded-xl mb-4 shadow-xl">
-                <Link href="/admin/category">
+                <Link href="/admin/role">
                     <Button type="default" className="mr-2">
                         <ArrowLeftOutlined />
                     </Button>

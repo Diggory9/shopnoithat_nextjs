@@ -23,6 +23,7 @@
     "dayjs": "^1.11.11",
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",
+    "file-saver": "^2.0.5",
     "html-to-draftjs": "^1.5.0",
     "iron-session": "^8.0.1",
     "jodit-react": "^4.1.2",
@@ -40,7 +41,8 @@
     "recharts": "^2.12.7",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^3.1.0",
-    "sonner": "^1.4.41"
+    "sonner": "^1.4.41",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",

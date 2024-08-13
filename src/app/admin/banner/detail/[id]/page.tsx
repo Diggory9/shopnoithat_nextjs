@@ -6,23 +6,26 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { toast, Toaster } from "sonner";
 import {
+    ArrowLeftOutlined,
     CheckOutlined,
     CloseOutlined,
     DeleteOutlined,
     ExclamationCircleFilled,
 } from "@ant-design/icons";
 import Link from "next/link";
+import { useAppSelector } from "@/redux/hooks";
 const { confirm } = Modal;
 
 export default function DetailBanner({ params }: { params: { id: string } }) {
     const [dataGroupBanner, setDataGroupBanner] = useState<any>();
-
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
         fetchData();
     }, [params.id]);
 
     const fetchData = () => {
-        ApiBanner.getDetailGroupBanner(params.id)
+        ApiBanner.getDetailGroupBanner(params.id, token)
             .then((res) => {
                 setDataGroupBanner(res.data.banners);
             })
@@ -46,7 +49,7 @@ export default function DetailBanner({ params }: { params: { id: string } }) {
             okType: "danger",
             cancelText: "Không",
             onOk: () => {
-                ApiBanner.deleteBanner(id)
+                ApiBanner.deleteBanner(id, token)
                     .then((res) => {
                         if (res?.ok) {
                             toast.success("Xóa thành công");
@@ -65,7 +68,7 @@ export default function DetailBanner({ params }: { params: { id: string } }) {
         });
     };
     const handleUpdateStatus = (id: string) => {
-        ApiBanner.updateBanner(id)
+        ApiBanner.updateBanner(id, token)
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Cập nhật thành công");
@@ -130,6 +133,11 @@ export default function DetailBanner({ params }: { params: { id: string } }) {
     return (
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3 mb-4 shadow-xl ">
+                <Link href="/admin/banner">
+                    <Button type="default" className="mr-2">
+                        <ArrowLeftOutlined />
+                    </Button>
+                </Link>
                 <h1 className="p-3 text-2xl font-bold">Chi tiết</h1>
                 <Toaster position="top-right" richColors />
                 <div className="flex justify-between ">

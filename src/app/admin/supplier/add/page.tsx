@@ -6,6 +6,8 @@ import { Button, Form, Input } from "antd";
 import ApiSupplier from "@/api/supplier/supplier-api";
 import { useAppSelector } from "@/redux/hooks";
 import { trimAndCleanObjectStrings } from "@/helper/helper";
+import Link from "next/link";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 export default function addSupplier() {
     const [form] = Form.useForm();
@@ -20,12 +22,19 @@ export default function addSupplier() {
                 if (res?.ok) {
                     toast.success("Thêm nhà cung cấp thành công");
                     router.push("/admin/supplier");
+                } else {
+                    toast.error("Tên đã tồn tại");
                 }
             })
-            .catch(() => toast.error("Tên đã tồn tại, thêm thất bại"));
+            .catch(() => toast.error("Thất bại"));
     };
     return (
         <div className="container mx-auto p-4 bg-white shadow-xl rounded-xl">
+            <Link href="/admin/supplier">
+                <Button type="default" className="mr-2">
+                    <ArrowLeftOutlined />
+                </Button>
+            </Link>
             <h1 className="text-2xl font-bold pb-4">Thêm nhà cung cấp mới</h1>
             <Toaster position="top-right" richColors />
 
@@ -37,13 +46,39 @@ export default function addSupplier() {
                 layout="horizontal"
                 style={{ maxWidth: 600 }}
             >
-                <Form.Item name="supplierName" label="Tên nhà cung cấp">
+                <Form.Item
+                    name="supplierName"
+                    label="Tên nhà cung cấp"
+                    rules={[
+                        {
+                            validator: (_, value) =>
+                                value && value.trim().length > 0
+                                    ? Promise.resolve()
+                                    : Promise.reject(
+                                          "Tên nhà cung cấp không hợp lệ"
+                                      ),
+                        },
+                    ]}
+                >
                     <Input></Input>
                 </Form.Item>
                 <Form.Item name="contactPhone" label="Số điện thoại">
                     <Input></Input>
                 </Form.Item>
-                <Form.Item name="contactPerson" label="Người liên hệ">
+                <Form.Item
+                    name="contactPerson"
+                    label="Người liên hệ"
+                    rules={[
+                        {
+                            validator: (_, value) =>
+                                value && value.trim().length > 0
+                                    ? Promise.resolve()
+                                    : Promise.reject(
+                                          "Tên người liên hệ không hợp lệ"
+                                      ),
+                        },
+                    ]}
+                >
                     <Input></Input>
                 </Form.Item>
                 <Form.Item name="address" label="Địa chỉ">

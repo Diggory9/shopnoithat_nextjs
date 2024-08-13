@@ -21,7 +21,6 @@ const ApiProduct = {
                 throw new Error("Network response was not ok");
             }
             const data = await response.json();
-            console.log(data);
             return data;
         } catch (error) {
             console.error("Fetch error: ", error);
@@ -184,6 +183,26 @@ const ApiProduct = {
                         Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({ discountId }),
+                }
+            );
+            if (!response) {
+                throw new Error("Network response was not ok");
+            }
+            return response;
+        } catch (error) {
+            console.error(error);
+        }
+    },
+    async removeDiscountProduct(id: string) {
+        try {
+            const response = await fetch(
+                `${process.env.API_URL}Product/remove-discount-product?id=${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        // Authorization: `Bearer ${accessToken}`,
+                    },
                 }
             );
             if (!response) {

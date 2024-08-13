@@ -30,7 +30,7 @@ export default function Order() {
 
     // Update status order
     const updateOrderStatus = async (id: string, newStatus: string) => {
-        ApiOrder.updateStatusOrder(id, newStatus)
+        ApiOrder.updateStatusOrder(id, newStatus, token)
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Thành công");

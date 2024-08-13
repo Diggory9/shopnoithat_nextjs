@@ -1,6 +1,7 @@
 "use client";
 import ApiBanner from "@/api/banner/banner-api";
 import MUploadImage from "@/components/ui/UploadImage";
+import { useAppSelector } from "@/redux/hooks";
 import { Button, Form, Select, Switch } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,8 +9,10 @@ import { toast } from "sonner";
 export default function Banner() {
     const [dataBanner, setDataBanner] = useState([]);
     const router = useRouter();
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
-        ApiBanner.getGroupBanners()
+        ApiBanner.getGroupBanners(token)
             .then((res) => {
                 setDataBanner(res.data);
             })
@@ -22,6 +25,7 @@ export default function Banner() {
             url: values.url,
             groupId: values.groupId,
             isEnable: values.isEnable,
+            accessToken: token,
         })
             .then((res) => {
                 if (res?.ok) {

@@ -34,7 +34,7 @@ const ApiGroupBlog = {
             console.error(error);
         }
     },
-    async getDetailGroupBlog(id: string) {
+    async getDetailGroupBlog(id: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}GroupBlog/${id}`,
@@ -42,6 +42,7 @@ const ApiGroupBlog = {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -54,7 +55,7 @@ const ApiGroupBlog = {
             console.error(error);
         }
     },
-    async deleteGroupBlog(id: string) {
+    async deleteGroupBlog(id: string, accessToken: string) {
         try {
             const response = await fetch(
                 `${process.env.API_URL}GroupBlog/${id}`,
@@ -62,6 +63,7 @@ const ApiGroupBlog = {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -77,10 +79,12 @@ const ApiGroupBlog = {
         id,
         name,
         description,
+        accessToken,
     }: {
         id: string;
         name: string;
         description: string;
+        accessToken: string;
     }) {
         try {
             const response = await fetch(
@@ -89,6 +93,7 @@ const ApiGroupBlog = {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
                         id,
@@ -105,11 +110,12 @@ const ApiGroupBlog = {
             console.error(" error:", error);
         }
     },
-    async getAllGroupBlog() {
+    async getAllGroupBlog(accessToken: string) {
         try {
             const response = await fetch(`${process.env.API_URL}GroupBlog`, {
                 method: "GET",
                 headers: {
+                    Authorization: `Bearer ${accessToken}`,
                     "Content-Type": "application/json",
                 },
             });

@@ -18,15 +18,15 @@ import {
 } from "@/utils/config";
 import { Toaster, toast } from "sonner";
 import { MProduct } from "@/models/productmodel";
-import { MDiscount } from "@/models/discount";
 import MUploadImageMultiple from "@/components/ui/UploadImageMulti";
 import ApiCategory from "@/api/category/category-api";
-import ApiDiscount from "@/api/discount/discount-api";
 import ApiSupplier from "@/api/supplier/supplier-api";
 import { sumQuantity } from "@/helper/helper";
 import ApiProduct from "@/api/product/product-api";
 import { useAppSelector } from "@/redux/hooks";
 import Link from "next/link";
+import ApiColor from "@/api/color/color-api";
+import { error } from "console";
 type FieldType = {
     name?: string;
     description?: string;
@@ -57,6 +57,7 @@ const AddProduct = () => {
     const router = useRouter();
     const [dataCate, setDataCate] = useState<MCategory[]>([]);
     const [dataSup, setDataSup] = useState<MSupplier[]>([]);
+    const [dataColors, setDataColors] = useState<any[]>([]);
     const [form] = Form.useForm();
     const auth = useAppSelector((state) => state.authCredentials);
     const token = auth.data?.jwToken || "";
@@ -71,11 +72,16 @@ const AddProduct = () => {
                 setDataSup(res.data);
             })
             .catch((error) => console.log(error));
+        ApiColor.getColors()
+            .then((res) => {
+                setDataColors(res.data);
+            })
+            .catch((error) => console.log(error));
     }, []);
 
     const handleSubmit = async (values: MProduct) => {
         const totalQuantity = sumQuantity(values.productItems);
-        //console.log(values);
+        // console.log(values);
         // console.log(totalQuantity);
 
         const body = {
@@ -94,28 +100,6 @@ const AddProduct = () => {
             .catch((error) => {
                 console.log(error);
             });
-        // try {
-        //     const response = await fetch(
-        //         `${process.env.API_URL}Product/create`,
-        //         {
-        //             method: "POST",
-        //             headers: {
-        //                 "Content-Type": "application/json",
-        //             },
-        //             body: JSON.stringify(body),
-        //         }
-        //     );
-
-        //     if (response.ok) {
-        //         toast.success("Thêm sản phẩm thành công");
-        //         router.push("/admin/product");
-        //     } else {
-        //         toast.error("Thêm sản phẩm thất bại");
-        //         throw new Error("Failed to add product");
-        //     }
-        // } catch (error) {
-        //     console.error("Add product error:", error);
-        // }
     };
     const handleOnchangeQuantity = () => {
         form.setFieldValue(
@@ -272,27 +256,6 @@ const AddProduct = () => {
                                 }))}
                             />
                         </Form.Item>
-                        {/* <Form.Item<FieldType>
-                            label="Mã giảm giá"
-                            name="discountId"
-                            // rules={[
-                            //     {
-                            //         validator: (_, value) =>
-                            //             checkSupplier(value),
-                            //     },
-                            // ]}
-                        >
-                            <Select
-                                //showSearch
-                                style={{ width: 200 }}
-                                placeholder="Search to Select"
-                                optionFilterProp="children"
-                                options={dataDis?.map((item) => ({
-                                    value: item.id,
-                                    label: item.code,
-                                }))}
-                            />
-                        </Form.Item> */}
                     </Col>
                     <Col span={8}>
                         <Form.List name="productSpecifications">
@@ -414,20 +377,12 @@ const AddProduct = () => {
                                                                 ).toLowerCase()
                                                             )
                                                     }
-                                                    options={[
-                                                        {
-                                                            value: "8ea83fdd-ecf0-4c68-8df0-d9238e098400",
-                                                            label: "Xám",
-                                                        },
-                                                        {
-                                                            value: "99fe8bab-42ab-444c-a5b8-8195ddb2ba88",
-                                                            label: "Đen",
-                                                        },
-                                                        {
-                                                            value: "1c1a2a09-d03e-40cd-b39c-088ce1333295",
-                                                            label: "Trắng",
-                                                        },
-                                                    ]}
+                                                    options={dataColors.map(
+                                                        (item) => ({
+                                                            value: item.id,
+                                                            label: item.colorName,
+                                                        })
+                                                    )}
                                                 />
                                             </Form.Item>
                                             <MUploadImageMultiple

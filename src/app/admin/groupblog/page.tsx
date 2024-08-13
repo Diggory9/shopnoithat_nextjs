@@ -1,6 +1,7 @@
 "use client";
 import ApiGroupBlog from "@/api/groupblog/groupblog-api";
 import { GroupBlogModel } from "@/models/groupblogmodel";
+import { useAppSelector } from "@/redux/hooks";
 import { formatDateToRender } from "@/utils/config";
 import {
     DeleteOutlined,
@@ -11,15 +12,16 @@ import { Button, Modal, Table, TableColumnsType } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 const { confirm } = Modal;
 
 export default function GroupBlog() {
     const [dataBlogs, setDataBlogs] = useState<GroupBlogModel[]>([]);
     const router = useRouter();
-
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
-        ApiGroupBlog.getAllGroupBlog()
+        ApiGroupBlog.getAllGroupBlog(token)
             .then((res) => {
                 setDataBlogs(res.data);
             })
@@ -36,7 +38,7 @@ export default function GroupBlog() {
             okType: "danger",
             cancelText: "Không",
             onOk: () => {
-                ApiGroupBlog.deleteGroupBlog(id)
+                ApiGroupBlog.deleteGroupBlog(id, token)
                     .then((res) => {
                         if (res?.ok) {
                             toast.success("Xóa thành công");
@@ -98,21 +100,12 @@ export default function GroupBlog() {
                 </div>
             ),
         },
-        {
-            title: "Chi tiết",
-            key: "detail",
-            render: (_: any, record) => (
-                <Link href={`/admin/groupblog/detail/${record.id}`}>
-                    <Button type="link">Chi tiết</Button>
-                </Link>
-            ),
-        },
     ] as TableColumnsType<GroupBlogModel>;
     return (
         <div className="bg-gray-50 w-full">
             <div className=" bg-white p-3 mb-4 shadow-xl ">
                 <h1 className="p-3 text-2xl font-bold">Quản lý nhóm blog</h1>
-
+                <Toaster richColors position="top-right" />
                 <div className="flex justify-between ">
                     <div className="p-2"></div>
                     <div className="order-last content-center">

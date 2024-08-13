@@ -1,5 +1,6 @@
 "use client";
 import ApiTag from "@/api/tag/tag-api";
+import { useAppSelector } from "@/redux/hooks";
 import { Button, Form, Input } from "antd";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -7,8 +8,10 @@ import { toast } from "sonner";
 export default function AddTag() {
     const [form] = Form.useForm();
     const router = useRouter();
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     const handleSubmit = async (value: any) => {
-        ApiTag.createTag(value.tagTitle)
+        ApiTag.createTag(value.tagTitle, token)
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Thành công");

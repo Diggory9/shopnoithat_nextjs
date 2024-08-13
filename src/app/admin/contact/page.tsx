@@ -1,33 +1,36 @@
 "use client";
-import ApiUser from "@/api/user/user-api";
-import { MUser } from "@/models/user";
-import { Button, Table, Skeleton } from "antd";
+import ApiContact from "@/api/contact/contact-api";
+import { ContactModel } from "@/models/contactmodel";
+import { useAppSelector } from "@/redux/hooks";
+import { formatDateToRender } from "@/utils/config";
+import { Button, Skeleton, Table, TableColumnsType, Tag } from "antd";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Toaster } from "sonner";
-import type { TableColumnsType } from "antd";
-import { useAppSelector } from "@/redux/hooks";
 
-export default function User() {
-    const [dataUsers, setDataUsers] = useState<MUser[]>([]);
-    const [loading, setLoading] = useState(true); // Add loading state
+export default function Contact() {
+    const [dataContacts, setDataContacts] = useState<ContactModel[]>([]);
+    const [loading, setLoading] = useState(false); // Add loading state
     const auth = useAppSelector((state) => state.authCredentials);
     const token = auth.data?.jwToken || "";
 
     useEffect(() => {
-        setLoading(true); // Set loading to true before fetching
-        ApiUser.getAllUser(1, 20, token)
+        ApiContact.getContacts(1, 10, token)
             .then((res) => {
-                setDataUsers(res.data);
-                setLoading(false); // Set loading to false after data is fetched
+                setDataContacts(res.data);
             })
             .catch((error) => {
                 console.log(error);
-                setLoading(false); // Ensure loading is set to false even if there's an error
             });
     }, [token]);
-
-    const columns: TableColumnsType<MUser> = [
+    const getStatusReply = (isReply: boolean) => {
+        return isReply ? (
+            <Tag color="success">Đã trả lời</Tag>
+        ) : (
+            <Tag color="processing">Chưa trả lời </Tag>
+        );
+    };
+    const columns: TableColumnsType<ContactModel> = [
         {
             title: "STT",
             dataIndex: "index",
@@ -35,8 +38,8 @@ export default function User() {
         },
         {
             title: "Tên người dùng",
-            dataIndex: "userName",
-            key: "userName",
+            dataIndex: "fullName",
+            key: "fullName",
         },
         {
             title: "Email",
@@ -45,27 +48,42 @@ export default function User() {
         },
         {
             title: "Số điện thoại",
-            dataIndex: "phoneNumber",
-            key: "phoneNumber",
+            dataIndex: "phone",
+            key: "phone",
+        },
+        {
+            title: "Ngày gửi",
+            dataIndex: "dateCreate",
+            key: "dateCreate",
+        },
+        {
+            title: "Nội dung",
+            dataIndex: "contactContent",
+            key: "contactContent",
+        },
+        {
+            title: "Trạng thái",
+            dataIndex: "isReply",
+            key: "isReply",
+            render: (isReply) => getStatusReply(isReply),
         },
         {
             title: "Hành động",
             key: "action",
             render: (_: any, record: { key: string }) => (
-                <Link href={`/admin/user/detail/${record.key}`}>
-                    <Button type="link">Chi tiết</Button>
+                <Link href={`/admin/contact/update/${record.key}`}>
+                    <Button type="link">Trả lời</Button>
                 </Link>
             ),
         },
-    ] as TableColumnsType<MUser>;
-
+    ] as TableColumnsType<ContactModel>;
     return (
         <div className="bg-gray-50 w-full">
             <div className="bg-white p-3 rounded-xl mb-4 shadow-xl">
                 <Toaster position="top-right" richColors />
                 <div className="flex justify-between">
                     <div className="p-2">
-                        <h1 className="p-3 text-2xl font-bold">Người dùng</h1>
+                        <h1 className="p-3 text-2xl font-bold">Liên hệ</h1>
                     </div>
                     <div className="order-last content-center"></div>
                 </div>
@@ -80,9 +98,12 @@ export default function User() {
                         <Table
                             columns={columns}
                             dataSource={
-                                dataUsers.map((item, index) => ({
+                                dataContacts.map((item, index) => ({
                                     ...item,
                                     index: index + 1,
+                                    dateCreate: formatDateToRender(
+                                        item.dateCreate
+                                    ),
                                     key: item.id,
                                 })) || []
                             }

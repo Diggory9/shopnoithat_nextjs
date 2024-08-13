@@ -1,13 +1,14 @@
 "use client";
 import ApiGroupBlog from "@/api/groupblog/groupblog-api";
 import { GroupBlogModel } from "@/models/groupblogmodel";
+import { useAppSelector } from "@/redux/hooks";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Form, Input } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 
 export default function UpdateGroupBlog({
     params,
@@ -19,9 +20,10 @@ export default function UpdateGroupBlog({
     const [dataGroupBlog, setDataGroupBlog] = useState<GroupBlogModel | null>(
         null
     );
-
+    const auth = useAppSelector((state) => state.authCredentials);
+    const token = auth.data?.jwToken || "";
     useEffect(() => {
-        ApiGroupBlog.getDetailGroupBlog(params.id)
+        ApiGroupBlog.getDetailGroupBlog(params.id, token)
             .then((res) => {
                 setDataGroupBlog(res.data);
             })
@@ -41,6 +43,7 @@ export default function UpdateGroupBlog({
             id: params.id,
             name: values.name,
             description: values.description,
+            accessToken: token,
         })
             .then((res) => {
                 if (res?.ok) {
@@ -64,7 +67,7 @@ export default function UpdateGroupBlog({
                     </Button>
                 </Link>
                 <h1 className="p-3 text-2xl font-bold">Update Blog</h1>
-
+                <Toaster position="top-right" richColors />
                 <Form
                     form={form}
                     onFinish={handleSubmit}
