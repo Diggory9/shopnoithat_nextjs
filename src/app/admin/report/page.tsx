@@ -12,8 +12,8 @@ export default function Report() {
     const token = auth.data?.jwToken || "";
     const [dataProduct, setDataProduct] = useState<any[]>([]);
     const [dateRange, setDateRange] = useState<[string, string]>([
-        "2024-07-20",
-        "2024-07-30",
+        "2024-08-10",
+        "2024-08-30",
     ]);
 
     const [top, setTop] = useState(1);

@@ -28,8 +28,8 @@ export default function admin() {
     const router = useRouter();
     const [chartData, setChartData] = useState<any[]>([]);
     const [dateRange, setDateRange] = useState<[string, string]>([
-        "2024-07-20",
-        "2024-07-30",
+        "2024-08-10",
+        "2024-08-20",
     ]);
     const [dataSummary, setDataSummary] = useState<any>([]);
     const auth = useAppSelector((state) => state.authCredentials);

@@ -30,7 +30,7 @@ const MUploadImage: React.FC<MUploadImageProps> = ({
         }
         if (info.file.status === "done") {
             setLoading(false);
-            setImageLocal(info.file?.response?.data[0].url);
+            setImageLocal(info.file?.response?.data[0]?.url);
         }
     };
 

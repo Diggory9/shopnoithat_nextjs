@@ -17,23 +17,25 @@ export default function DiscountProduct() {
     const token = auth.data?.jwToken || "";
 
     useEffect(() => {
-        ApiProduct.getAllProduct(1, 20, token)
-            .then((res) => {
-                setDataProduct(res.data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-        ApiDiscount.getAllDiscount(1, 20, token)
-            .then((res) => {
-                setDataDis(res.data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        fetchData();
     }, []);
+
+    const fetchData = () => {
+        setLoading(true);
+        Promise.all([
+            ApiProduct.getAllProduct(1, 20, token),
+            ApiDiscount.getAllDiscount(1, 20, token),
+        ])
+            .then(([productRes, discountRes]) => {
+                setDataProduct(productRes.data);
+                setDataDis(discountRes.data);
+                console.log("123");
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            .finally(() => setLoading(false));
+    };
 
     const handleApplyDiscount = (productId: string, discountId: string) => {
         ApiProduct.applyDiscount(productId, discountId, token)
@@ -41,11 +43,7 @@ export default function DiscountProduct() {
                 if (response?.ok) {
                     toast.success("Áp dụng giảm giá thành công");
 
-                    ApiProduct.getAllProduct(1, 20, token)
-                        .then((res) => {
-                            setDataProduct(res.data);
-                        })
-                        .catch((error) => console.log(error));
+                    fetchData();
                 } else {
                     toast.error("Áp dụng giảm giá thất bại");
                 }
@@ -57,14 +55,7 @@ export default function DiscountProduct() {
             .then((res) => {
                 if (res?.ok) {
                     toast.success("Gỡ thành công");
-                    ApiProduct.getAllProduct(1, 20, token)
-                        .then((res) => {
-                            setDataProduct(res.data);
-                            setLoading(false);
-                        })
-                        .catch((error) => {
-                            console.log(error);
-                        });
+                    fetchData();
                 } else {
                     toast.error("Gỡ thất bại");
                 }
@@ -131,6 +122,7 @@ export default function DiscountProduct() {
             key: "",
             render: (_: any, record: MProduct) => (
                 <Button
+                    disabled={!record.productDiscount?.id}
                     type="primary"
                     onClick={() => handleRemoveDiscount(record.id || "")}
                 >
